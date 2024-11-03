@@ -4,7 +4,7 @@ from torchvision import datasets
 import os
 
 # Ruta a los datasets
-path="../ChestCTKaggle/Data/"
+path="../../../ChestCTKaggle/Data/"
 train_path = path+"train" 
 valid_path = path+"valid"  
 test_path = path+"test"  

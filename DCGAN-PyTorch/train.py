@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
 
-from utils import get_chestct  # Asegúrate de que este módulo está definido
-from dcgan import weights_init, Generator, Discriminator  # Asegúrate de que este módulo está definido
+from utils import get_chestct 
+from dcgan import weights_init, Generator, Discriminator  
 
 # Set random seed for reproducibility
 seed = 369
@@ -187,7 +187,7 @@ torch.save({
     'optimizerG': optimizerG.state_dict(),
     'optimizerD': optimizerD.state_dict(),
     'params': params
-}, 'model/model_ChestCT.pth')
+}, '../../model/model_ChestCT.pth') # FUERA del repo!
 
 
 
