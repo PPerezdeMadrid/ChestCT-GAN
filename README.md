@@ -20,6 +20,6 @@ Ejemplo de imágenes en el epoch **90**:
 
 **WGAN**
 - Con ajuste de hiperparámetros
-![WGAN](wganGraph.png)
+![WGAN](img/wganGraph.png)
 Ejemplo de imágenes en el epoch **90**:
 ![epoch90_dcgan](img/epoch90_wgan.png)
