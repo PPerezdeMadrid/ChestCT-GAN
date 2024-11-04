@@ -1,0 +1,18 @@
+{
+    "params": {
+        "bsize": 128,
+        "imsize": 64,
+        "nc": 1,
+        "nz": 100,
+        "ngf": 128,
+        "ndf": 128,
+        "nepochs": 10,
+        "lr": 0.0001,
+        "beta1": 0.5,
+        "save_epoch": 10
+    },
+    "model": {
+        "path": "../../model/model_dcgan"
+    }
+}
+

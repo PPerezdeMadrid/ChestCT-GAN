@@ -8,20 +8,16 @@ import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct 
 from dcgan import Generator, Discriminator
+import json
+
+# leer parámetros y modelo:
+with open('config.json', 'r') as json_file:
+    config = json.load(json_file)
+
+params = config["params"]
+model_path = config["model"]["path"]
 
 # Parámetros
-params = {
-    "bsize": 128,  
-    'imsize': 64,  
-    'nc': 1,        
-    'nz': 100,     
-    'ngf': 64,      
-    'ndf': 64,      
-    'nepochs': 10,  
-    'lr': 0.0002,   
-    'beta1': 0.5,  
-    'save_epoch': 2 
-}
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device, " will be used.\n")
@@ -34,7 +30,7 @@ netG = Generator(params).to(device)
 netD = Discriminator(params).to(device)
 
 # Cargar el modelo entrenado (ajusta el path según tu configuración)
-checkpoint = torch.load('model/model_ChestCT.pth')  # podría ser un ARGUMENTO!
+checkpoint = torch.load(f'{model_path}/model_ChestCT.pth')  
 netG.load_state_dict(checkpoint['generator'])
 netD.load_state_dict(checkpoint['discriminator'])
 

@@ -1,12 +1,10 @@
-import os
-import torch
+import os, json, torch, random
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import random
 
 from utils import get_chestct 
 from dcgan import weights_init, Generator, Discriminator  
@@ -17,19 +15,13 @@ random.seed(seed)
 torch.manual_seed(seed)
 print("Random Seed: ", seed)
 
-# Parameters to define the model
-params = {
-    "bsize": 128,  # Tamaño del batch durante el entrenamiento
-    'imsize': 64,  # Tamaño espacial de las imágenes de entrenamiento
-    'nc': 1,        # Número de canales en las imágenes de entrenamiento (1 para escala de grises)
-    'nz': 100,      # Tamaño del vector latente Z (entrada al generador)
-    'ngf': 64,      # Tamaño de los mapas de características en el generador
-    'ndf': 64,      # Tamaño de los mapas de características en el discriminador
-    'nepochs': 1000,  # Número de épocas de entrenamiento
-    'lr': 0.0002,   # Tasa de aprendizaje para los optimizadores
-    'beta1': 0.5,   # Beta1 para el optimizador Adam
-    'save_epoch': 5  # Intervalo para guardar el modelo
-}
+# Upload parameters and model_path
+with open('config.json', 'r') as json_file:
+    config = json.load(json_file)
+
+params = config["params"]
+model_path = config["model"]["path"]
+
 
 # Use GPU if available, else use CPU
 device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
@@ -83,8 +75,8 @@ D_losses = []
 iters = 0
 
 # Create the directory to save models if it doesn't exist
-if not os.path.exists('model'):
-    os.makedirs('model')
+if not os.path.exists(model_path):
+    os.makedirs(model_path)
 
 print("Starting Training Loop...")
 print("-" * 25)
@@ -178,7 +170,7 @@ for epoch in range(params['nepochs']):
             'optimizerG': optimizerG.state_dict(),
             'optimizerD': optimizerD.state_dict(),
             'params': params
-        }, f'model/model_epoch_{epoch}.pth')
+        }, f'{model_path}/model_epoch_{epoch}.pth')
 
 # Save the final trained model
 torch.save({
@@ -187,7 +179,7 @@ torch.save({
     'optimizerG': optimizerG.state_dict(),
     'optimizerD': optimizerD.state_dict(),
     'params': params
-}, '../../model/model_ChestCT.pth') # FUERA del repo!
+},  f'{model_path}/model_ChestCT.pth') # FUERA del repo!
 
 
 
