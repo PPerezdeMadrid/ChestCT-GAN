@@ -15,11 +15,11 @@ Proyecto de fin de carrera: Generación de tomografías de pulmones con cáncer 
 ![Hiperparámetros 1](img/dcgan_hiperparam2.png)
 
 Ejemplo de imágenes en el epoch **90**:
-[!epoch90_dcgan](img/epoch90_dcgan.png)
+![epoch90_dcgan](img/epoch90_dcgan.png)
 
 
 **WGAN**
 - Con ajuste de hiperparámetros
 [!WGAN](wganGraph.png)
 Ejemplo de imágenes en el epoch **90**:
-[!epoch90_dcgan](img/epoch90_wgan.png)
+![epoch90_dcgan](img/epoch90_wgan.png)
