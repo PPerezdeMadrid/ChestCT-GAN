@@ -1,16 +1,21 @@
 import argparse
 
-import torch
+import torch, random, json
 import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import random
 
 from dcgan import Generator
 
+with open('config.json', 'r') as json_file:
+    config = json.load(json_file)
+
+params = config["params"]
+model_path = config["model"]["path"]
+
 parser = argparse.ArgumentParser()
-parser.add_argument('-load_path', default='model/model_final.pth', help='Checkpoint to load path from') # modelo previamente entrenado
+parser.add_argument('-load_path', default=f'{model_path}/model_ChestCT.pth', help='Checkpoint to load path from') # modelo previamente entrenado
 parser.add_argument('-num_output', default=64, help='Number of generated outputs')
 args = parser.parse_args()
 
@@ -20,8 +25,6 @@ device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
 # Cargar el modelo en CPU si no hay GPU disponible
 state_dict = torch.load(args.load_path, map_location=device)
 
-
-# Get the 'params' dictionary from the loaded state_dict.
 params = state_dict['params']
 
 # Create the generator network.
