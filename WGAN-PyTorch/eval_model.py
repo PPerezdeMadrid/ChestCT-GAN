@@ -12,11 +12,13 @@ from wgan import Generator, Discriminator
 with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
-params = config["params"]
 model_path = config["model"]["path"]
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device, " will be used.\n")
+
+checkpoint = torch.load(f'{model_path}/model_ChestCT.pth')
+params = checkpoint['params']
 
 # Get the data
 dataloader = get_chestct(params)

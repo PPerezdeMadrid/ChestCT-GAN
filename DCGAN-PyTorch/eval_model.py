@@ -1,6 +1,7 @@
 import torch
 import torchvision.transforms as transforms
-from torchvision.models import inception_v3
+# from torchvision.models import inception_v3 --> versión antigua
+from torchvision import models
 from torch.nn import functional as F
 from dcgan import Generator  # Asegúrate de que este módulo está definido
 from PIL import Image
@@ -173,7 +174,8 @@ fake_images = generate_images(netG, num_images, params['nz'])
 preprocessed_images = preprocess_images(fake_images)
 
 # Cargar Inception-v3
-inception_model = inception_v3(pretrained=True, transform_input=False).to(device)
+# inception_model = inception_v3(pretrained=True, transform_input=False).to(device)
+inception_model = models.inception_v3(weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False).to(device)
 inception_model.eval()
 
 # Calcular el Inception Score

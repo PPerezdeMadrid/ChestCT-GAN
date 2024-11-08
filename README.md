@@ -3,10 +3,52 @@ Proyecto de fin de carrera: Generación de tomografías de pulmones con cáncer 
 
 # Falta por escribir mucho
 
-# Ejecutar
-- generate.py
-- train.py
-- eval_model.py
+# Scripts 
+
+### `generate.py`
+Genera imágenes usando el modelo preentrenado `model_ChestCT.pth`.
+
+#### Uso:
+```bash
+python generate.py
+```
+
+---
+
+### `train.py`
+Entrena el modelo usando los parámetros de `config.json`.
+
+#### Uso:
+```bash
+python train.py
+```
+
+---
+
+### `eval_model.py`
+Evalúa el modelo `model_ChestCT.pth` y muestra métricas como precisión del Discriminador, Generador e Inception Score.
+
+#### Uso:
+```bash
+python eval_model.py
+```
+
+#### Ejemplo de salida:
+```bash
+------------------------------
+   Model Evaluation Results
+------------------------------
+Discriminator Accuracy: 47.00%
+Generator Accuracy:  4.00%
+------------------------------
+------------------------------
+       Inception Score
+------------------------------
+Score:               2.3015
+------------------------------
+```
+
+---
 
 ## Progreso
 **DC-GAN**
