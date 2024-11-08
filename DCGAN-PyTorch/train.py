@@ -6,8 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
 from utils import get_chestct 
 from dcgan import weights_init, Generator, Discriminator  
+
+
 
 # Set random seed for reproducibility
 seed = 369

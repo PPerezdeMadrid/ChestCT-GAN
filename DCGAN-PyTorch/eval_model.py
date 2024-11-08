@@ -10,17 +10,28 @@ from utils import get_chestct
 from dcgan import Generator, Discriminator
 import json
 
+
+def print_green(text):
+    print("\033[92m" + text + "\033[0m")
+
+print_green("Evaluación iniciada.")
+
 # leer parámetros y modelo:
 with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
-params = config["params"]
+
 model_path = config["model"]["path"]
 
-# Parámetros
+print_green("Parámetros cargados.")
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device, " will be used.\n")
+print_green(f'{device} will be used.\n')
+
+
+# Cargar el modelo entrenado con weights_only=True para una mayor seguridad
+checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', weights_only=True)
+params = checkpoint['params']
 
 # Get the data
 dataloader = get_chestct(params)
@@ -29,10 +40,9 @@ dataloader = get_chestct(params)
 netG = Generator(params).to(device)
 netD = Discriminator(params).to(device)
 
-# Cargar el modelo entrenado (ajusta el path según tu configuración)
-checkpoint = torch.load(f'{model_path}/model_ChestCT.pth')  
 netG.load_state_dict(checkpoint['generator'])
 netD.load_state_dict(checkpoint['discriminator'])
+
 
 # Modo evaluación
 netG.eval()

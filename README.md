@@ -3,6 +3,10 @@ Proyecto de fin de carrera: Generación de tomografías de pulmones con cáncer 
 
 # Falta por escribir mucho
 
+# Ejecutar
+- generate.py
+- train.py
+- eval_model.py
 
 ## Progreso
 **DC-GAN**

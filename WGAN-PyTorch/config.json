@@ -6,7 +6,7 @@
         "nz": 100,
         "ngf": 128,
         "ndf": 128,
-        "nepochs": 10,
+        "nepochs": 1000,
         "lr": 0.0001,
         "beta1": 0.5,
         "save_epoch": 10
