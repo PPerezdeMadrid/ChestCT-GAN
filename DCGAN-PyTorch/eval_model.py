@@ -193,7 +193,11 @@ def evaluate_ssim(dataloader, netG, device):
 
 # Evaluar el SSIM
 ssim_score = evaluate_ssim(dataloader, netG, device)
-print(f"SSIM Score: {ssim_score:.4f}")
+# Imprimir --> SSIM 
+print(f"{'-' * 30}")
+print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
+
+
 
 import torch
 import torch.nn.functional as F
@@ -251,4 +255,7 @@ def evaluate_psnr(dataloader, netG, device, params):
 
 # Ejemplo de cómo usarlo
 psnr_score = evaluate_psnr(dataloader, netG, device, params)
-print(f"PSNR Score: {psnr_score:.2f} dB")
+# Imprimir --> SSIM 
+print(f"{'-' * 30}")
+print(f"{'PSNR Score:':<20} {psnr_score:.2f} dB")
+print(f"{'-' * 30}")

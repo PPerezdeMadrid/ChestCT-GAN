@@ -26,7 +26,7 @@ python train.py
 ---
 
 ### `eval_model.py`
-Evalúa el modelo `model_ChestCT.pth` y muestra métricas como precisión del Discriminador, Generador e Inception Score.
+Evalúa el modelo `model_ChestCT.pth` y muestra métricas como precisión del Discriminador, Generador, el SSMI (Índice de Similitud Estructural) y PSNR (Relación Señal a Ruido).
 
 #### Uso:
 ```bash
@@ -38,14 +38,33 @@ python eval_model.py
 ------------------------------
    Model Evaluation Results
 ------------------------------
-Discriminator Accuracy: 47.00%
-Generator Accuracy:  4.00%
+Discriminator Accuracy: 47.25%
+Generator Accuracy:  3.00%
 ------------------------------
 ------------------------------
-       Inception Score
+SSIM Score:          0.1081
 ------------------------------
-Score:               2.3015
+PSNR Score:          10.14 dB
 ------------------------------
+```
+
+- **SSIM (Índice de Similitud Estructural):** 0.1081 (valores bajos indican *baja* similitud estructural)
+- **PSNR (Relación Señal a Ruido):** 10.14 dB (valores bajos sugieren calidad visual *reducida*)
+
+### Valores ideales:
+```bash
+------------------------------
+   Model Evaluation Results
+------------------------------
+Discriminator Accuracy: > 90% 
+Generator Accuracy:  > 90% 
+------------------------------
+------------------------------
+SSIM Score:          1.0 
+------------------------------
+PSNR Score:          >= 40 dB 
+------------------------------
+
 ```
 
 ---
