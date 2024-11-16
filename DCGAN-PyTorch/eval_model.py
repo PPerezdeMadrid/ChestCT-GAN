@@ -149,55 +149,106 @@ print(f"{'-' * 30}")
  ############################################   
 """
 
-# NO FUNCIONA FALLA AQUÍ: fake_image = fake_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
+def calculate_ssim(real_images, fake_images):
+    """Calcula el índice SSIM entre imágenes reales y generadas."""
+    real_images = real_images.squeeze().cpu().numpy()  # Eliminar el canal adicional (si es necesario)
+    fake_images = fake_images.squeeze().cpu().numpy()  # Eliminar el canal adicional (si es necesario)
 
-def batch_ssim(real_images, fake_images, max_val=1.0):
-    """
-    Calcula el SSIM promedio entre un lote de imágenes reales y generadas.
+    # Asegurarse de que las imágenes tengan el mismo tamaño
+    fake_images_resized = np.resize(fake_images, real_images.shape)
 
-    :param real_images: Tensor de imágenes reales (B, C, H, W).
-    :param fake_images: Tensor de imágenes generadas (B, C, H, W).
-    :param max_val: Valor máximo de los píxeles (por ejemplo, 1.0 si las imágenes están normalizadas entre [0, 1]).
-    :return: El SSIM promedio para el lote de imágenes.
-    """
-    ssim_scores = []
-    batch_size = real_images.size(0)
+    # Calcular SSIM para cada par de imágenes
+    ssim_values = []
+    for real, fake in zip(real_images, fake_images_resized):
+        # Aquí definimos el data_range como 2, ya que las imágenes están en [-1, 1]
+        ssim_value = ssim(real, fake, data_range=2.0)
+        ssim_values.append(ssim_value)
+
+    return np.mean(ssim_values)  # Devolver el valor promedio del SSIM
+
+def evaluate_ssim(dataloader, netG, device):
+    """Evaluar SSIM entre imágenes reales y generadas."""
+    real_images = []
+    fake_images = []
     
-    # Iterar sobre el lote de imágenes
-    for i in range(batch_size):
-        real_image = real_images[i].cpu().detach().numpy()  # Convierte a NumPy
-        fake_image = fake_images[i].cpu().detach().numpy()  # Convierte a NumPy
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+
+            # Obtener imágenes reales
+            real_images.append(real_data)
+
+            # Generar imágenes falsas
+            noise = torch.randn(real_data.size(0), 100, 1, 1, device=device)  # Ajustar según tu tamaño de latente
+            fake_data = netG(noise)
+            fake_images.append(fake_data)
         
-       
-        # Si las imágenes son de un solo canal, adaptarlas a la forma adecuada (C, H, W) para SSIM
-        if real_image.shape[0] == 1:
-            print_green("Image of 1 canal")
-            real_image = real_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
-            fake_image = fake_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
-
-        # Si las imágenes tienen 3 canales (por ejemplo, RGB), solo se deben usar como están (sin eliminar canales)
-        elif real_image.shape[0] == 3:
-            print_green("Image of 3 canal")
-            real_image = np.moveaxis(real_image, 0, -1)  # Convertir a (H, W, C)
-            fake_image = np.moveaxis(fake_image, 0, -1)  # Convertir a (H, W, C)
-
-        # Calcular el SSIM entre la imagen real y la generada
-        score, _ = ssim(real_image, fake_image, full=True, data_range=max_val)
-        ssim_scores.append(score)
+    # Convertir listas a tensores
+    real_images = torch.cat(real_images, dim=0)
+    fake_images = torch.cat(fake_images, dim=0)
     
-    # Promedio del SSIM en todo el lote
-    average_ssim = np.mean(ssim_scores)
-    return average_ssim
+    # Calcular SSIM
+    ssim_score = calculate_ssim(real_images, fake_images)
+    return ssim_score
 
-# Ejemplo de uso con lotes de imágenes reales y generadas (tensores de PyTorch)
-num_images= 10
-real_images, _ = next(iter(dataloader))  # Obtener un lote de imágenes reales
-fake_images = generate_images(netG, num_images, params['nz'])  # Generar un lote de imágenes
+# Evaluar el SSIM
+ssim_score = evaluate_ssim(dataloader, netG, device)
+print(f"SSIM Score: {ssim_score:.4f}")
 
-# Asegurarte de que las imágenes estén normalizadas en el rango [0, 1]
-real_images = (real_images - real_images.min()) / (real_images.max() - real_images.min())
-fake_images = (fake_images - fake_images.min()) / (fake_images.max() - fake_images.min())
+import torch
+import torch.nn.functional as F
+import numpy as np
 
-# Calcular SSIM promedio en el lote
-ssim_score = batch_ssim(real_images, fake_images)
-print(f"SSIM Promedio del lote: {ssim_score:.4f}")
+def calculate_psnr(real, fake, max_pixel=1.0):
+    """
+    Calcula el PSNR (Peak Signal-to-Noise Ratio) entre las imágenes reales y generadas.
+    
+    Args:
+    - real (tensor): Imagen real (en tensor).
+    - fake (tensor): Imagen generada (en tensor).
+    - max_pixel (float): El valor máximo posible de los píxeles (por ejemplo, 1.0 para imágenes normalizadas).
+    
+    Returns:
+    - psnr (float): El valor del PSNR.
+    """
+    # Calcular MSE (Mean Squared Error)
+    mse = F.mse_loss(fake, real)
+    
+    # Calcular PSNR a partir del MSE
+    if mse == 0:
+        return 100  # Si el MSE es 0, PSNR es infinito (imágenes idénticas)
+    
+    psnr = 20 * torch.log10(max_pixel / torch.sqrt(mse))
+    return psnr.item()
+
+# Función de evaluación con PSNR
+def evaluate_psnr(dataloader, netG, device, params):
+    psnr_total = 0
+    num_batches = 0
+    
+    # Evaluar el modelo en lotes
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+            
+            # Generar datos falsos
+            noise = torch.randn(real_data.size(0), params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+            
+            # Asegurarse de que las imágenes tengan el mismo rango de valores
+            # Normalizar las imágenes entre [0, 1] si es necesario (dependiendo de cómo estén las imágenes)
+            fake_data = fake_data / 2 + 0.5  # Para asegurarse de que las imágenes estén entre [0, 1]
+            real_data = real_data / 2 + 0.5  # Para asegurarse de que las imágenes estén entre [0, 1]
+            
+            # Calcular PSNR para este batch
+            psnr_batch = calculate_psnr(real_data, fake_data)
+            psnr_total += psnr_batch
+            num_batches += 1
+    
+    # Promedio de PSNR sobre todos los lotes
+    average_psnr = psnr_total / num_batches
+    return average_psnr
+
+# Ejemplo de cómo usarlo
+psnr_score = evaluate_psnr(dataloader, netG, device, params)
+print(f"PSNR Score: {psnr_score:.2f} dB")
