@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-from utils import get_chestct 
+from utils import get_chestct , log_training_info
 from dcgan import weights_init, Generator, Discriminator  
 
 
@@ -149,9 +149,7 @@ for epoch in range(params['nepochs']):
 
         # Check progress of training
         if i % 50 == 0:
-            print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                  % (epoch, params['nepochs'], i, len(dataloader),
-                     errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
+            log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
 
         # Save the losses for plotting
         G_losses.append(errG.item())

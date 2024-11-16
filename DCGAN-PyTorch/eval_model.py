@@ -11,6 +11,9 @@ from utils import get_chestct
 from dcgan import Generator, Discriminator
 import json
 from skimage.metrics import structural_similarity as ssim
+import pandas as pd
+import matplotlib.pyplot as plt
+
 
 
 def print_green(text):
@@ -259,3 +262,30 @@ psnr_score = evaluate_psnr(dataloader, netG, device, params)
 print(f"{'-' * 30}")
 print(f"{'PSNR Score:':<20} {psnr_score:.2f} dB")
 print(f"{'-' * 30}")
+
+
+"""
+#############################################  
+       Gráfica del resultado de la GAN
+ ############################################   
+"""
+
+df = pd.read_csv('training_log_dcgan.csv')
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(df['Iteration'], df['Loss_D'], label='Loss_D', color='red')
+plt.plot(df['Iteration'], df['Loss_G'], label='Loss_G', color='blue')
+
+plt.plot(df['Iteration'], df['D(x)'], label='D(x)', color='green')
+plt.plot(df['Iteration'], df['D(G(z))_Real'], label='D(G(z))_Real', color='orange')
+plt.plot(df['Iteration'], df['D(G(z))_Fake'], label='D(G(z))_Fake', color='purple')
+
+plt.title('Métricas de Entrenamiento')
+plt.xlabel('Iteraciones')
+plt.ylabel('Valores')
+
+plt.legend()
+
+plt.show()
+

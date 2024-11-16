@@ -3,4 +3,6 @@ torchvision
 numpy
 scipy
 scikit-image
+matplotlib
+pandas
 
