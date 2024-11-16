@@ -1,6 +1,6 @@
 import torch
 import torchvision.transforms as transforms
-# from torchvision.models import inception_v3 --> versión antigua
+from torchvision.models import inception_v3  #--> versión antigua
 from torchvision import models
 from torch.nn import functional as F
 from dcgan import Generator  # Asegúrate de que este módulo está definido
@@ -10,12 +10,13 @@ from scipy.linalg import sqrtm
 from utils import get_chestct 
 from dcgan import Generator, Discriminator
 import json
+from skimage.metrics import structural_similarity as ssim
 
 
 def print_green(text):
     print("\033[92m" + text + "\033[0m")
 
-print_green("Evaluación iniciada.")
+print_green("Evaluating model...")
 
 # leer parámetros y modelo:
 with open('config.json', 'r') as json_file:
@@ -24,7 +25,7 @@ with open('config.json', 'r') as json_file:
 
 model_path = config["model"]["path"]
 
-print_green("Parámetros cargados.")
+print_green("Parameters uploaded")
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print_green(f'{device} will be used.\n')
@@ -85,6 +86,7 @@ def preprocess_images(images, size=(299, 299)):
 ######################
 """
 
+
 def evaluate_models(netG, netD, dataloader, device, params):
     # Evaluar el discriminador
     correct_discriminator = 0
@@ -140,107 +142,62 @@ print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
 print(f"{'-' * 30}")
 
 
-"""
-#############################################  
-        Inception Score (IS)
- ############################################   
-"""
-
-def get_inception_score(images, splits=10):
-    """Calcula el Inception Score para un conjunto de imágenes."""
-    scores = []
-    N = len(images)
-    
-    for i in range(splits):
-        part = images[i * (N // splits): (i + 1) * (N // splits)]
-        with torch.no_grad():
-            pred = inception_model(part)  # Pasar las imágenes por Inception
-            pred = F.softmax(pred, dim=1)  # Aplicar softmax
-
-        scores.append(pred.cpu().numpy())
-    
-    scores = np.concatenate(scores, axis=0)
-    # Calcular el Inception Score
-    kl_divergence = scores * (np.log(scores) - np.log(np.mean(scores, axis=0)))
-    is_score = np.exp(np.mean(np.sum(kl_divergence, axis=1)))
-    
-    return is_score
-
-# Generar imágenes
-num_images = 100  # Número de imágenes a generar
-fake_images = generate_images(netG, num_images, params['nz'])
-
-# Preprocesar imágenes
-preprocessed_images = preprocess_images(fake_images)
-
-# Cargar Inception-v3
-# inception_model = inception_v3(pretrained=True, transform_input=False).to(device)
-inception_model = models.inception_v3(weights=models.Inception_V3_Weights.IMAGENET1K_V1, transform_input=False).to(device)
-inception_model.eval()
-
-# Calcular el Inception Score
-is_score = get_inception_score(preprocessed_images)
-# Print pero en bonito :)
-print(f"{'-' * 30}")
-print(f"{'Inception Score':^30}")
-print(f"{'-' * 30}")
-print(f"{'Score:':<20} {is_score:.4f}") 
-print(f"{'-' * 30}")
 
 """
 #############################################  
-    Fréchet Inception Distance (FID)
+       Structural Similarity Index (SSIM)
  ############################################   
 """
 
-def get_activations(images, model, batch_size=64, dims=2048):
-    n_batches = images.shape[0] // batch_size
-    pred_arr = np.empty((n_batches, dims))
-    for i in range(n_batches):
-        batch = images[i * batch_size: (i + 1) * batch_size]
-        with torch.no_grad():
-            pred = model(batch)
-        pred_arr[i] = pred.numpy()
-    return pred_arr
+# NO FUNCIONA FALLA AQUÍ: fake_image = fake_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
 
-def calculate_fid(real_activations, fake_activations):
-    mu1, sigma1 = real_activations.mean(axis=0), np.cov(real_activations, rowvar=False)
-    mu2, sigma2 = fake_activations.mean(axis=0), np.cov(fake_activations, rowvar=False)
-    ssdiff = np.sum((mu1 - mu2)**2)
-    covmean = sqrtm(sigma1.dot(sigma2))
-    if np.iscomplexobj(covmean):
-        covmean = covmean.real
-    fid_value = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
-    return fid_value
+def batch_ssim(real_images, fake_images, max_val=1.0):
+    """
+    Calcula el SSIM promedio entre un lote de imágenes reales y generadas.
 
-# Calcular FID
-def calculate_fid_score(real_images, fake_images):
-    # Preprocesar imágenes
-    real_images = preprocess_images(real_images)
-    fake_images = preprocess_images(fake_images)
+    :param real_images: Tensor de imágenes reales (B, C, H, W).
+    :param fake_images: Tensor de imágenes generadas (B, C, H, W).
+    :param max_val: Valor máximo de los píxeles (por ejemplo, 1.0 si las imágenes están normalizadas entre [0, 1]).
+    :return: El SSIM promedio para el lote de imágenes.
+    """
+    ssim_scores = []
+    batch_size = real_images.size(0)
+    
+    # Iterar sobre el lote de imágenes
+    for i in range(batch_size):
+        real_image = real_images[i].cpu().detach().numpy()  # Convierte a NumPy
+        fake_image = fake_images[i].cpu().detach().numpy()  # Convierte a NumPy
+        
+       
+        # Si las imágenes son de un solo canal, adaptarlas a la forma adecuada (C, H, W) para SSIM
+        if real_image.shape[0] == 1:
+            print_green("Image of 1 canal")
+            real_image = real_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
+            fake_image = fake_image.squeeze(0)  # Eliminar la dimensión del canal (solo si es 1)
 
-    # Obtener activaciones
-    real_activations = get_activations(real_images, inception_model)
-    fake_activations = get_activations(fake_images, inception_model)
+        # Si las imágenes tienen 3 canales (por ejemplo, RGB), solo se deben usar como están (sin eliminar canales)
+        elif real_image.shape[0] == 3:
+            print_green("Image of 3 canal")
+            real_image = np.moveaxis(real_image, 0, -1)  # Convertir a (H, W, C)
+            fake_image = np.moveaxis(fake_image, 0, -1)  # Convertir a (H, W, C)
 
-    # Calcular FID
-    fid_score = calculate_fid(real_activations, fake_activations)
-    return fid_score
+        # Calcular el SSIM entre la imagen real y la generada
+        score, _ = ssim(real_image, fake_image, full=True, data_range=max_val)
+        ssim_scores.append(score)
+    
+    # Promedio del SSIM en todo el lote
+    average_ssim = np.mean(ssim_scores)
+    return average_ssim
 
-"""
-NO FUNCIONA EL DATALOADER EL PILLAR UN BATCH Y TAL 
+# Ejemplo de uso con lotes de imágenes reales y generadas (tensores de PyTorch)
+num_images= 10
+real_images, _ = next(iter(dataloader))  # Obtener un lote de imágenes reales
+fake_images = generate_images(netG, num_images, params['nz'])  # Generar un lote de imágenes
 
-# Cargar las imágenes reales
-real_images, _ = next(iter(dataloader))  # Obtener un batch de imágenes reales
+# Asegurarte de que las imágenes estén normalizadas en el rango [0, 1]
+real_images = (real_images - real_images.min()) / (real_images.max() - real_images.min())
+fake_images = (fake_images - fake_images.min()) / (fake_images.max() - fake_images.min())
 
-# Calcular FID
-fake_images = fake_images.numpy()  # Convertir el tensor a un array de NumPy
-fid_score = calculate_fid_score(real_images, fake_images)
-
-# Imprimir el resultado
-print(f"{'-' * 30}")
-print(f"{'Fréchet Inception Distance':^30}")  # Centrar el título
-print(f"{'-' * 30}")
-print(f"{'FID Score:':<20} {fid_score:.4f}")  # Alinear la etiqueta y mostrar el score
-print(f"{'-' * 30}")
-"""
+# Calcular SSIM promedio en el lote
+ssim_score = batch_ssim(real_images, fake_images)
+print(f"SSIM Promedio del lote: {ssim_score:.4f}")
