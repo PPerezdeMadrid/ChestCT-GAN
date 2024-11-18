@@ -1,4 +1,4 @@
-import os, torch, random, json
+import os, json, torch, random
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
@@ -6,8 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from utils import get_chestct 
+
+from utils import get_chestct , log_training_info
 from wgan import weights_init, Generator, Discriminator
+
 
 # Set random seed for reproducibility
 seed = 369
@@ -21,6 +23,7 @@ with open('config.json', 'r') as json_file:
 
 params = config["params"]
 model_path = config["model"]["path"]
+
 
 # Use GPU if available, else use CPU
 device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
@@ -49,15 +52,9 @@ netD = Discriminator(params).to(device)
 netD.apply(weights_init)
 print(netD)
 
-# Binary Cross Entropy loss function
-# criterion = nn.BCELoss() --> la comentamos es una WGAN
-
-# Create batch of latent vectors that we will use to visualize
-#  the progression of the generator
-fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)
-
-real_label = 1
-fake_label = 0
+# No need for BCELoss in WGAN
+# Instead, we will calculate the Wasserstein loss directly
+# We will use the gradient penalty in WGAN-GP or simple weight clipping for this implementation
 
 # Optimizer for the discriminator
 optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
@@ -80,7 +77,6 @@ if not os.path.exists(model_path):
 print("Starting Training Loop...")
 print("-" * 25)
 
-# Cambiar la parte del código de entrenamiento
 for epoch in range(params['nepochs']):
     for i, data in enumerate(dataloader, 0):
         # Transfer data tensor to GPU/CPU (device)
@@ -88,54 +84,62 @@ for epoch in range(params['nepochs']):
         b_size = real_data.size(0)
 
         ############################
-        # (1) Update D network
+        # (1) Update D network: maximize D(x) - D(G(z))
         ###########################
 
+        # Make accumulated gradients of the discriminator zero
         netD.zero_grad()
 
         # For real data
-        real_output = netD(real_data).view(-1)
-        errD_real = -torch.mean(real_output)
+        output = netD(real_data).view(-1)
+        errD_real = -torch.mean(output)  # Wasserstein loss for real data
+        errD_real.backward()
+        D_x = output.mean().item()
 
         # Train with all-fake batch
+        # Generate batch of latent vectors
+
         noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
         fake_data = netG(noise)
-        fake_output = netD(fake_data.detach()).view(-1)
-        errD_fake = torch.mean(fake_output)
 
-        # Combine losses and backpropagate
+        # For fake data
+        output = netD(fake_data.detach()).view(-1)
+        errD_fake = torch.mean(output)  # Wasserstein loss for fake data
+        errD_fake.backward()
+        D_G_z1 = output.mean().item()
+
+        # Compute error of D as the difference between real and fake data
         errD = errD_real + errD_fake
-        errD.backward()
-
-        # Weight clipping for WGAN
-        for p in netD.parameters():
-            p.data.clamp_(-0.01, 0.01)
-
         optimizerD.step()
 
+        # Apply weight clipping (WGAN)
+        for p in netD.parameters():
+            p.data.clamp_(-0.01, 0.01)  # Clipping the weights
+
         ############################
-        # (2) Update G network
+        # (2) Update G network: maximize D(G(z))
         ###########################
 
+        # Make accumulated gradients of the generator zero
         netG.zero_grad()
 
         # We want the fake data to be classified as real
         output = netD(fake_data).view(-1)
-        errG = -torch.mean(output)
+        errG = -torch.mean(output)  # Wasserstein loss for generator
         errG.backward()
+        D_G_z2 = output.mean().item()
         optimizerG.step()
 
-        # Comprobar el progreso del entrenamiento (igual que antes)
+        # Check progress of training
         if i % 50 == 0:
-            print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f'
-                  % (epoch, params['nepochs'], i, len(dataloader),
-                     errD.item(), errG.item()))
-
+            log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
 
         # Save the losses for plotting
         G_losses.append(errG.item())
         D_losses.append(errD.item())
-
+        
+        fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)
+        
         # Save G's output on a fixed noise
         if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
             with torch.no_grad():
@@ -154,6 +158,7 @@ for epoch in range(params['nepochs']):
             'params': params
         }, f'{model_path}/model_epoch_{epoch}.pth')
 
+
 # Save the final trained model
 torch.save({
     'generator': netG.state_dict(),
@@ -161,7 +166,7 @@ torch.save({
     'optimizerG': optimizerG.state_dict(),
     'optimizerD': optimizerD.state_dict(),
     'params': params
-}, f'{model_path}/model_ChestCT.pth') # FUERA del repo!
+},  f'{model_path}/model_ChestCT.pth') # FUERA del repo!
 
 
 

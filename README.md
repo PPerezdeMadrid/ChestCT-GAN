@@ -33,6 +33,12 @@ Evalúa el modelo `model_ChestCT.pth` y muestra métricas como precisión del Di
 python eval_model.py
 ```
 
+Por defecto la ruta de carga del archivo "pth" es `{model_path}/model_ChestCT.pth` pero puedes poner otra:
+```bash
+python generate.py -load_path ..\..\model\model_wgan\model_epoch_990.pth
+```
+
+
 #### Ejemplo de salida:
 ```bash
 ------------------------------
@@ -82,9 +88,51 @@ PSNR Score:          >= 40 dB
 Ejemplo de imágenes en el epoch **90**:
 ![epoch90_dcgan](img/epoch90_dcgan.png)
 
+Ejemplo de imágenes en el epoch **990**:
+![epoch90_dcgan](img/epoch990_dcgan.png)
+```bash
+------------------------------
+   Model Evaluation Results
+------------------------------
+Discriminator Accuracy: 47.45%
+Generator Accuracy:  10.00%
+------------------------------
+------------------------------
+SSIM Score:          0.1020
+------------------------------
+PSNR Score:          10.41 dB
+------------------------------
+```
+Nota: 1000 epochs ha tardado unas 14h horas. 
+
 
 **WGAN**
 - Con ajuste de hiperparámetros
-![WGAN](img/wganGraph.png)
+
+![WGAN](img/wgan1000epochs.png)
+
+
 Ejemplo de imágenes en el epoch **90**:
-![epoch90_dcgan](img/epoch90_wgan.png)
+
+![epoch90_wgan](img/epoch90_wgan.png)
+
+
+Ejemplo de imágenes en el epoch **990**:
+
+![epoch990_wgan](img/epoch990_wgan.png)
+
+```bash
+------------------------------
+   Model Evaluation Results
+------------------------------
+Discriminator Accuracy: 41.15%
+Generator Accuracy:  3.00%
+------------------------------
+------------------------------
+SSIM Score:          0.1144
+------------------------------
+PSNR Score:          10.42 dB
+------------------------------
+```
+
+Nota: 1000 epochs ha tardado unas 26 horas. 

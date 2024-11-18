@@ -1,6 +1,7 @@
-import torch, json
+import torch
 import torchvision.transforms as transforms
-from torchvision.models import inception_v3
+from torchvision.models import inception_v3  #--> versión antigua
+from torchvision import models
 from torch.nn import functional as F
 from wgan import Generator  # Asegúrate de que este módulo está definido
 from PIL import Image
@@ -8,16 +9,35 @@ import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct 
 from wgan import Generator, Discriminator
+import json
+from skimage.metrics import structural_similarity as ssim
+import pandas as pd
+import matplotlib.pyplot as plt
 
+
+
+
+
+def print_green(text):
+    print("\033[92m" + text + "\033[0m")
+
+print_green("Evaluating model...")
+
+# leer parámetros y modelo:
 with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
+
 model_path = config["model"]["path"]
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device, " will be used.\n")
+print_green("Parameters uploaded")
 
-checkpoint = torch.load(f'{model_path}/model_ChestCT.pth')
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print_green(f'{device} will be used.\n')
+
+
+# Cargar el modelo entrenado con weights_only=True para una mayor seguridad
+checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', weights_only=True)
 params = checkpoint['params']
 
 # Get the data
@@ -27,10 +47,9 @@ dataloader = get_chestct(params)
 netG = Generator(params).to(device)
 netD = Discriminator(params).to(device)
 
-# Cargar el modelo entrenado (ajusta el path según tu configuración)
-checkpoint = torch.load(f'{model_path}/model_ChestCT.pth')
 netG.load_state_dict(checkpoint['generator'])
 netD.load_state_dict(checkpoint['discriminator'])
+
 
 # Modo evaluación
 netG.eval()
@@ -69,8 +88,9 @@ def preprocess_images(images, size=(299, 299)):
 """"
 ##############################
     Discriminador y Generador
-##############################
+######################
 """
+
 
 def evaluate_models(netG, netD, dataloader, device, params):
     # Evaluar el discriminador
@@ -127,106 +147,117 @@ print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
 print(f"{'-' * 30}")
 
 
-"""
-#############################################  
-        Inception Score (IS)
- ############################################   
-"""
-
-def get_inception_score(images, splits=10):
-    """Calcula el Inception Score para un conjunto de imágenes."""
-    scores = []
-    N = len(images)
-    
-    for i in range(splits):
-        part = images[i * (N // splits): (i + 1) * (N // splits)]
-        with torch.no_grad():
-            pred = inception_model(part)  # Pasar las imágenes por Inception
-            pred = F.softmax(pred, dim=1)  # Aplicar softmax
-
-        scores.append(pred.cpu().numpy())
-    
-    scores = np.concatenate(scores, axis=0)
-    # Calcular el Inception Score
-    kl_divergence = scores * (np.log(scores) - np.log(np.mean(scores, axis=0)))
-    is_score = np.exp(np.mean(np.sum(kl_divergence, axis=1)))
-    
-    return is_score
-
-# Generar imágenes
-num_images = 100  # Número de imágenes a generar
-fake_images = generate_images(netG, num_images, params['nz'])
-
-# Preprocesar imágenes
-preprocessed_images = preprocess_images(fake_images)
-
-# Cargar Inception-v3
-inception_model = inception_v3(pretrained=True, transform_input=False).to(device)
-inception_model.eval()
-
-# Calcular el Inception Score
-is_score = get_inception_score(preprocessed_images)
-# Print pero en bonito :)
-print(f"{'-' * 30}")
-print(f"{'Inception Score':^30}")
-print(f"{'-' * 30}")
-print(f"{'Score:':<20} {is_score:.4f}") 
-print(f"{'-' * 30}")
 
 """
 #############################################  
-    Fréchet Inception Distance (FID)
+       Structural Similarity Index (SSIM)
  ############################################   
 """
 
-def get_activations(images, model, batch_size=64, dims=2048):
-    n_batches = images.shape[0] // batch_size
-    pred_arr = np.empty((n_batches, dims))
-    for i in range(n_batches):
-        batch = images[i * batch_size: (i + 1) * batch_size]
-        with torch.no_grad():
-            pred = model(batch)
-        pred_arr[i] = pred.numpy()
-    return pred_arr
+def calculate_ssim(real_images, fake_images):
+    """Calcula el índice SSIM entre imágenes reales y generadas."""
+    real_images = real_images.squeeze().cpu().numpy()  # Eliminar el canal adicional (si es necesario)
+    fake_images = fake_images.squeeze().cpu().numpy()  # Eliminar el canal adicional (si es necesario)
 
-def calculate_fid(real_activations, fake_activations):
-    mu1, sigma1 = real_activations.mean(axis=0), np.cov(real_activations, rowvar=False)
-    mu2, sigma2 = fake_activations.mean(axis=0), np.cov(fake_activations, rowvar=False)
-    ssdiff = np.sum((mu1 - mu2)**2)
-    covmean = sqrtm(sigma1.dot(sigma2))
-    if np.iscomplexobj(covmean):
-        covmean = covmean.real
-    fid_value = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
-    return fid_value
+    # Asegurarse de que las imágenes tengan el mismo tamaño
+    fake_images_resized = np.resize(fake_images, real_images.shape)
 
-# Calcular FID
-def calculate_fid_score(real_images, fake_images):
-    # Preprocesar imágenes
-    real_images = preprocess_images(real_images)
-    fake_images = preprocess_images(fake_images)
+    # Calcular SSIM para cada par de imágenes
+    ssim_values = []
+    for real, fake in zip(real_images, fake_images_resized):
+        # Aquí definimos el data_range como 2, ya que las imágenes están en [-1, 1]
+        ssim_value = ssim(real, fake, data_range=2.0)
+        ssim_values.append(ssim_value)
 
-    # Obtener activaciones
-    real_activations = get_activations(real_images, inception_model)
-    fake_activations = get_activations(fake_images, inception_model)
+    return np.mean(ssim_values)  # Devolver el valor promedio del SSIM
 
-    # Calcular FID
-    fid_score = calculate_fid(real_activations, fake_activations)
-    return fid_score
+def evaluate_ssim(dataloader, netG, device):
+    """Evaluar SSIM entre imágenes reales y generadas."""
+    real_images = []
+    fake_images = []
+    
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
 
-"""
-NO FUNCIONA EL DATALOADER EL PILLAR UN BATCH Y TAL 
+            # Obtener imágenes reales
+            real_images.append(real_data)
 
-# Cargar las imágenes reales
-real_images, _ = next(iter(dataloader))  # Obtener un batch de imágenes reales
+            # Generar imágenes falsas
+            noise = torch.randn(real_data.size(0), 100, 1, 1, device=device)  # Ajustar según tu tamaño de latente
+            fake_data = netG(noise)
+            fake_images.append(fake_data)
+        
+    # Convertir listas a tensores
+    real_images = torch.cat(real_images, dim=0)
+    fake_images = torch.cat(fake_images, dim=0)
+    
+    # Calcular SSIM
+    ssim_score = calculate_ssim(real_images, fake_images)
+    return ssim_score
 
-# Calcular FID
-fake_images = fake_images.numpy()  # Convertir el tensor a un array de NumPy
-fid_score = calculate_fid_score(real_images, fake_images)
-
-# Imprimir el resultado
+# Evaluar el SSIM
+ssim_score = evaluate_ssim(dataloader, netG, device)
+# Imprimir --> SSIM 
 print(f"{'-' * 30}")
-print(f"{'Fréchet Inception Distance':^30}")  # Centrar el título
+print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
+
+
+def calculate_psnr(real, fake, max_pixel=1.0):
+    """
+    Calcula el PSNR (Peak Signal-to-Noise Ratio) entre las imágenes reales y generadas.
+    
+    Args:
+    - real (tensor): Imagen real (en tensor).
+    - fake (tensor): Imagen generada (en tensor).
+    - max_pixel (float): El valor máximo posible de los píxeles (por ejemplo, 1.0 para imágenes normalizadas).
+    
+    Returns:
+    - psnr (float): El valor del PSNR.
+    """
+    # Calcular MSE (Mean Squared Error)
+    mse = F.mse_loss(fake, real)
+    
+    # Calcular PSNR a partir del MSE
+    if mse == 0:
+        return 100  # Si el MSE es 0, PSNR es infinito (imágenes idénticas)
+    
+    psnr = 20 * torch.log10(max_pixel / torch.sqrt(mse))
+    return psnr.item()
+
+# Función de evaluación con PSNR
+def evaluate_psnr(dataloader, netG, device, params):
+    psnr_total = 0
+    num_batches = 0
+    
+    # Evaluar el modelo en lotes
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+            
+            # Generar datos falsos
+            noise = torch.randn(real_data.size(0), params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+            
+            # Asegurarse de que las imágenes tengan el mismo rango de valores
+            # Normalizar las imágenes entre [0, 1] si es necesario (dependiendo de cómo estén las imágenes)
+            fake_data = fake_data / 2 + 0.5  # Para asegurarse de que las imágenes estén entre [0, 1]
+            real_data = real_data / 2 + 0.5  # Para asegurarse de que las imágenes estén entre [0, 1]
+            
+            # Calcular PSNR para este batch
+            psnr_batch = calculate_psnr(real_data, fake_data)
+            psnr_total += psnr_batch
+            num_batches += 1
+    
+    # Promedio de PSNR sobre todos los lotes
+    average_psnr = psnr_total / num_batches
+    return average_psnr
+
+# Ejemplo de cómo usarlo
+psnr_score = evaluate_psnr(dataloader, netG, device, params)
+# Imprimir --> SSIM 
 print(f"{'-' * 30}")
-print(f"{'FID Score:':<20} {fid_score:.4f}")  # Alinear la etiqueta y mostrar el score
+print(f"{'PSNR Score:':<20} {psnr_score:.2f} dB")
 print(f"{'-' * 30}")
-"""
+
+

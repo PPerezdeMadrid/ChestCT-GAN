@@ -1,5 +1,8 @@
 # Evaluación del Modelo
 
+```bash
+python eval_model.py
+```
 ## 1. Precisión del Discriminador y del Generador
    - Se evalúa la precisión del **Discriminador**, que determina si las imágenes generadas son reales o falsas.
    - Se calcula la **precisión del Generador**, es decir, la capacidad del generador para crear imágenes que engañen al discriminador.
