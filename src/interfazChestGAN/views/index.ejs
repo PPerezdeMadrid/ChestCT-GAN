@@ -1,0 +1,170 @@
+<%- include('header') %>
+
+      <!-- banner -->
+      <section class="banner_main">
+        <div id="banner1" class="carousel slide banner_slide" data-ride="carousel">
+           <ol class="carousel-indicators">
+              <li data-target="#banner1" data-slide-to="0" class="active"></li>
+              <li data-target="#banner1" data-slide-to="1"></li>
+              <li data-target="#banner1" data-slide-to="2"></li>
+           </ol>
+           <div class="carousel-inner">
+              <div class="carousel-item active">
+                 <div class="container-fluid">
+                    <div class="carousel-caption">
+                       <div class="row">
+                          <div class="col-md-7 col-lg-5">
+                             <div class="text-bg">
+                                <h1>Datos Sintéticos</h1>
+                                <span>Generación de imágenes de tomografías de pulmones sanos y con enfermedades. </span>
+                                <a class="read_more" href="#">Proyecto</a>
+                             </div>
+                          </div>
+                          <div class="col-md-12 col-lg-7">
+                             <div class="row">
+                                <div class="col-md-6">
+                                   <div class="ban_track">
+                                      <figure>
+                                         <img src="images/radiografiapulmones.png" alt="#" style="max-width: 100%; width: 80%; height: auto;"/>
+                                     </figure>
+                                   </div>
+                                </div>
+                                <div class="col-md-6">
+                                   <div class="ban_track">
+                                      <p>Este proyecto tiene como objetivo desarrollar un modelo GAN para generar imágenes sintéticas de tomografías pulmonares, tanto de pulmones sanos como con cáncer, con el fin de mejorar los algoritmos de detección de cáncer mediante inteligencia artificial.</p>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+              <div class="carousel-item">
+                 <div class="container-fluid">
+                    <div class="carousel-caption">
+                       <div class="row">
+                          <div class="col-md-7 col-lg-5">
+                             <div class="text-bg">
+                                <h1>Autores</h1>
+                                <span>
+                                   <ul>
+                                   <li> Alumna: Paloma Pérez de Madrid Laguna</li>
+                                   <li> Cotutor: Raúl del Águila Escobar</li>
+                                   <li> Cotutor: Raúl García García</li>
+                                </ul>
+                                </span>
+                             </div>
+                          </div>
+                          <div class="col-md-12 col-lg-7">
+                             <div class="row">
+                                <div class="col-md-6">
+                                   <div class="ban_track">
+                                      <figure>
+                                         <img src="images/equipo.png" alt="#" style="max-width: 100%; width: 80%; height: auto;"/>
+                                     </figure>
+                                   </div>
+                                </div>
+                                <div class="col-md-6">
+                                   <div class="ban_track">
+                                     <p> Este proyecto ha sido desarrollado como Trabajo de Fin de Grado en colaboración con la Universidad CEU San Pablo, dentro del grado en Ingeniería de Sistemas de Información.</p>
+                                   </div>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+              <div class="carousel-item">
+                 <div class="container-fluid">
+                    <div class="carousel-caption">
+                       <div class="row">
+                          <div class="col-md-7 col-lg-5">
+                             <div class="text-bg">
+                                <h1>Contacto</h1>
+                                <span>Para cualquier consulta puedes contactar con el autor del proyecto.</span>
+                                <a class="read_more" href="#">Contacto</a>
+                             </div>
+                          </div>
+                          <div class="col-md-12 col-lg-7">
+                             <div class="row">
+                                <div class="col-md-6">
+                                   <div class="ban_track">
+                                      <figure><img src="images/contacto2.png" style="max-width: 100%; width: 80%; height: auto;"/></figure>
+                                   </div>
+                                </div>
+                                <div class="col-md-6">
+                                   <form class="transfot">
+                                      <div class="col-md-12">
+                                         <span>Contáctanos</span>
+                                      </div>
+                                      <div class="col-md-12">
+                                         <input class="transfot_form" placeholder="Tu nombre" type="text" name="Nombre" required>
+                                      </div>
+                                      <div class="col-md-12">
+                                         <input class="transfot_form" placeholder="Correo electrónico" type="email" name="Email" required>
+                                      </div>
+                                      <div class="col-md-12">
+                                         <textarea class="transfot_form" placeholder="Tu mensaje" name="Mensaje" rows="5" required></textarea>
+                                      </div>
+                                      <div class="col-md-12">
+                                         <button class="get_now">Enviar consulta</button>
+                                      </div>
+                                   </form>                                    
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+           <a class="carousel-control-prev" href="#banner1" role="button" data-slide="prev">
+           <i class="fa fa-angle-left" aria-hidden="true"></i>
+           </a>
+           <a class="carousel-control-next" href="#banner1" role="button" data-slide="next">
+           <i class="fa fa-angle-right" aria-hidden="true"></i>
+           </a>
+        </div>
+     </section>
+     <!-- end banner -->
+     
+     <!-- service section -->
+     <div id="service" class="service">
+        <div class="container">
+           <div class="row">
+              <div class="col-md-10 offset-md-1">
+                 <div class="titlepage">
+                    <h2>Componentes Clave</h2>
+                    <p>Este proyecto combina tres componentes clave: un modelo GAN para generar imágenes médicas sintéticas, un pipeline de MLOps para entrenar y mejorar continuamente el modelo, y una interfaz gráfica que permite a médicos y expertos evaluar la calidad de las imágenes generadas y proporcionar retroalimentación para su mejora.</p>
+                 </div>
+              </div>
+           </div>
+           <div class="row">
+              <div class="col-md-12">
+                 <div class="service_main">
+                    <div class="service_box blu_colo">
+                       <i><img src="images/algoritmo-deteccion.png" alt="Imagen GAN" width="50%"/></i>
+                       <h4>GAN</h4>
+                    </div>
+                    <div class="service_box orange_colo">
+                       <i><img src="images/pipeline.png" alt="Imagen MLOps" width="50%"/></i>
+                       <h4>MLOps</h4>
+                    </div>
+                    <div class="service_box green_colo">
+                       <i><img src="images/interfazweb.png" alt="Imagen Aplicación Web" width="50%"/></i>
+                       <h4>Aplicación Web</h4>
+                    </div>
+                 </div>
+              </div>
+              <div class="col-md-12">
+                 <a class="read_more" href="#">Leer Más</a>
+              </div>
+           </div>
+        </div>
+     </div>
+     <!-- end service section -->
+
+<%- include('footer') %>
+
