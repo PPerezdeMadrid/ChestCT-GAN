@@ -23,6 +23,21 @@ Entrena el modelo usando los parámetros de `config.json`.
 python train.py
 ```
 
+Las salidas del entrenamiento se guardan en un archivo llamado `training_log_wgan.csv` o `training_log_dcgan.csv`.
+
+| Columna           | Descripción                                                                 |
+|-------------------|-----------------------------------------------------------------------------|
+| **Epoch**         | Número de la época durante el entrenamiento.                               |
+| **Loss_D**        | Pérdida del discriminador; mide qué tan bien distingue entre imágenes reales y generadas. |
+| **Loss_G**        | Pérdida del generador; mide qué tan bien engaña al discriminador.           |
+| **D(x)**          | Probabilidad promedio asignada por el discriminador a imágenes reales.     |
+| **D(G(z))_Real**  | Probabilidad promedio asignada a imágenes generadas clasificadas como reales. |
+| **D(G(z))_Fake**  | Probabilidad promedio asignada a imágenes generadas clasificadas como falsas. |
+
+Para visualizar un gráfico sobre la evolución de la pérdida del discriminador y generador, puedes ejecutar el siguiente comando:
+```bash 
+python graphLogs.py
+```
 ---
 
 ### `eval_model.py`
@@ -38,6 +53,7 @@ Por defecto la ruta de carga del archivo "pth" es `{model_path}/model_ChestCT.pt
 python generate.py -load_path ..\..\model\model_wgan\model_epoch_990.pth
 ```
 
+A
 
 #### Ejemplo de salida:
 ```bash
