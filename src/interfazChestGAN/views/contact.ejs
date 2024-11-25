@@ -1,0 +1,108 @@
+<%- include('header') %>
+
+     <!-- Contacto Start-->
+      <style>
+         .contact-form {
+            padding: 300px 0px 0px 0px;
+            background: url(images/bannerGray3.png);
+            background-size: 90% 40%; /* Estira la imagen para que cubra el contenedor */
+            background-repeat: no-repeat; /* Evita que la imagen se repita */
+            background-position: right top; /* Coloca la imagen en la esquina superior derecha */
+            min-height: 1150px; /* Mantén la altura mínima */
+         }
+
+
+         .service_contact {
+            display: flex;
+            justify-content: space-between;
+            padding: 5% 5%;
+         }
+
+         .service_contact > div {
+            margin: 0 10%;
+         }
+
+         .service_contact form {
+            display: flex;
+            flex-direction: column;
+            width: 66%; /* 2/3 del espacio */
+         }
+
+         .service_contact form input,
+         .service_contact form textarea {
+            flex: 1;
+            margin-bottom: 10px;
+         }
+
+         .service_contact img {
+            width: 33%; /* 1/3 del espacio */
+            margin-left: 10%;
+            height: auto; 
+            object-fit:contain;
+         }
+         
+         button[type="submit"] {
+            font-size: 16px;
+            padding: 1em 3.3em;
+            cursor: pointer;
+            transform: perspective(200px) rotateX(5deg);
+            color: white;
+            font-weight: 900;
+            border: none;
+            border-radius: 5px;
+            background: linear-gradient(
+               0deg,
+               rgba(63, 94, 251, 1) 0%,
+               rgba(70, 135, 252, 1) 100%
+            );
+            box-shadow: rgba(63, 94, 251, 0.2) 0px 40px 29px 0px;
+            will-change: transform;
+            transition: all 0.3s;
+            border-bottom: 2px solid rgba(70, 135, 252, 1);
+            }
+
+            button[type="submit"]:hover {
+            transform: perspective(180px) rotateX(30deg) translateY(2px);
+            }
+
+            button[type="submit"]:active {
+            transform: perspective(170px) rotateX(36deg) translateY(5px);
+            }
+
+      </style>
+      <section id="vehicles" class="contact-form">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-6">
+                     <div class="titlepage">
+                        <h2>Contáctanos</h2>
+                        <p>¡Nos encantaría saber de ti! No dudes en contactarnos si tienes alguna pregunta o inquietud, y nuestro equipo te responderá lo antes posible.</p>
+                     </div>
+               </div>
+            </div>
+         </div>
+         <div class="container">
+            <div class="service_contact">
+                     <form action="/contact" method="POST">
+                        <div class="form-group">
+                           <label for="nombre">Nombre:</label>
+                           <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                           <label for="email">Correo electrónico:</label>
+                           <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                           <label for="mensaje">Mensaje:</label>
+                           <textarea class="form-control" id="mensaje" name="mensaje" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                     </form>
+                     <img src="images/email.png" alt="#" />
+            </div>
+         </div>
+      </section>
+      <!-- Contacto End-->
+
+<%- include('footer') %>
+

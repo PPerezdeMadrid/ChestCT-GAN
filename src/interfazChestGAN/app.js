@@ -7,6 +7,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/login');
+var contactRouter = require('./routes/contact');
 var restrictedRouter = require('./routes/restricted');
 
 
@@ -31,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
+app.use('/contact', contactRouter);
 app.use('/restricted', checkAuthenticated, restrictedRouter);
 
 // Middleware para verificar si el usuario está logueado
