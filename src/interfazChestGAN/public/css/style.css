@@ -598,6 +598,43 @@ ul.conat_info li a:hover {
 
 .service_main {
      display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 20px; /* Espacio entre las filas */
+ }
+ 
+ .service_box_tech {
+     display: flex;
+     flex-direction: row; /* Coloca la imagen a la izquierda y el texto a la derecha */
+     justify-content: flex-start; /* Alinea los elementos desde la izquierda */
+     align-items: center; /* Centra la imagen y el texto verticalmente */
+     width: 100%;
+ }
+ 
+ .service_box_tech i {
+     margin-right: 15px; 
+     width: 181px;
+     display: block;
+     height: 181px;
+     border-radius: 200px;
+     display: flex; /* Flexbox para centrar */
+     justify-content: center; /* Alineación horizontal */
+     align-items: center; /* Alineación vertical */
+     overflow: hidden
+ }
+ 
+ .service_box_tech img {
+     text-align: center;
+     object-fit: contain;
+ }
+ 
+ .service_box_tech div {
+     flex: 1; /* Esto asegura que el texto ocupe el espacio disponible */
+ }
+ 
+
+.service_main {
+     display: flex;
      justify-content: center;
 }
 

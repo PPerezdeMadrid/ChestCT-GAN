@@ -1,0 +1,93 @@
+<%- include('header') %>
+
+     <!-- Introducción Start -->
+     <section class="background-blue">
+      <div class="container">
+         <div class="row">
+            <div class="col-md-6">
+                  <div class="titlepage">
+                     <h2>¿Qué es ChestGAN?</h2>
+                     <br>
+                     <p> El objetivo de este TFG es desarrollar una solución para la generación de datasets sintético de imágenes de tomografías computarizadas (TC) pulmonares. A tal fin, se propone inicialmente la implementación de modelos basados en arquitecturas de redes neuronales GAN (Generative Adversarial Network) que generen imágenes sintéticas de pulmones tanto sanos como con cáncer.  Además, se explorará la aplicabilidad de este enfoque a otros tipos de imágenes médicas, como rayos X, donde la disponibilidad de datos es limitada por cuestiones de privacidad.</p>
+                  </div>
+            </div>
+         </div>
+      </div>
+      <div class="container mt-4" style="display: flex; align-items: center; ">
+         <img src="images/radiografiapulmones.png" alt="icono radiorgafía pulmones" style="width: 33%; height: auto; margin-right: 10%;">
+         <div style="width: 66%;">
+            <p>Actualmente, los modelos basados en arquitecturas de <strong>Deep Learning </strong>están siendo utilizados en el ámbito médico para la detección de enfermedades. Estos modelos requieren de una <strong>gran cantidad de datos</strong> para ser eficaces.</p>
+            <br>
+            <p>La escasez de datos para el entrenamiento de modelos de Deep Learning ha derivado en el estudio de técnicas para la <strong>generación de datos sintéticos </strong>usando arquitecturas basadas en GAN. Esta tipología de redes se presenta, por tanto, como una <strong>solución</strong> para enfrentar la falta de datos de calidad en el entrenamiento de algoritmos de inteligencia artificial.</p>
+            <br>
+            <p>Así, por ejemplo, la detección de cáncer de pulmón puede beneficiarse de la generación de imágenes sintéticas realistas de pulmones sanos y con cáncer, lo que permitirá crear grandes conjuntos de datos artificiales para mejorar la precisión de los algoritmos de detección. Además, esta técnica es extensible a otras modalidades de imágenes médicas, como los rayos X, donde los problemas de privacidad limitan la disponibilidad de datos clínicos.</p>
+            <br>
+            <p>Este trabajo es relevante porque aborda el desafío de la falta de datos médicos disponibles debido a <strong>cuestiones de privacidad</strong> y <strong>acceso limitado</strong>.</p>
+         </div>
+      </div>      
+     </section>
+     <!-- Introducción End -->
+
+     <!-- Arquitectura Start -->
+     <section id="service" class="service">
+      <div class="titlepage">
+         <h2>Arquitectura del proyecto</h2>
+         <p style="margin-left: 20%; margin-right: 20%;">Este proyecto combina tres componentes clave: un modelo GAN para generar imágenes médicas sintéticas, un pipeline de MLOps para entrenar y mejorar continuamente el modelo, y una interfaz gráfica que permite a médicos y expertos evaluar la calidad de las imágenes generadas y proporcionar retroalimentación para su mejora.</p>
+         <img src="images/arquitectura.png" alt="Arquitectura" style="padding: 10% 10%;">
+      </div>
+     </section>
+     <!-- Arquitectura End -->
+
+     <!-- Tecnología Start -->
+     <section id="service" class="service">
+            <div class="container">
+               <div class="row">
+                     <div class="col-md-10 offset-md-1">
+                        <div class="titlepage">
+                           <h2>Tecnología</h2>
+                           <p>
+                              Este proyecto utiliza las últimas tecnologías para mejorar la generación de imágenes médicas sintéticas y su integración en aplicaciones clínicas. 
+                              Implementamos un modelo GAN basado en PyTorch para generar imágenes realistas de pulmones sanos y con cáncer, utilizando arquitecturas avanzadas de Deep Learning. 
+                              Para el pipeline de MLOps, utilizamos AWS con Metaflow para entrenar, desplegar y mejorar continuamente el modelo, asegurando una gestión eficiente de los datos y el flujo de trabajo de Machine Learning. 
+                              La interfaz gráfica, desarrollada con Node.js, permite a médicos y expertos evaluar las imágenes generadas, proporcionando retroalimentación valiosa para su mejora.
+                           </p>
+                        </div>
+                     </div>
+               </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="service_main">
+                         <div class="service_box_tech blu_colo">
+                             <i><img src="images/pytorchicon.png" alt="Imagen GAN" /></i>
+                             <div>
+                                 <h4>GAN - PyTorch</h4>
+                                 <p>Las Generative Adversarial Networks (GAN) son una clase de modelos de Deep Learning que permiten la generación de datos sintéticos realistas. Utilizando PyTorch, una de las bibliotecas más populares para la construcción y entrenamiento de redes neuronales, las GANs se entrenan mediante un proceso adversarial en el que dos redes compiten entre sí para generar y evaluar imágenes, lo que lleva a una mejora progresiva en la calidad de los datos generados.</p>
+                             </div>
+                         </div>
+                         <div class="service_box_tech green_colo">
+                             <i><img src="images/metaflowicon.png" alt="Imagen MLOps"/></i>
+                             <div>
+                                 <h4>MLOps - AWS con Metaflow</h4>
+                                 <p>El enfoque de MLOps (Machine Learning Operations) busca integrar y automatizar el ciclo de vida completo de los modelos de machine learning. Utilizando AWS y Metaflow, garantizamos una infraestructura escalable y eficiente para entrenar, validar y poner en producción los modelos. Metaflow proporciona herramientas para gestionar experimentos de ML de manera reproducible y escalable, mientras que AWS ofrece una plataforma robusta para ejecutar y desplegar modelos en la nube.</p>
+                             </div>
+                         </div>
+                         <div class="service_box_tech orange_colo">
+                             <i><img src="images/nodeicon.png" alt="Imagen Aplicación Web"/></i>
+                             <div>
+                                 <h4>Aplicación Web - Node.js</h4>
+                                 <p>Node.js es un entorno de ejecución basado en JavaScript que permite desarrollar aplicaciones web rápidas y escalables. En este proyecto, se utiliza Node.js para crear una interfaz gráfica interactiva, que facilita la visualización de datos y la interacción con los modelos de machine learning. Gracias a su arquitectura asincrónica, Node.js maneja múltiples solicitudes simultáneamente de manera eficiente, lo que proporciona una experiencia de usuario fluida y ágil.</p>
+                             </div>
+                         </div>
+                     </div>
+                 </div>              
+                 
+               </div>
+            </div>
+         </div>
+      </section>
+  
+     <!-- Tecnología Start-->
+   
+
+<%- include('footer') %>
+
