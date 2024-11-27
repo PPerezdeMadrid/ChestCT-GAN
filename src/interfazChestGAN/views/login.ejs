@@ -1,18 +1,180 @@
 <%- include('header') %>
 
-<h1>Servidor Express</h1>
-<p>Página de <strong> Log In </strong> para iniciar sesión</p>
+<section class="background-blue">
+  <div class="container">
+    <div class="row">
+       <div class="col-md-6">
+             <div class="titlepage">
+                <h2>Inicio Sesión</h2>
+                <p> Accede a tu cuenta y descubre todo lo que hemos preparado para ti.</p>
+             </div>
+       </div>
+    </div>
+ </div>
+ <div class="container">
+    <!-- Cajitas de LogIn y Register -->
+    <style>
+      #registerIndex {
+          background-color: #08142d;
+          padding: 5% 2%;
+      }
+      form {
+          padding: 1% 1%;
+          border-radius: 5px;
+          width: auto;
+      }
+      label {
+          margin-top: 0.5%;
+      }
+      input {
+          width: 100%;
+          padding: 1%;
+          margin: 2%;
+      }
+      button {
+          margin-top: 15px;
+          padding: 10px 15px;
+          cursor: pointer;
+      }
+      .hidden {
+          display: none;
+      }
+      #contactForm, #RegisterForm {
+          background-color: #f9f9f9;
+          padding: 1% 1%;
+          border-radius: 5px;
+          width: auto;
+      }
+      .text-danger {
+          margin-left: 5%;
+      }
+      
+    </style>
 
-<form action="/login" method="POST">
-    <div style="margin-bottom: 10px;">
-      <label for="username">Nombre de usuario:</label><br>
-      <input type="text" id="username" name="username" required>
+    <!-- Log In Start -->
+    <div class="container-fluid py-5" id="main-container"> <!-- Mostrar por defecto -->
+        <div class="container py-5">
+            <div class="text-center mb-3 pb-3">
+                <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Log In</h6>
+                <h1>Accede al proyecto de ChestGAN</h1>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-form bg-white" style="padding: 2%;">
+                        <form name="sentLogIn" action="/login/loginClient" method="POST" id="contactForm" novalidate="novalidate">
+                            <div class="form-row">
+                                <div class="control-group col-sm-6">
+                                    <input type="email" class="form-control p-4" name="email" id="email" placeholder="Email" required="required" data-validation-required-message="Please enter your email" />
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                                <div class="control-group col-sm-6">
+                                    <input type="password" class="form-control p-4" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Please enter your password" />
+                                    <p class="help-block text-danger"></p>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button class="btn btn-primary py-3 px-4" type="submit" id="submitLoginButton">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-secondary py-3 px-4" id="showNewFormBtn">¿No tienes una cuenta? Regístrate aquí</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="margin-bottom: 10px;">
-      <label for="password">Contraseña:</label><br>
-      <input type="password" id="password" name="password" required>
+    <!-- Log In End -->
+
+    <!-- Register Start -->
+    <div class="container-fluid py-5 hidden" id="newFormContainer"> <!-- Oculto inicialmente -->
+        <div class="container py-5">
+            <div class="text-center mb-3 pb-3">
+                <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Registro</h6>
+                <h1>Create una cuenta en ChestGAN</h1>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-form bg-white" style="padding: 5% 5%;">
+                        <form id="RegisterForm" action="/login/registerClient" method="POST">
+                            
+                            <div class="control-group">
+                                <input type="text" class="form-control p-4" id="newName" name="name" placeholder="Nombre" required>
+                                <p class="help-block text-danger" id="nameError" style="display: none;"></p>
+                            </div>
+
+                            <div class="control-group">
+                                <input type="email" class="form-control p-4" id="newEmail" name="email" placeholder="Email" required>
+                                <p class="help-block text-danger"></p>
+                            </div>
+
+                            <div class="control-group">
+                                <input type="password" class="form-control p-4" id="newPassword" name="password" placeholder="Contraseña" required>
+                                <p class="help-block text-danger"></p>
+                            </div>
+
+                            <!-- Agregar el toggler (switch) -->
+                            <div class="control-group d-flex align-items-center">
+                              <div class="ml-5">
+                                <label for="toggler-1">¿Eres Administrador?</label>
+                              </div>
+                              <div class="toggler">
+                                <input id="toggler-1" name="is_admin" type="checkbox" value="1">
+                                <label for="toggler-1">
+                                  <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                    <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
+                                  </svg>
+                                  <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                    <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
+                                    <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
+                                  </svg>
+                                </label>
+                              </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button class="btn btn-primary py-3 px-4" type="submit">Enviar</button>
+                            </div>
+                            
+                        </form>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button class="btn btn-secondary py-3 px-4" type="button" id="hideNewFormBtn">¿Ya tienes una cuenta? Inicia sesión aquí</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit">Iniciar sesión</button>
-</form>
+    <!-- Register End -->
+ </div>
+ <script>
+    const mainContainer = document.getElementById('main-container');
+    const newFormContainer = document.getElementById('newFormContainer');
+    const showNewFormBtn = document.getElementById('showNewFormBtn');
+    const hideNewFormBtn = document.getElementById('hideNewFormBtn');
+
+    // Mostrar Register y ocultar Login
+    showNewFormBtn.addEventListener('click', function() {
+        mainContainer.classList.add('hidden');
+        newFormContainer.classList.remove('hidden');
+    });
+
+    // Mostrar Login y ocultar Register
+    hideNewFormBtn.addEventListener('click', function() {
+        newFormContainer.classList.add('hidden');
+        mainContainer.classList.remove('hidden');
+    });
+
+    document.getElementById('RegisterForm').addEventListener('submit', function(event) {
+      const toggleSwitch = document.getElementById('toggler-1');
+      // Si el switch está marcado, se enviará 1 (admin), de lo contrario 0.
+      const isAdmin = toggleSwitch.checked ? 1 : 0;
+      
+      // Establecer el valor de is_admin en el formulario
+      document.querySelector('input[name="is_admin"]').value = isAdmin;
+    });
+
+ </script>
+</section>
 
 <%- include('footer') %>

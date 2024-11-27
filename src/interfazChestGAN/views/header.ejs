@@ -35,13 +35,13 @@
    <!-- body -->
    <body class="main-layout">
       <div id="mySidepanel" class="sidepanel">
-        <a href="javascript:void(1)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="index.html">Inicio</a>
-        <a href="index.html">Proyecto </a>
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <a href="/">Inicio</a>
+        <a href="/proyecto">Proyecto </a>
         <a href="/contact">Contacto</a>
-        <a href="#service">Iniciar Sesión  </a>
+        <a href="/login">Iniciar Sesión  </a>
      </div>
-     <script>
+     <script defer>
         function openNav() {
           document.getElementById("mySidepanel").style.width = "250px";
         }
@@ -63,15 +63,15 @@
                <div class="row">
                   <div class="col-md-4 col-sm-4">
                      <div class="logo">
-                        <a href="index.html"><img src="images/logo.png" alt="#" /></a>
+                        <a href="/"><img src="images/logo.png" alt="Logo" /></a>
                      </div>
                   </div>
                   <div class="col-md-8 col-sm-8">
                      <div class="right_bottun">
                         <ul class="conat_info d_none ">
-                           <li><a href="#"><i class="fa fa-folder-open" aria-hidden="true"></i></a></li>
-                           <li><a href="#"><i class="fa fa-envelope" aria-hidden="true"></i></a></li>
-                           <li><a href="#"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
+                           <li><a href="/proyectos"><i class="fa fa-folder-open" aria-hidden="true"></i></a></li>
+                           <li><a href="/contact"><i class="fa fa-envelope" aria-hidden="true"></i></a></li>
+                           <li><a href="/login"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
                         </ul>
                         <button class="openbtn" onclick="openNav()"><img src="images/menu_icon.png" alt="#"/> </button> 
                      </div>
