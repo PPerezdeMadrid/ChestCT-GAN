@@ -53,6 +53,15 @@
         function closeNav() {
           document.getElementById("mySidepanel").style.width = "0";
         }
+
+        function toggleNav() {
+            const sidepanel = document.getElementById("mySidepanel");
+            if (sidepanel.style.width === "250px") {
+               closeNav();
+            } else {
+               openNav();
+            }
+         }
      </script>
       <!-- header -->
       <header>
@@ -80,7 +89,7 @@
                            <li><a href="/contact"><i class="fa fa-envelope" aria-hidden="true"></i></a></li>
                            <li><a href="/login"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
                         </ul>
-                        <button class="openbtn" onclick="openNav()"><img src="/images/menu_icon.png" alt="#"/> </button> 
+                        <button class="openbtn" onclick="toggleNav()"><img src="/images/menu_icon.png" alt="#"/> </button> 
                      </div>
                   </div>
                </div>
