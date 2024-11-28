@@ -14,6 +14,114 @@
                 </div>
             </div>
        </div>
-    </div>
+   </div>
+
+   <hr>
+   <div style="text-align: center; margin: 0 0;">
+      <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+   </div>
+   <hr>
+   <!-- Select imgs Start -->
+   <style>
+      /* From Uiverse.io by akshat-patel28 */ 
+      .card {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--white);
+      border-radius: 10px;
+      box-shadow: 0px 10px 12px rgba(0, 0, 0, 0.08),
+         -4px -4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+      box-sizing: border-box;
+      margin: 10% 10%;
+      padding: 10px;
+      }
+
+      .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0px 20px 20px rgba(0, 0, 0, 0.1),
+         -4px -4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-image-container {
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background-color: rgb(235, 231, 231);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      }
+
+      .card-image-container img{
+         width: 80%;
+      }
+
+
+   </style>
+   <div class="service_main" style="text-align: center;">
+      <div class="card">
+          <div class="card-image-container">
+              <img src="/images/iconoPulmones.png">
+          </div>
+          <div>
+              <div id="primary-buttons">
+                  <button class="btn btn-primary" onclick="showSecondaryButtons()">Real</button>
+                  <button class="btn btn-secondary dissapear">Falso</button>
+                  <button class="btn btn-danger dissapear">No estoy seguro</button>
+              </div>          
+          </div>
+          <div id="secondary-buttons" class="service_main_tech" style="margin: 5%; display: none;">
+              <button class="btn btn-warning"  onclick="handleSelection(this)">Adenocarcinoma</button>
+              <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células grandes</button>
+              <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células escamosas</button>
+              <button class="btn btn-outline-primary" onclick="showPrimaryButtons()">Back</button>
+          </div>
+          <script defer>
+              function showSecondaryButtons() {
+                  document.getElementById('primary-buttons').style.display = 'none';
+                  document.getElementById('secondary-buttons').style.display = 'grid';
+              }
+  
+              function showPrimaryButtons() {
+                  document.getElementById('primary-buttons').style.display = 'block';
+                  document.getElementById('secondary-buttons').style.display = 'none';
+              }
+
+              function handleSelection(button) {
+                  // Ocultar todos los botones y mostrar solo el seleccionado
+                  const buttons = document.querySelectorAll('.card .btn');
+                  buttons.forEach(btn => {
+                        if (btn !== button ) {
+                           btn.style.display = 'none';
+                        }else{
+                           btn.style.border = '2px solid #28a745'; 
+                        }
+                  });
+               }
+
+               function resetButtons() {
+                  // Volver a mostrar todos los botones en su estado inicial
+                  const buttons = document.querySelectorAll('.card .btn');
+                  buttons.forEach(btn => {
+                        btn.style.display = 'inline-block';
+                        btn.style.border = ''; // Eliminar borde de todos los botones
+                        btn.style.boxShadow = ''; // Eliminar sombra de todos los botones
+                  });
+                  showPrimaryButtons();
+               }
+          </script>
+      </div>
+  </div>  
+  <div style="text-align: center; margin-top: 20px;">
+   <button class="btn btn-success" onclick="resetButtons()" >Enviar</button>
+ </div>
+</section>
+
+<!-- Select imgs End -->
+
+    
 
 <%- include('footer') %>

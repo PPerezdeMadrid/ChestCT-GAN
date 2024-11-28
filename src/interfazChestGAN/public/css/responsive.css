@@ -119,12 +119,15 @@
     .banner_slide {
         padding: 0 80px 0 0px;
     }
+    
+    .container-fluid{
+        color:black;
+    }
 }
 
 @media (min-width: 576px) and (max-width: 767px) {
     .banner_main {
         padding: 152px 0px 90px 0px;
-        background-color: #cacaca !important;
         background: inherit;
     }
     .banner_slide {
@@ -192,6 +195,13 @@
     }
     .titlepage h2 {
         font-size: 31px;
+    }
+    .right_bottun {
+        color: black;
+    }
+    
+    .container-fluid{
+        color:black;
     }
 }
 
@@ -285,6 +295,7 @@
     }
     .right_bottun {
         margin-top: -40px;
+        color: black;
     }
     ul.location_icon li {
         font-size: 18px;
