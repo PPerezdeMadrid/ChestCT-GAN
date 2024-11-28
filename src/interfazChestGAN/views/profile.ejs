@@ -1,0 +1,18 @@
+<%- include('header') %>
+
+<section class="background-blue">
+    <div class="container">
+       <div class="row">
+          <div class="col-md-6">
+                <div class="titlepage">
+                    <% if (username) { %> 
+                        <h2>¡Bienvenido <%= username %>!</h2>
+                    <% } %>
+                   <br>
+                   <p> Esta es tu página de perfil</p>
+                </div>
+          </div>
+       </div>
+    </div>
+
+<%- include('footer') %>

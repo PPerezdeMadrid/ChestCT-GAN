@@ -61,14 +61,14 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="contact-form bg-white" style="padding: 2%;">
-                        <form name="sentLogIn" action="/login/loginClient" method="POST" id="contactForm" novalidate="novalidate">
+                        <form name="sentLogIn" action="/login/loginCliente" method="POST" id="contactForm" novalidate="novalidate">
                             <div class="form-row">
                                 <div class="control-group col-sm-6">
-                                    <input type="email" class="form-control p-4" name="email" id="email" placeholder="Email" required="required" data-validation-required-message="Please enter your email" />
+                                    <input type="text" class="form-control p-4" name="username" id="username" placeholder="Nombre de Usuario" required="required" data-validation-required-message="Por favor,introduce tu nombre de usuario" />
                                     <p class="help-block text-danger"></p>
                                 </div>
                                 <div class="control-group col-sm-6">
-                                    <input type="password" class="form-control p-4" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Please enter your password" />
+                                    <input type="password" class="form-control p-4" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Por favor, introduce tu contraseña" />
                                     <p class="help-block text-danger"></p>
                                 </div>
                             </div>
@@ -101,6 +101,11 @@
                             <div class="control-group">
                                 <input type="text" class="form-control p-4" id="newName" name="name" placeholder="Nombre" required>
                                 <p class="help-block text-danger" id="nameError" style="display: none;"></p>
+                            </div>
+
+                            <div class="control-group">
+                                <input type="text" class="form-control p-4" id="newUsername" name="username" placeholder="Nombre de usuario" required>
+                                <p class="help-block text-danger"></p>
                             </div>
 
                             <div class="control-group">

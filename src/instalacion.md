@@ -73,6 +73,12 @@ Instala todas las dependencias definidas en el `package.json`:
 npm install
 ```
 
+```bash
+npm install express-session
+npm install ejs
+npm install bcrypt sqlite3
+```
+
 ---
 
 ### **5. Iniciar el servidor**
@@ -107,7 +113,4 @@ mi-app/
 ```
 
 ---
-```bash
-npm install express-session
-npm install ejs
-```
+

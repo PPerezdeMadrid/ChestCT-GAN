@@ -9,7 +9,7 @@ var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/login');
 var contactRouter = require('./routes/contact');
 var proyectoRouter = require('./routes/proyecto');
-var restrictedRouter = require('./routes/restricted');
+var profileRouter = require('./routes/profile');
 
 
 var app = express();
@@ -20,6 +20,9 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
+const createDatabase = require('./modules/database');
+createDatabase();
 
 // view engine setup
 app.set('view engine', 'ejs');
@@ -35,15 +38,15 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/contact', contactRouter);
 app.use('/proyecto', proyectoRouter);
-app.use('/restricted', checkAuthenticated, restrictedRouter);
+app.use('/profile', checkAuthenticated, profileRouter);
 
 // Middleware para verificar si el usuario está logueado
 function checkAuthenticated(req, res, next) {
-  console.log(req.session); // Imprimir cookies de la sesión
-  if (!req.session.username) {  // Verifica si el usuario está logueado
+  console.log(req.session); 
+  if (!req.session.username) {  
     return res.redirect('/login'); 
   }
-  next();  // Si está logueado, ejecuta el siguiente callback
+  next();  
 }
 
 app.get('/logout', (req, res) => {
