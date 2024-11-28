@@ -1,0 +1,19 @@
+<%- include('header') %>
+
+<section class="background-blue">
+    <div class="container">
+       <div class="row">
+          <div class="col-md-6">
+                <div class="titlepage">
+                    <h2>Tomografías de pulmones</h2>
+                    <br>
+                    <% if (user) { %> 
+                    <p>  ¡Hola <%= user.name %> !</p>
+                    <% } %>
+                   <p> Tu objetivo es identificar si las imágenes son reales o no. En caso de que sean reales, deberás indicar si los pulmones están sanos o si tienen cáncer (adenocarcinoma, carcinoma de células grandes o carcinoma células escamosas)</p>
+                </div>
+          </div>
+       </div>
+    </div>
+
+<%- include('footer') %>

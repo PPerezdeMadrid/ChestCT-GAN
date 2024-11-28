@@ -7,7 +7,7 @@ const sqlite3 = require('sqlite3').verbose();
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-  res.render('login', { username: req.session.username });
+  res.render('login', { user: req.session.user });
 });
 
 // Conectar a la base de datos
@@ -40,14 +40,23 @@ router.post('/loginCliente', (req, res) => {
       }
 
       if (result) {
-        req.session.username = user.username;
-        res.render('profile', { username: req.session.username });
+        // Guardar los datos del usuario en la sesión.
+        req.session.user = {
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.is_admin
+        };
+
+        // Redirigir o renderizar la vista de perfil con los datos de sesión.
+        res.render('profile', { user: req.session.user });
       } else {
         res.status(401).send('Usuario o contraseña incorrectos');
       }
     });
   });
 });
+
 
 
 router.post('/registerClient', (req, res) => {
@@ -74,10 +83,12 @@ router.post('/registerClient', (req, res) => {
         return res.status(500).send('Error al registrar el usuario.');
       }
 
-      req.session.username = username;
-      req.session.name = name;
-      req.session.email = email;
-      req.session.isAdmin = is_admin ? true : false;
+      req.session.user = {
+        name: name,
+        username: username,
+        email: email,
+        isAdmin: is_admin
+      };
 
       console.log(`Usuario ${username} registrado con éxito.`);
       res.redirect('/profile');

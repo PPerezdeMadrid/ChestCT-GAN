@@ -10,6 +10,7 @@ var loginRouter = require('./routes/login');
 var contactRouter = require('./routes/contact');
 var proyectoRouter = require('./routes/proyecto');
 var profileRouter = require('./routes/profile');
+var lungCTRouter = require('./routes/lungCT')
 
 
 var app = express();
@@ -38,12 +39,13 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/contact', contactRouter);
 app.use('/proyecto', proyectoRouter);
+app.use('/lungCT', lungCTRouter);
 app.use('/profile', checkAuthenticated, profileRouter);
 
 // Middleware para verificar si el usuario está logueado
 function checkAuthenticated(req, res, next) {
   console.log(req.session); 
-  if (!req.session.username) {  
+  if (!req.session.user) {  
     return res.redirect('/login'); 
   }
   next();  

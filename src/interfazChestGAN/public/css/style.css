@@ -596,12 +596,6 @@ ul.conat_info li a:hover {
      padding-top: 20px;
 }
 
-.service_main {
-     display: flex;
-     flex-direction: column;
-     align-items: center;
-     gap: 20px; /* Espacio entre las filas */
- }
  
  .service_box_tech {
      display: flex;
@@ -637,6 +631,13 @@ ul.conat_info li a:hover {
      display: flex;
      justify-content: center;
 }
+
+.service_main_tech {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     gap: 20px; /* Espacio entre las filas */
+ }
 
 .service_box {
      text-align: center;

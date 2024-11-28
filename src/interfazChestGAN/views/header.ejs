@@ -40,7 +40,7 @@
         <a href="/proyecto">Proyecto </a>
         <a href="/contact">Contacto</a>
         <a href="/login">Iniciar Sesión  </a>
-        <% if (username) { %>
+        <% if (user) { %>
          <a href="/profile">Perfil </a>
          <a href="/LungCT">Tomografías</a>
          <% } %>
@@ -60,9 +60,12 @@
          <div class="header">
             <div class="container-fluid">
                <div class="info-autor">
-                  <p><i class="fa fa-user"></i>  Paloma Pérez de Madrid  </p>
+                  <% if (user) { %>
+                     <p><i class="fa fa-user"></i> ¡Hola <%= user.name %> ! </p>
+                  <% } else { %>
+                     <p><i class="fa fa-user"></i>  Paloma Pérez de Madrid  </p>
+                  <% } %> 
                   <p style="color: white"><i class="fa fa-graduation-cap"></i> Proyecto de Fin de Carrera</p>
-
                </div>
                <div class="row">
                   <div class="col-md-4 col-sm-4">
@@ -86,6 +89,3 @@
       </header>
       <!-- end header inner -->
       <!-- end header -->
-      <% if (username) { %>
-        <p> Usuario Iniciado</p>
-      <% } %>
