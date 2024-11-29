@@ -40,7 +40,7 @@
         <a href="/proyecto">Proyecto </a>
         <a href="/contact">Contacto</a>
         <a href="/login">Iniciar Sesión  </a>
-        <% if (user) { %>
+        <% if (typeof user !== 'undefined') { %>
          <a href="/profile">Perfil </a>
          <a href="/LungCT">Tomografías</a>
          <% } %>
@@ -69,7 +69,7 @@
          <div class="header">
             <div class="container-fluid">
                <div class="info-autor">
-                  <% if (user) { %>
+                  <% if (typeof user !== 'undefined') { %>
                      <p><i class="fa fa-user"></i> ¡Hola <%= user.name %> ! </p>
                   <% } else { %>
                      <p><i class="fa fa-user"></i>  Paloma Pérez de Madrid  </p>

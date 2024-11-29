@@ -51,51 +51,63 @@ router.post('/loginCliente', (req, res) => {
         // Redirigir o renderizar la vista de perfil con los datos de sesión.
         res.render('profile', { user: req.session.user });
       } else {
-        res.status(401).send('Usuario o contraseña incorrectos');
+        return res.render('login', { message: 'Usuario o contraseña incorrecto.' });
       }
     });
   });
 });
-
-
 
 router.post('/registerClient', (req, res) => {
-  const { name, username, email, password, is_admin } = req.body;
+  const { name, username, email, password, numColegiado, is_admin } = req.body;
 
-  // Validar los datos 
-  if (!name || !username || !email || !password) {
-    return res.status(400).send('Todos los campos son requeridos.');
+  // Validar los datos (frontend ya lo hace)
+  if (!name || !username || !email || !password || !numColegiado) {
+    return res.render('login', { message: '✨ ¡Ups! Todos los campos son requeridos. Por favor, completa el formulario. ✨' });
   }
 
-  // Hash de la contraseña antes de guardarla
-  bcrypt.hash(password, 10, (err, hashedPassword) => {
+  // Verificar si el nombre de usuario ya está en uso
+  const checkUserQuery = `SELECT * FROM users WHERE username = ?`;
+  db.get(checkUserQuery, [username], (err, row) => {
     if (err) {
-      console.error('Error al hashear la contraseña:', err.message);
-      return res.status(500).send('Error interno del servidor.');
+      console.error('Error al verificar el nombre de usuario:', err.message);
+      return res.render('login', { message: '🌟 ¡Oh no! Algo salió mal. Por favor, intenta nuevamente más tarde. 🌟' });
     }
 
-    // Insertar el nuevo usuario en la base de datos
-    const query = `INSERT INTO users (username, name, email, password, is_admin) VALUES (?, ?, ?, ?, ?)`;
+    if (row) {
+      return res.render('login', { message: `¡Hola! Parece que el nombre de usuario "${username}" ya está en uso. ¡Prueba con otro! 😊` });
+    }
 
-    db.run(query, [username, name, email, hashedPassword, is_admin ? 1 : 0], function(err) {
+    // Hash de la contraseña antes de guardarla
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
-        console.error('Error al insertar el usuario:', err.message);
-        return res.status(500).send('Error al registrar el usuario.');
+        console.error('Error al hashear la contraseña:', err.message);
+        return res.render('login', { message: '¡Oops! No pudimos procesar tu solicitud. Por favor, intenta más tarde.' });
       }
 
-      req.session.user = {
-        name: name,
-        username: username,
-        email: email,
-        isAdmin: is_admin
-      };
+      // Insertar el nuevo usuario en la base de datos
+      const insertUserQuery = `INSERT INTO users (username, name, email, password, num_colegiado, is_admin) VALUES (?, ?, ?, ?, ?, ?)`;
+      db.run(insertUserQuery, [username, name, email, hashedPassword, numColegiado, is_admin ? 1 : 0], function (err) {
+        if (err) {
+          console.error('Error al insertar el usuario:', err.message);
+          return res.render('login', { message: 'No pudimos registrar tu usuario. Intenta de nuevo.' });
+        }
 
-      console.log(`Usuario ${username} registrado con éxito.`);
-      res.redirect('/profile');
-      //res.render('profile', { username: req.session.username });
+        // Crear sesión de usuario y redirigir al perfil
+        req.session.user = {
+          name: name,
+          username: username,
+          email: email,
+          isAdmin: is_admin,
+        };
+
+        console.log(`Usuario ${username} registrado con éxito.`);
+        res.render('profile', { user: req.session.user });
+      });
     });
   });
 });
+
+
 
 
 

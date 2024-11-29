@@ -13,6 +13,7 @@ function createDatabase() {
         username TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
+        num_colegiado TEXT NOT NULL,
         password TEXT NOT NULL,
         is_admin INTEGER DEFAULT 0
       )`, (err) => {
