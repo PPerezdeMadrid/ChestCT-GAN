@@ -12,7 +12,8 @@
         "save_epoch": 10
     },
     "model": {
-        "path": "../../model/model_dcgan"
+        "path": "../../model/model_dcgan",
+        "image_path": "../../images/images_dcgan"
     }
 }
 

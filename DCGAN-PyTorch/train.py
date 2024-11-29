@@ -13,7 +13,7 @@ from dcgan import weights_init, Generator, Discriminator
 
 
 # Set random seed for reproducibility
-seed = 369
+seed = 42
 random.seed(seed)
 torch.manual_seed(seed)
 print("Random Seed: ", seed)

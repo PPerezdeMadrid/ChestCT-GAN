@@ -1,4 +1,4 @@
-import torch
+import torch, json, lpips
 import torchvision.transforms as transforms
 from torchvision.models import inception_v3  #--> versión antigua
 from torchvision import models
@@ -9,7 +9,6 @@ import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct 
 from dcgan import Generator, Discriminator
-import json
 from skimage.metrics import structural_similarity as ssim
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -27,6 +26,7 @@ with open('config.json', 'r') as json_file:
 
 
 model_path = config["model"]["path"]
+image_path = config["model"]["image_path"]
 
 print_green("Parameters uploaded")
 
@@ -201,11 +201,6 @@ print(f"{'-' * 30}")
 print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
 
 
-
-import torch
-import torch.nn.functional as F
-import numpy as np
-
 def calculate_psnr(real, fake, max_pixel=1.0):
     """
     Calcula el PSNR (Peak Signal-to-Noise Ratio) entre las imágenes reales y generadas.
@@ -266,26 +261,35 @@ print(f"{'-' * 30}")
 
 """
 #############################################  
-       Gráfica del resultado de la GAN
+                  LPIPS 
  ############################################   
 """
+# Sólo se puede con ordenadores con GPU
 
-df = pd.read_csv('training_log_dcgan.csv')
+if not torch.cuda.is_available():
+    print("GPU no disponible. No se puede evaluar el modelo con la métrica LPIPS.")
+else:
+    print("GPU disponible. El modelo se ejecutará en la GPU.")
 
-plt.figure(figsize=(10, 6))
+    # Cargar el modelo LPIPS preentrenado (por ejemplo, usando VGG)
+    lpips_model = lpips.LPIPS(net='vgg').cuda()
 
-plt.plot(df['Iteration'], df['Loss_D'], label='Loss_D', color='red')
-plt.plot(df['Iteration'], df['Loss_G'], label='Loss_G', color='blue')
+    # Función para cargar y preprocesar imágenes
+    def load_image(image_path):
+        image = Image.open(image_path).convert('RGB')
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        return transform(image).unsqueeze(0).cuda()
 
-plt.plot(df['Iteration'], df['D(x)'], label='D(x)', color='green')
-plt.plot(df['Iteration'], df['D(G(z))_Real'], label='D(G(z))_Real', color='orange')
-plt.plot(df['Iteration'], df['D(G(z))_Fake'], label='D(G(z))_Fake', color='purple')
+    # Cargar imágenes de ejemplo
+    image1 = load_image(f'{image_path}/generated_image_30.png')
+    image2 = load_image('../../../ChestCTKaggle/Data/valid/normal/5.png')
 
-plt.title('Métricas de Entrenamiento')
-plt.xlabel('Iteraciones')
-plt.ylabel('Valores')
 
-plt.legend()
+    lpips_score = lpips_model(image1, image2)
+    print(f"LPIPS Score: {lpips_score.item():.4f}")
 
-plt.show()
+
 

@@ -43,7 +43,19 @@ Donde:
   
 - **Valores bajos (menos de 20 dB)**: Los valores bajos de PSNR indican que hay una gran diferencia entre la imagen generada y la original, lo que sugiere una baja calidad en la generación de la imagen. Esto es común cuando el modelo aún no ha aprendido correctamente las características clave de las imágenes.
 
+## 4. LPIPS (Learned Perceptual Image Patch Similarity) 
+Es una métrica de evaluación de la calidad de imágenes que mide la similitud perceptual entre dos imágenes. A diferencia de las métricas tradicionales como el Error Cuadrático Medio (MSE) o el Pico de la Relación Señal-Ruido (PSNR), que evalúan la diferencia entre las imágenes a nivel de píxeles, LPIPS se enfoca en cómo las diferencias afectan la percepción humana. Es decir, LPIPS evalúa la calidad de una imagen teniendo en cuenta cómo los humanos perciben esas diferencias visuales.
 
-- MSE es útil para obtener una medida numérica, pero puede no reflejar la calidad perceptual.
-- DSC es excelente si estás interesado en la segmentación o en la similitud de regiones específicas dentro de las radiografías.
-- TV Loss y KL Divergence pueden ser útiles para medir la calidad y suavidad global, respectivamente.
+### ¿Cómo Funciona LPIPS?
+- **Extracción de características**: Utiliza redes neuronales preentrenadas (ej. VGG) para extraer características de las imágenes.
+- **Cálculo de la distancia perceptual**: Compara las características extraídas de las imágenes en distintas capas de la red.
+- **Interpretación**: Una puntuación baja indica mayor similitud perceptual, mientras que una puntuación alta indica mayores diferencias perceptuales.
+
+### Ventajas de LPIPS
+- **Más alineado con la percepción humana**: Mide la calidad de las imágenes de acuerdo con cómo los humanos perciben las diferencias visuales.
+- **Sensibilidad a características visuales**: Evalúa detalles importantes como bordes, texturas y otros elementos perceptuales relevantes.
+- **Aplicaciones en modelos generativos**: Útil para evaluar la calidad de imágenes generadas por modelos como GANs.
+
+### Limitaciones de LPIPS
+- **Dependencia de la GPU**: Requiere una GPU para una ejecución eficiente debido a la complejidad computacional de las redes neuronales.
+- **Costo computacional**: Más costoso en términos de tiempo de procesamiento comparado con métricas simples como PSNR.
