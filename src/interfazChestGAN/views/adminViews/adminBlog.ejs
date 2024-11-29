@@ -1,0 +1,45 @@
+<%- include('../header') %> 
+
+<section class="background-blue">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="titlepage">
+                    <h2>Blog ChestGAN</h2>
+                    <br>
+                    <p> Añade una entrada al blog para que cualquier usuario pueda leerla.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Añadir una nueva entrada al blog</h1>
+        <% if (typeof message !== 'undefined') { %>
+            <div class="alert <%= message.includes('Error') ? 'alert-danger' : 'alert-success' %>">
+                <%= message %>
+            </div>
+        <% } %>
+        <form action="/adminBlog/add-entry" method="POST">
+            <div class="mb-3">
+                <label for="titulo" class="form-label">Título</label>
+                <input type="text" class="form-control" id="titulo" name="titulo" required>
+            </div>
+            <div class="mb-3">
+                <label for="resumen" class="form-label">Resumen</label>
+                <textarea class="form-control" id="resumen" name="resumen" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="contenido" class="form-label">Contenido</label>
+                <textarea class="form-control" id="contenido" name="contenido" rows="5" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="fecha_publicacion" class="form-label">Fecha de publicación</label>
+                <input type="date" class="form-control" id="fecha_publicacion" name="fecha_publicacion" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Añadir entrada</button>
+        </form>
+    </div>
+
+</section>
+<%- include('../footer') %>

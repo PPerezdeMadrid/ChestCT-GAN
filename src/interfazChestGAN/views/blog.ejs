@@ -1,0 +1,83 @@
+<%- include('header') %> 
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .card-text {
+        color: #444;
+    }
+
+    .card-text.text-muted {
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .read-more {
+        display: inline-block;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .read-more:hover {
+        background-color: #0056b3;
+    }
+</style>
+<section class="background-blue">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="titlepage">
+                    <h2>Blog ChestGAN</h2>
+                    <br>
+                    <p>Lee las entradas de los administradores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Aquí van las entradas -->
+        <main class="container mt-5">
+            <% if (typeof message !== 'undefined') { %>
+                <div class="alert alert-info"><%= message %></div>
+            <% } %>
+            <div class="row">
+                <% if (blogEntries.length > 0) { %>
+                    <% blogEntries.forEach(entry => { %>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= entry.titulo %></h5>
+                                    <hr>
+                                    <p class="card-text text-muted">Publicado el <%= new Date(entry.fecha_publicacion).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                                    <p class="card-text"><%= entry.resumen %></p>
+                                    <a href="/entrada/<%= entry.id %>" class="btn btn-primary read-more">Leer más</a>
+                                    <!-- Contenedor oculto para el contenido completo -->
+                                    <div class="full-content mt-3" style="display: none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center">No hay entradas disponibles.</p>
+                <% } %>
+            </div>
+            <!-- fALTA EL VER LA PROPIA NOTICIA-->
+        </main>
+    </div>
+</section>
+
+<%- include('footer') %>

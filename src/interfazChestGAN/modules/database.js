@@ -40,6 +40,23 @@ function createDatabase() {
         }
       });
 
+      db.run(`
+        CREATE TABLE IF NOT EXISTS entradas_blog (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          titulo TEXT NOT NULL,
+          resumen TEXT NOT NULL,
+          contenido TEXT NOT NULL,
+          fecha_publicacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          autor TEXT NOT NULL
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error al crear la tabla users:', err.message);
+        } else {
+          console.log('Tabla entradas_blog creada o ya existente.');
+        }
+      });
+
       // Cerrar la conexión
       db.close((err) => {
         if (err) {
