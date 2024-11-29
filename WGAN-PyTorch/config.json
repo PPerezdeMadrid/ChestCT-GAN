@@ -12,6 +12,7 @@
         "save_epoch": 10
     },
     "model": {
-        "path": "../../model/model_wgan"
+        "path": "../../model/model_wgan",
+        "image_path": "../../images/images_wgan"
     }
 }

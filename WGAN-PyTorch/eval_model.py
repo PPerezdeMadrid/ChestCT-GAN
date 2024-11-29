@@ -1,20 +1,17 @@
-import torch
+import torch, json, lpips
 import torchvision.transforms as transforms
 from torchvision.models import inception_v3  #--> versión antigua
 from torchvision import models
 from torch.nn import functional as F
-from wgan import Generator  # Asegúrate de que este módulo está definido
+from dcgan import Generator  # Asegúrate de que este módulo está definido
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct 
-from wgan import Generator, Discriminator
-import json
+from dcgan import Generator, Discriminator
 from skimage.metrics import structural_similarity as ssim
 import pandas as pd
 import matplotlib.pyplot as plt
-
-
 
 
 
@@ -29,6 +26,7 @@ with open('config.json', 'r') as json_file:
 
 
 model_path = config["model"]["path"]
+image_path = config["model"]["image_path"]
 
 print_green("Parameters uploaded")
 
@@ -259,5 +257,39 @@ psnr_score = evaluate_psnr(dataloader, netG, device, params)
 print(f"{'-' * 30}")
 print(f"{'PSNR Score:':<20} {psnr_score:.2f} dB")
 print(f"{'-' * 30}")
+
+
+"""
+#############################################  
+                  LPIPS 
+ ############################################   
+"""
+# Sólo se puede con ordenadores con GPU
+
+if not torch.cuda.is_available():
+    print("GPU no disponible. No se puede evaluar el modelo con la métrica LPIPS.")
+else:
+    print("GPU disponible. El modelo se ejecutará en la GPU.")
+
+    # Cargar el modelo LPIPS preentrenado (por ejemplo, usando VGG)
+    lpips_model = lpips.LPIPS(net='vgg').cuda()
+
+    # Función para cargar y preprocesar imágenes
+    def load_image(image_path):
+        image = Image.open(image_path).convert('RGB')
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        return transform(image).unsqueeze(0).cuda()
+
+    # Cargar imágenes de ejemplo
+    image1 = load_image(f'{image_path}/generated_image_30.png')
+    image2 = load_image('../../../ChestCTKaggle/Data/valid/normal/5.png')
+
+
+    lpips_score = lpips_model(image1, image2)
+    print(f"LPIPS Score: {lpips_score.item():.4f}")
+
 
 
