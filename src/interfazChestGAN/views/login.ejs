@@ -27,9 +27,8 @@
           margin-top: 0.5%;
       }
       input {
-          width: 100%;
-          padding: 1%;
-          margin: 2%;
+          width: auto;
+          margin-bottom: 2%;
       }
       button {
           margin-top: 15px;
@@ -60,15 +59,15 @@
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="contact-form bg-white" style="padding: 2%;">
+                    <div class="contact-form bg-white">
                         <form name="sentLogIn" action="/login/loginCliente" method="POST" id="contactForm" novalidate="novalidate">
                             <div class="form-row">
                                 <div class="control-group col-sm-6">
-                                    <input type="text" class="form-control p-4" name="username" id="username" placeholder="Nombre de Usuario" required="required" data-validation-required-message="Por favor,introduce tu nombre de usuario" />
+                                    <input type="text" class="form-control p-4 input-margin" name="username" id="username" placeholder="Nombre de Usuario" required="required" data-validation-required-message="Por favor,introduce tu nombre de usuario" />
                                     <p class="help-block text-danger"></p>
                                 </div>
                                 <div class="control-group col-sm-6">
-                                    <input type="password" class="form-control p-4" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Por favor, introduce tu contraseña" />
+                                    <input type="password" class="form-control p-4 input-margin" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Por favor, introduce tu contraseña" />
                                     <p class="help-block text-danger"></p>
                                 </div>
                             </div>
@@ -99,22 +98,22 @@
                         <form id="RegisterForm" action="/login/registerClient" method="POST">
                             
                             <div class="control-group">
-                                <input type="text" class="form-control p-4" id="newName" name="name" placeholder="Nombre" required>
+                                <input type="text" class="form-control p-4 input-margin" id="newName" name="name" placeholder="Nombre" required>
                                 <p class="help-block text-danger" id="nameError" style="display: none;"></p>
                             </div>
 
                             <div class="control-group">
-                                <input type="text" class="form-control p-4" id="newUsername" name="username" placeholder="Nombre de usuario" required>
+                                <input type="text" class="form-control p-4 input-margin" id="newUsername" name="username" placeholder="Nombre de usuario" required>
                                 <p class="help-block text-danger"></p>
                             </div>
 
                             <div class="control-group">
-                                <input type="email" class="form-control p-4" id="newEmail" name="email" placeholder="Email" required>
+                                <input type="email" class="form-control p-4 input-margin" id="newEmail" name="email" placeholder="Email" required>
                                 <p class="help-block text-danger"></p>
                             </div>
 
                             <div class="control-group">
-                                <input type="password" class="form-control p-4" id="newPassword" name="password" placeholder="Contraseña" required>
+                                <input type="password" class="form-control p-4 input-margin" id="newPassword" name="password" placeholder="Contraseña" required>
                                 <p class="help-block text-danger"></p>
                             </div>
 

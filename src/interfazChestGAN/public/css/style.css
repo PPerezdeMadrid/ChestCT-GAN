@@ -179,7 +179,12 @@ img {
 .form-control:focus {
      border-color: #ffffff !important;
      box-shadow: 0 0 0 .2rem rgba(255, 255, 255, .25);
+
 }
+
+  .input-margin {
+    margin-right:5%; 
+  }
 
 .navbar-form input {
      border: none !important;
@@ -500,6 +505,7 @@ ul.conat_info li a:hover {
   .service_contact form textarea {
      flex: 1;
      margin-bottom: 10px;
+     margin-right: 5%;
   }
 
   .service_contact img {
