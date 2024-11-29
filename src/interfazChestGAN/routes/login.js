@@ -30,7 +30,7 @@ router.post('/loginCliente', (req, res) => {
     }
 
     if (!user) {
-      return res.status(401).send('Usuario o contraseña incorrectos');
+       return res.render('login', {message:'Usuario o contraseña incorrectos'});
     }
 
     bcrypt.compare(passwd, user.password, (err, result) => {
@@ -57,12 +57,15 @@ router.post('/loginCliente', (req, res) => {
   });
 });
 
+
 router.post('/registerClient', (req, res) => {
   const { name, username, email, password, numColegiado, is_admin } = req.body;
 
-  // Validar los datos (frontend ya lo hace)
-  if (!name || !username || !email || !password || !numColegiado) {
-    return res.render('login', { message: '✨ ¡Ups! Todos los campos son requeridos. Por favor, completa el formulario. ✨' });
+  // Validar datos del formulario
+  if (!name || !username || !email || !password || (!is_admin && !numColegiado)) {
+    return res.render('login', { 
+      message: '✨ ¡Ups! Todos los campos requeridos deben ser completados. Por favor, revisa el formulario. ✨' 
+    });
   }
 
   // Verificar si el nombre de usuario ya está en uso
@@ -70,42 +73,69 @@ router.post('/registerClient', (req, res) => {
   db.get(checkUserQuery, [username], (err, row) => {
     if (err) {
       console.error('Error al verificar el nombre de usuario:', err.message);
-      return res.render('login', { message: '🌟 ¡Oh no! Algo salió mal. Por favor, intenta nuevamente más tarde. 🌟' });
+      return res.render('login', { 
+        message: '🌟 ¡Oh no! Algo salió mal. Por favor, intenta nuevamente más tarde. 🌟' 
+      });
     }
 
     if (row) {
-      return res.render('login', { message: `¡Hola! Parece que el nombre de usuario "${username}" ya está en uso. ¡Prueba con otro! 😊` });
+      return res.render('login', { 
+        message: `¡Hola! Parece que el nombre de usuario "${username}" ya está en uso. ¡Prueba con otro! 😊` 
+      });
     }
 
-    // Hash de la contraseña antes de guardarla
+    // Hash de la contraseña
     bcrypt.hash(password, 10, (err, hashedPassword) => {
       if (err) {
         console.error('Error al hashear la contraseña:', err.message);
-        return res.render('login', { message: '¡Oops! No pudimos procesar tu solicitud. Por favor, intenta más tarde.' });
+        return res.render('login', { 
+          message: '¡Oops! No pudimos procesar tu solicitud. Por favor, intenta más tarde.' 
+        });
       }
 
-      // Insertar el nuevo usuario en la base de datos
-      const insertUserQuery = `INSERT INTO users (username, name, email, password, num_colegiado, is_admin) VALUES (?, ?, ?, ?, ?, ?)`;
-      db.run(insertUserQuery, [username, name, email, hashedPassword, numColegiado, is_admin ? 1 : 0], function (err) {
+      // Asignar valor predeterminado para `num_colegiado` si es administrador
+      const numColegiadoValue = is_admin ? 'Do Not Have' : numColegiado;
+
+      // Consulta de inserción
+      const insertUserQuery = `
+        INSERT INTO users (username, name, email, password, num_colegiado, is_admin) 
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+
+      // Parámetros de la consulta
+      const queryParams = [
+        username,
+        name,
+        email,
+        hashedPassword,
+        numColegiadoValue,
+        is_admin ? 1 : 0
+      ];
+
+      db.run(insertUserQuery, queryParams, function (err) {
         if (err) {
           console.error('Error al insertar el usuario:', err.message);
-          return res.render('login', { message: 'No pudimos registrar tu usuario. Intenta de nuevo.' });
+          return res.render('login', { 
+            message: 'No hemos podido registrar tu usuario. Inténtalo de nuevo.' 
+          });
         }
 
-        // Crear sesión de usuario y redirigir al perfil
         req.session.user = {
-          name: name,
-          username: username,
-          email: email,
-          isAdmin: is_admin,
+          id: this.lastID,
+          name,
+          username,
+          email,
+          isAdmin: !!is_admin,
         };
 
         console.log(`Usuario ${username} registrado con éxito.`);
-        res.render('profile', { user: req.session.user });
+        res.redirect('/profile');
       });
     });
   });
 });
+
+
 
 
 

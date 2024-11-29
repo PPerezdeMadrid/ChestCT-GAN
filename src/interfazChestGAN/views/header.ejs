@@ -35,16 +35,20 @@
    <!-- body -->
    <body class="main-layout">
       <div id="mySidepanel" class="sidepanel">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-        <a href="/">Inicio</a>
-        <a href="/proyecto">Proyecto </a>
-        <a href="/contact">Contacto</a>
-        <a href="/login">Iniciar Sesión  </a>
-        <% if (typeof user !== 'undefined') { %>
-         <a href="/profile">Perfil </a>
-         <a href="/LungCT">Tomografías</a>
+         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+         <a href="/">Inicio</a>
+         <a href="/proyecto">Proyecto</a>
+         <a href="/contact">Contacto</a>
+         <a href="/login">Iniciar Sesión</a>
+         <% if (typeof user !== 'undefined') { %>
+             <a href="/profile">Perfil</a>
+             <a href="/LungCT">Tomografías</a>
+             <% if (user.isAdmin) { %> <!-- Verifica si el usuario es administrador -->
+                 <a href="/adminContact">Mensajes de Contacto</a>
+                 <a href="/adminBlog">Añadir Entrada al Blog</a>
+             <% } %>
          <% } %>
-     </div>
+      </div>
      <script defer>
         function openNav() {
           document.getElementById("mySidepanel").style.width = "250px";

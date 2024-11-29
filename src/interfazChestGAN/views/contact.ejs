@@ -44,8 +44,13 @@
             </div>
          </div>
          <div class="container">
+            <% if (typeof message !== 'undefined') { %>
+               <div class="alert alert-danger text-center">
+                 <%= message %>
+               </div>
+             <% } %>
             <div class="service_contact">
-                     <form action="/contact" method="POST">
+                     <form action="/contact/messageSend" method="POST">
                         <div class="form-group">
                            <label for="nombre">Nombre:</label>
                            <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -60,7 +65,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Enviar</button>
                      </form>
-                     <img src="images/email.png" alt="#" />
+                     <img src="/images/email.png" alt="#" />
             </div>
          </div>
       </section>

@@ -118,8 +118,8 @@
                                 <p class="help-block text-danger"></p>
                             </div>
 
-                            <div class="control-group">
-                                <input type="text" class="form-control p-4 input-margin" id="numColegiado" name="numColegiado" placeholder="Número de colegiado" required>
+                            <div class="control-group" id="numColegiadoGroup"> <!-- Campo a ocultar -->
+                                <input type="text" class="form-control p-4 input-margin" id="numColegiado" name="numColegiado" placeholder="Número de colegiado">
                                 <p class="help-block text-danger"></p>
                             </div>
 
@@ -130,21 +130,21 @@
 
                             <!-- Agregar el toggler (switch) -->
                             <div class="control-group d-flex align-items-center">
-                              <div class="ml-5">
-                                <label for="toggler-1">¿Eres Administrador?</label>
-                              </div>
-                              <div class="toggler">
-                                <input id="toggler-1" name="is_admin" type="checkbox" value="1">
-                                <label for="toggler-1">
-                                  <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
-                                    <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
-                                  </svg>
-                                  <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
-                                    <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
-                                    <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
-                                  </svg>
-                                </label>
-                              </div>
+                                <div class="ml-5">
+                                    <label for="toggler-1">¿Eres Administrador?</label>
+                                </div>
+                                <div class="toggler">
+                                    <input id="toggler-1" name="is_admin" type="checkbox" value="0">
+                                    <label for="toggler-1">
+                                        <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                            <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
+                                        </svg>
+                                        <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                            <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
+                                            <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
+                                        </svg>
+                                    </label>
+                                </div>
                             </div>
 
                             <div class="text-center">
@@ -161,7 +161,7 @@
         </div>
     </div>
     <!-- Register End -->
- </div>
+
  <script>
     const mainContainer = document.getElementById('main-container');
     const newFormContainer = document.getElementById('newFormContainer');
@@ -188,6 +188,26 @@
       // Establecer el valor de is_admin en el formulario
       document.querySelector('input[name="is_admin"]').value = isAdmin;
     });
+
+    // Mostrar u ocultar el campo "Número de colegiado" según el estado del interruptor
+    const toggler = document.getElementById('toggler-1');
+    const numColegiadoGroup = document.getElementById('numColegiadoGroup');
+
+    // Detectar cambios en el interruptor
+    toggler.addEventListener('change', function() {
+        if (toggler.checked) {
+            // Si es administrador, ocultar el campo "Número de colegiado"
+            numColegiadoGroup.style.display = 'none';
+        } else {
+            // Si no es administrador, mostrar el campo
+            numColegiadoGroup.style.display = 'block';
+        }
+    });
+
+    // Configuración inicial: ocultar o mostrar según el estado del interruptor
+    if (toggler.checked) {
+        numColegiadoGroup.style.display = 'none';
+    }
 
  </script>
 </section>

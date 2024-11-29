@@ -24,6 +24,22 @@ function createDatabase() {
         }
       });
 
+      db.run(`
+        CREATE TABLE IF NOT EXISTS mensajes_contacto (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre TEXT NOT NULL,
+          email TEXT NOT NULL,
+          mensaje TEXT NOT NULL,
+          fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error al crear la tabla users:', err.message);
+        } else {
+          console.log('Tabla mensajes_contacto creada o ya existente.');
+        }
+      });
+
       // Cerrar la conexión
       db.close((err) => {
         if (err) {

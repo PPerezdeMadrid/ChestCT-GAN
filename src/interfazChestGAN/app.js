@@ -11,6 +11,7 @@ var contactRouter = require('./routes/contact');
 var proyectoRouter = require('./routes/proyecto');
 var profileRouter = require('./routes/profile');
 var lungCTRouter = require('./routes/lungCT')
+var adminContactRouter = require('./routes/adminContact')
 
 
 var app = express();
@@ -41,6 +42,7 @@ app.use('/contact', contactRouter);
 app.use('/proyecto', proyectoRouter);
 app.use('/lungCT', lungCTRouter);
 app.use('/profile', checkAuthenticated, profileRouter);
+app.use('/adminContact', checkAdmin, adminContactRouter);
 
 // Middleware para verificar si el usuario está logueado
 function checkAuthenticated(req, res, next) {
@@ -49,6 +51,15 @@ function checkAuthenticated(req, res, next) {
     return res.redirect('/login'); 
   }
   next();  
+}
+
+// Middleware para verificar si el usuario es admin
+function checkAdmin(req, res, next) {
+  console.log(req.session); 
+  if (!req.session.user && req.session.user.isAdmin) {  
+    return res.redirect('/login'); 
+  }
+  next();
 }
 
 app.get('/logout', (req, res) => {
