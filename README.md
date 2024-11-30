@@ -1,7 +1,14 @@
 # ChestCT-GAN
 Proyecto de fin de carrera: Generación de tomografías de pulmones con cáncer para generar datos sintéticos y mejorar los algoritmos de detección de cáncer
 
-# Falta por escribir mucho
+# Ejecutar la interfaz gráfica
+```bash
+cd src/interfazChestGAN
+npm install -y
+npm start
+```
+
+La interfaz estará corriendo en `http://localhost:3000`
 
 # Scripts 
 
