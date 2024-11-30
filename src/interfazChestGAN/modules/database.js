@@ -8,7 +8,7 @@ function createDatabase() {
       console.log('Conexión a SQLite exitosa.');
 
       // Crear la tabla users si no existe
-      db.run(`CREATE TABLE IF NOT EXISTS users (
+      db.run(`CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,

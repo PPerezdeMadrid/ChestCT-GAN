@@ -23,7 +23,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
 router.post('/loginCliente', (req, res) => {
   const { username, passwd } = req.body;
 
-  db.get('SELECT * FROM users WHERE username = ?', [username], (err, user) => {
+  db.get('SELECT * FROM usuarios WHERE username = ?', [username], (err, user) => {
     if (err) {
       console.error('Error al consultar la base de datos:', err.message);
       return res.status(500).send('Error interno del servidor');
@@ -69,7 +69,7 @@ router.post('/registerClient', (req, res) => {
   }
 
   // Verificar si el nombre de usuario ya está en uso
-  const checkUserQuery = `SELECT * FROM users WHERE username = ?`;
+  const checkUserQuery = `SELECT * FROM usuarios WHERE username = ?`;
   db.get(checkUserQuery, [username], (err, row) => {
     if (err) {
       console.error('Error al verificar el nombre de usuario:', err.message);
@@ -98,7 +98,7 @@ router.post('/registerClient', (req, res) => {
 
       // Consulta de inserción
       const insertUserQuery = `
-        INSERT INTO users (username, name, email, password, num_colegiado, is_admin) 
+        INSERT INTO usuarios (username, name, email, password, num_colegiado, is_admin) 
         VALUES (?, ?, ?, ?, ?, ?)
       `;
 

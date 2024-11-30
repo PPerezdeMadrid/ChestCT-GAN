@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
 // Borrar mensaje
 router.post('/deleteMessage',  (req, res) => {
   const { id } = req.body;
-  const deleteMessageQuery = 'DELETE FROM contact_messages WHERE id = ?';
+  const deleteMessageQuery = 'DELETE FROM mensajes_contacto WHERE id = ?';
 
   db.run(deleteMessageQuery, [id], function(err) {
     if (err) {
