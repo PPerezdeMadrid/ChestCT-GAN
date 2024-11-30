@@ -94,7 +94,7 @@ router.post('/registerClient', (req, res) => {
       }
 
       // Asignar valor predeterminado para `num_colegiado` si es administrador
-      const numColegiadoValue = is_admin ? 'Do Not Have' : numColegiado;
+      const numColegiadoValue = is_admin ? 'No tiene' : numColegiado;
 
       // Consulta de inserción
       const insertUserQuery = `

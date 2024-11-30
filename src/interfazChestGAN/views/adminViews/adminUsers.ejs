@@ -1,0 +1,99 @@
+<%- include('../header') %>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background-color: #f4f4f4;
+        color: #333;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .btn {
+        padding: 6px 12px;
+        margin: 2px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .btn-danger {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+    }
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+</style>
+<section class="background-blue">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="titlepage">
+                    <h2>Usuarios</h2>
+                    <p>Consulta toda la información relacionada con los usuarios y accede a los detalles relevantes de manera sencilla.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Users from database Start-->
+    <div class="container mt-5">
+        <% if (typeof message !== 'undefined') { %>
+            <div class="alert alert-info"><%= message %></div>
+        <% } %>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Nombre de Usuario</th>
+                <th>Email</th>
+                <th>num_colegiado</th>
+                <th>is_admin</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% messages.forEach(message => { %>
+                <tr>
+                <td><%= message.name %></td>
+                <td><%= message.username %></td>
+                <td><%= message.email %></td>
+                <td><%= message.num_colegiado %></td>
+                <td><%= message.is_admin %></td>
+                <td>
+                    <!-- Botón para eliminar mensaje -->
+                    <form action="adminContact/deleteUser" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<%= message.id %>">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                    
+                    <!-- Enlace para enviar un correo de respuesta -->
+                    <a href="mailto:<%= message.email %>?subject=Respuesta%20a%20tu%20mensaje&body=Hola%2C%20gracias%20por%20tu%20mensaje.%20Aquí%20está%20mi%20respuesta.%20[Escribe%20aquí%20tu%20respuesta]">
+                        <button class="btn btn-primary">Enviar Email</button>
+                    </a>
+                </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<%- include('../footer') %>

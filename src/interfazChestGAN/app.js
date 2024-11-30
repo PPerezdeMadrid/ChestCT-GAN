@@ -13,6 +13,7 @@ var profileRouter = require('./routes/profile');
 var lungCTRouter = require('./routes/lungCT')
 var adminContactRouter = require('./routes/adminContact')
 var adminBlogRouter = require('./routes/adminBlog')
+var adminUsersRouter = require('./routes/adminUsers')
 var blogRouter = require('./routes/blog')
 var entradaRouter = require('./routes/entrada')
 
@@ -47,6 +48,7 @@ app.use('/lungCT', checkAuthenticated,lungCTRouter);
 app.use('/profile', checkAuthenticated, profileRouter);
 app.use('/adminContact', checkAdmin, adminContactRouter);
 app.use('/adminBlog', checkAdmin, adminBlogRouter);
+app.use('/adminUsers', checkAdmin, adminUsersRouter);
 app.use('/blog', blogRouter);
 app.use('/entrada', entradaRouter);
 
