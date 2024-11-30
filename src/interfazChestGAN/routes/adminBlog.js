@@ -6,7 +6,7 @@ const db = new sqlite3.Database('./database.db');
 
 
 router.get('/', function(req, res, next) {
-    res.render('adminViews/adminBlog', { });
+    res.render('adminViews/adminBlog', { user: req.session.user});
   });
 
 

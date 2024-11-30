@@ -77,8 +77,10 @@
               <button class="btn btn-warning"  onclick="handleSelection(this)">Adenocarcinoma</button>
               <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células grandes</button>
               <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células escamosas</button>
-              <button class="btn btn-outline-primary" onclick="showPrimaryButtons()">Back</button>
           </div>
+          <div style="text-align: center; margin-top: 20px;">
+              <button class="btn btn-outline-primary" onclick="resetButtons()">Volver</button>
+           </div>
           <script defer>
               function showSecondaryButtons() {
                   document.getElementById('primary-buttons').style.display = 'none';
@@ -94,13 +96,16 @@
                   // Ocultar todos los botones y mostrar solo el seleccionado
                   const buttons = document.querySelectorAll('.card .btn');
                   buttons.forEach(btn => {
-                        if (btn !== button ) {
-                           btn.style.display = 'none';
-                        }else{
-                           btn.style.border = '2px solid #28a745'; 
-                        }
+                    if (btn !== button) {
+                        btn.style.display = 'none';
+                    } else {
+                        btn.style.border = '2px solid #28a745';
+                    }
                   });
-               }
+                  // Asegurar que el botón "Back" permanezca visible
+                  document.querySelector('.btn-outline-primary').style.display = 'inline-block';
+              }
+
 
                function resetButtons() {
                   // Volver a mostrar todos los botones en su estado inicial

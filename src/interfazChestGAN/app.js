@@ -43,7 +43,7 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/contact', contactRouter);
 app.use('/proyecto', proyectoRouter);
-app.use('/lungCT', lungCTRouter);
+app.use('/lungCT', checkAuthenticated,lungCTRouter);
 app.use('/profile', checkAuthenticated, profileRouter);
 app.use('/adminContact', checkAdmin, adminContactRouter);
 app.use('/adminBlog', checkAdmin, adminBlogRouter);

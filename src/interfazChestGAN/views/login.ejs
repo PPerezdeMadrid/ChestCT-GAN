@@ -47,169 +47,251 @@
       .text-danger {
           margin-left: 5%;
       }
+      /* From Uiverse.io by vinodjangid07 */ 
+        .Btn-logout {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition-duration: .3s;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+            background-color: rgb(255, 65, 65);
+        }
+
+        /* plus sign */
+        .sign {
+            width: 100%;
+            transition-duration: .3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sign svg {
+            width: 17px;
+        }
+
+        .sign svg path {
+            fill: white;
+        }
+        /* text */
+        .text-logout {
+            position: absolute;
+            right: 0%;
+            width: 0%;
+            opacity: 0;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition-duration: .3s;
+        }
+        /* hover effect on button width */
+        .Btn-logout:hover {
+            width: 125px;
+            border-radius: 40px;
+            transition-duration: .3s;
+        }
+
+        .Btn-logout:hover .sign {
+            width: 30%;
+            transition-duration: .3s;
+            padding-left: 20px;
+        }
+        /* hover effect button's text */
+        .Btn-logout:hover .text-logout {
+            opacity: 1;
+            width: 70%;
+            transition-duration: .3s;
+            padding-right: 10px;
+        }
+        /* button click effect*/
+        .Btn-logout:active {
+            transform: translate(2px ,2px);
+        }
       
     </style>
-    <div class="container-fluid py-5"> 
-        <% if (typeof message !== 'undefined') { %>
-            <div class="alert alert-danger text-center">
-              <%= message %>
-            </div>
-          <% } %>
-    </div>
-    <!-- Log In Start -->
-    <div class="container-fluid py-5" id="main-container"> <!-- Mostrar por defecto -->
-        <div class="container py-5">
-            <div class="text-center mb-3 pb-3">
-                <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Log In</h6>
-                <h1>Accede al proyecto de ChestGAN</h1>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="contact-form bg-white">
-                        <form name="sentLogIn" action="/login/loginCliente" method="POST" id="contactForm" novalidate="novalidate">
-                            <div class="form-row">
-                                <div class="control-group col-sm-6">
-                                    <input type="text" class="form-control p-4 input-margin" name="username" id="username" placeholder="Nombre de Usuario" required="required" data-validation-required-message="Por favor,introduce tu nombre de usuario" />
-                                    <p class="help-block text-danger"></p>
+    <% if (typeof user !== 'undefined') { %>
+        <div class="container-fluid py-5">
+            <!-- Botón cerrar sesión /logout -->
+            <!-- /* From Uiverse.io by vinodjangid07 */ -->
+            <a href="/logout" class="Btn-logout">
+                <div class="sign">
+                    <svg viewBox="0 0 512 512">
+                        <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path>
+                    </svg>
+                </div>
+                <div class="text-logout">Logout</div>
+            </a>
+        </div>        
+    <% }else{ %>
+        <div class="container-fluid py-5"> 
+            <% if (typeof message !== 'undefined') { %>
+                <div class="alert alert-danger text-center">
+                <%= message %>
+                </div>
+            <% } %>
+        </div>
+        <!-- Log In Start -->
+        <div class="container-fluid py-5" id="main-container"> <!-- Mostrar por defecto -->
+            <div class="container py-5">
+                <div class="text-center mb-3 pb-3">
+                    <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Log In</h6>
+                    <h1>Accede al proyecto de ChestGAN</h1>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="contact-form bg-white">
+                            <form name="sentLogIn" action="/login/loginCliente" method="POST" id="contactForm" novalidate="novalidate">
+                                <div class="form-row">
+                                    <div class="control-group col-sm-6">
+                                        <input type="text" class="form-control p-4 input-margin" name="username" id="username" placeholder="Nombre de Usuario" required="required" data-validation-required-message="Por favor,introduce tu nombre de usuario" />
+                                        <p class="help-block text-danger"></p>
+                                    </div>
+                                    <div class="control-group col-sm-6">
+                                        <input type="password" class="form-control p-4 input-margin" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Por favor, introduce tu contraseña" />
+                                        <p class="help-block text-danger"></p>
+                                    </div>
                                 </div>
-                                <div class="control-group col-sm-6">
-                                    <input type="password" class="form-control p-4 input-margin" id="passwd" name="passwd" placeholder="Contraseña" required="required" data-validation-required-message="Por favor, introduce tu contraseña" />
-                                    <p class="help-block text-danger"></p>
+                                <div class="text-center">
+                                    <button class="btn btn-primary py-3 px-4" type="submit" id="submitLoginButton">Enviar</button>
                                 </div>
-                            </div>
-                            <div class="text-center">
-                                <button class="btn btn-primary py-3 px-4" type="submit" id="submitLoginButton">Enviar</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="text-center mt-4">
-                        <button class="btn btn-secondary py-3 px-4" id="showNewFormBtn">¿No tienes una cuenta? Regístrate aquí</button>
+                            </form>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button class="btn btn-secondary py-3 px-4" id="showNewFormBtn">¿No tienes una cuenta? Regístrate aquí</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Log In End -->
+        <!-- Log In End -->
 
-    <!-- Register Start -->
-    <div class="container-fluid py-5 hidden" id="newFormContainer"> <!-- Oculto inicialmente -->
-        <div class="container py-5">
-            <div class="text-center mb-3 pb-3">
-                <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Registro</h6>
-                <h1>Create una cuenta en ChestGAN</h1>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="contact-form bg-white" style="padding: 5% 5%;">
-                        <form id="RegisterForm" action="/login/registerClient" method="POST">
-                            
-                            <div class="control-group">
-                                <input type="text" class="form-control p-4 input-margin" id="newName" name="name" placeholder="Nombre" required>
-                                <p class="help-block text-danger" id="nameError" style="display: none;"></p>
-                            </div>
-
-                            <div class="control-group">
-                                <input type="text" class="form-control p-4 input-margin" id="newUsername" name="username" placeholder="Nombre de usuario" required>
-                                <p class="help-block text-danger"></p>
-                            </div>
-
-                            <div class="control-group">
-                                <input type="email" class="form-control p-4 input-margin" id="newEmail" name="email" placeholder="Email" required>
-                                <p class="help-block text-danger"></p>
-                            </div>
-
-                            <div class="control-group" id="numColegiadoGroup"> <!-- Campo a ocultar -->
-                                <input type="text" class="form-control p-4 input-margin" id="numColegiado" name="numColegiado" placeholder="Número de colegiado">
-                                <p class="help-block text-danger"></p>
-                            </div>
-
-                            <div class="control-group">
-                                <input type="password" class="form-control p-4 input-margin" id="newPassword" name="password" placeholder="Contraseña" required>
-                                <p class="help-block text-danger"></p>
-                            </div>
-
-                            <!-- Agregar el toggler (switch) -->
-                            <div class="control-group d-flex align-items-center">
-                                <div class="ml-5">
-                                    <label for="toggler-1">¿Eres Administrador?</label>
+        <!-- Register Start -->
+        <div class="container-fluid py-5 hidden" id="newFormContainer"> <!-- Oculto inicialmente -->
+            <div class="container py-5">
+                <div class="text-center mb-3 pb-3">
+                    <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Registro</h6>
+                    <h1>Create una cuenta en ChestGAN</h1>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="contact-form bg-white" style="padding: 5% 5%;">
+                            <form id="RegisterForm" action="/login/registerClient" method="POST">
+                                
+                                <div class="control-group">
+                                    <input type="text" class="form-control p-4 input-margin" id="newName" name="name" placeholder="Nombre" required>
+                                    <p class="help-block text-danger" id="nameError" style="display: none;"></p>
                                 </div>
-                                <div class="toggler">
-                                    <input id="toggler-1" name="is_admin" type="checkbox" value="0">
-                                    <label for="toggler-1">
-                                        <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
-                                            <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
-                                        </svg>
-                                        <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
-                                            <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
-                                            <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
-                                        </svg>
-                                    </label>
-                                </div>
-                            </div>
 
-                            <div class="text-center">
-                                <button class="btn btn-primary py-3 px-4" type="submit">Enviar</button>
-                            </div>
-                            
-                        </form>
-                    </div>
-                    <div class="text-center mt-4">
-                        <button class="btn btn-secondary py-3 px-4" type="button" id="hideNewFormBtn">¿Ya tienes una cuenta? Inicia sesión aquí</button>
+                                <div class="control-group">
+                                    <input type="text" class="form-control p-4 input-margin" id="newUsername" name="username" placeholder="Nombre de usuario" required>
+                                    <p class="help-block text-danger"></p>
+                                </div>
+
+                                <div class="control-group">
+                                    <input type="email" class="form-control p-4 input-margin" id="newEmail" name="email" placeholder="Email" required>
+                                    <p class="help-block text-danger"></p>
+                                </div>
+
+                                <div class="control-group" id="numColegiadoGroup"> <!-- Campo a ocultar -->
+                                    <input type="text" class="form-control p-4 input-margin" id="numColegiado" name="numColegiado" placeholder="Número de colegiado">
+                                    <p class="help-block text-danger"></p>
+                                </div>
+
+                                <div class="control-group">
+                                    <input type="password" class="form-control p-4 input-margin" id="newPassword" name="password" placeholder="Contraseña" required>
+                                    <p class="help-block text-danger"></p>
+                                </div>
+
+                                <!-- Agregar el toggler (switch) -->
+                                <div class="control-group d-flex align-items-center">
+                                    <div class="ml-5">
+                                        <label for="toggler-1">¿Eres Administrador?</label>
+                                    </div>
+                                    <div class="toggler">
+                                        <input id="toggler-1" name="is_admin" type="checkbox" value="0">
+                                        <label for="toggler-1">
+                                            <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                                <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
+                                            </svg>
+                                            <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                                <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
+                                                <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
+                                            </svg>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="text-center">
+                                    <button class="btn btn-primary py-3 px-4" type="submit">Enviar</button>
+                                </div>
+                                
+                            </form>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button class="btn btn-secondary py-3 px-4" type="button" id="hideNewFormBtn">¿Ya tienes una cuenta? Inicia sesión aquí</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Register End -->
+        <!-- Register End -->
+    <% } %>
 
- <script>
-    const mainContainer = document.getElementById('main-container');
-    const newFormContainer = document.getElementById('newFormContainer');
-    const showNewFormBtn = document.getElementById('showNewFormBtn');
-    const hideNewFormBtn = document.getElementById('hideNewFormBtn');
+    <script>
+        const mainContainer = document.getElementById('main-container');
+        const newFormContainer = document.getElementById('newFormContainer');
+        const showNewFormBtn = document.getElementById('showNewFormBtn');
+        const hideNewFormBtn = document.getElementById('hideNewFormBtn');
 
-    // Mostrar Register y ocultar Login
-    showNewFormBtn.addEventListener('click', function() {
-        mainContainer.classList.add('hidden');
-        newFormContainer.classList.remove('hidden');
-    });
+        // Mostrar Register y ocultar Login
+        showNewFormBtn.addEventListener('click', function() {
+            mainContainer.classList.add('hidden');
+            newFormContainer.classList.remove('hidden');
+        });
 
-    // Mostrar Login y ocultar Register
-    hideNewFormBtn.addEventListener('click', function() {
-        newFormContainer.classList.add('hidden');
-        mainContainer.classList.remove('hidden');
-    });
+        // Mostrar Login y ocultar Register
+        hideNewFormBtn.addEventListener('click', function() {
+            newFormContainer.classList.add('hidden');
+            mainContainer.classList.remove('hidden');
+        });
 
-    document.getElementById('RegisterForm').addEventListener('submit', function(event) {
-      const toggleSwitch = document.getElementById('toggler-1');
-      // Si el switch está marcado, se enviará 1 (admin), de lo contrario 0.
-      const isAdmin = toggleSwitch.checked ? 1 : 0;
-      
-      // Establecer el valor de is_admin en el formulario
-      document.querySelector('input[name="is_admin"]').value = isAdmin;
-    });
+        document.getElementById('RegisterForm').addEventListener('submit', function(event) {
+        const toggleSwitch = document.getElementById('toggler-1');
+        // Si el switch está marcado, se enviará 1 (admin), de lo contrario 0.
+        const isAdmin = toggleSwitch.checked ? 1 : 0;
+        
+        // Establecer el valor de is_admin en el formulario
+        document.querySelector('input[name="is_admin"]').value = isAdmin;
+        });
 
-    // Mostrar u ocultar el campo "Número de colegiado" según el estado del interruptor
-    const toggler = document.getElementById('toggler-1');
-    const numColegiadoGroup = document.getElementById('numColegiadoGroup');
+        // Mostrar u ocultar el campo "Número de colegiado" según el estado del interruptor
+        const toggler = document.getElementById('toggler-1');
+        const numColegiadoGroup = document.getElementById('numColegiadoGroup');
 
-    // Detectar cambios en el interruptor
-    toggler.addEventListener('change', function() {
+        // Detectar cambios en el interruptor
+        toggler.addEventListener('change', function() {
+            if (toggler.checked) {
+                // Si es administrador, ocultar el campo "Número de colegiado"
+                numColegiadoGroup.style.display = 'none';
+            } else {
+                // Si no es administrador, mostrar el campo
+                numColegiadoGroup.style.display = 'block';
+            }
+        });
+
+        // Configuración inicial: ocultar o mostrar según el estado del interruptor
         if (toggler.checked) {
-            // Si es administrador, ocultar el campo "Número de colegiado"
             numColegiadoGroup.style.display = 'none';
-        } else {
-            // Si no es administrador, mostrar el campo
-            numColegiadoGroup.style.display = 'block';
         }
-    });
 
-    // Configuración inicial: ocultar o mostrar según el estado del interruptor
-    if (toggler.checked) {
-        numColegiadoGroup.style.display = 'none';
-    }
-
- </script>
+    </script>
 </section>
 
 <%- include('footer') %>
