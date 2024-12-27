@@ -30,8 +30,14 @@ image_path = config["model"]["image_path"]
 
 print_green("Parameters uploaded")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print_green(f'{device} will be used.\n')
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.xpu.is_available():
+    device = torch.device("xpu")
+else:
+    device = torch.device("cpu")
+
+print(device, " will be used.\n")
 
 
 # Cargar el modelo entrenado con weights_only=True para una mayor seguridad

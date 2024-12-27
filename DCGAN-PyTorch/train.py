@@ -1,4 +1,4 @@
-import os, json, torch, random
+import os, json, torch, random, time
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
@@ -25,13 +25,19 @@ with open('config.json', 'r') as json_file:
 params = config["params"]
 model_path = config["model"]["path"]
 
+# Use Apple GPU (Metal) if available, else use Intel GPU, else use CPU
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+elif torch.xpu.is_available():
+    device = torch.device("xpu")
+else:
+    device = torch.device("cpu")
 
-# Use GPU if available, else use CPU
-device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
 print(device, " will be used.\n")
 
 # Get the data
 dataloader = get_chestct(params)
+
 
 # Plot the training images
 sample_batch = next(iter(dataloader))
@@ -85,6 +91,7 @@ print("Starting Training Loop...")
 print("-" * 25)
 
 for epoch in range(params['nepochs']):
+    start_time = time.time()
     for i, data in enumerate(dataloader, 0):
         # Transfer data tensor to GPU/CPU (device)
         real_data = data[0].to(device)
@@ -162,6 +169,12 @@ for epoch in range(params['nepochs']):
             img_list.append(vutils.make_grid(fake_data, padding=2, normalize=True))
 
         iters += 1
+
+    # Calcular el tiempo de la época
+    end_time = time.time()
+    epoch_time = end_time - start_time
+    print(f"Epoch [{epoch + 1}/{params['nepochs']}] completed in {epoch_time:.2f} seconds.")
+
 
     # Save the model
     if epoch % params['save_epoch'] == 0:

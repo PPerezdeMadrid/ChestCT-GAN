@@ -20,7 +20,14 @@ parser.add_argument('-num_output', default=64, help='Number of generated outputs
 args = parser.parse_args()
 
 # Set the device to run on: GPU or CPU.
-device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
+if torch.backends.mps.is_available():
+    device = torch.device("mps") # Mac ARM
+elif torch.xpu.is_available():
+    device = torch.device("xpu") 
+else:
+    device = torch.device("cpu")
+
+print(device, " will be used.\n")
 state_dict = torch.load(args.load_path, map_location=device)
 
 params = state_dict['params']
