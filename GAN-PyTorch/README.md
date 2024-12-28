@@ -7,7 +7,7 @@ Por defecto: dcgan
 
 Generar imágenes: 
 ```bash
-python generate.py -model dcgan -load_path ./model_checkpoint.pth -num_output 128
+python generate.py --model dcgan --load_path ./model_checkpoint.pth --num_output 128
 ```
 Por defecto:
 - model dcgan
@@ -16,6 +16,6 @@ Por defecto:
 
 Evaluar modelo 
 ```bash
-python eval_model.py -load_path ..\..\model\model_wgan\model_epoch_990.pth
+python eval_model.py --load_path ..\..\model\model_wgan\model_epoch_990.pth
 ```
 Por defecto: generated_images/model_ChestCT.pth 
