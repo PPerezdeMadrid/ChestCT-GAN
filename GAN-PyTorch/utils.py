@@ -1,6 +1,7 @@
 import torch, csv
 import torchvision.transforms as transforms
 from torchvision import datasets
+import os
 
 # Ruta a los datasets
 path="../../../ChestCTKaggle/Data/"
@@ -39,7 +40,7 @@ def get_chestct(params):
     return combined_loader
 
 
-def log_training_info(epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2, log_file='training_log_dcgan.csv'):
+def log_training_info(epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2, log_file='training_log_wgan.csv'):
     """
     Imprime los valores de la iteración actual y guarda la información en un archivo CSV.
 
@@ -72,14 +73,14 @@ def log_training_info(epoch, total_epochs, i, total_iterations, errD, errG, D_x,
         D_G_z2
     ]
     
-    # Abrir el archivo CSV para escribir
-    with open(log_file, "a", newline='') as csvfile:
+    # Modo de escritura dependiendo de la primera iteración (para que sobreescriba)
+    mode = 'w' if i == 0 and epoch == 0 else 'a'
+    
+    with open(log_file, mode, newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         
-        # Escribir encabezado solo una vez (si el archivo está vacío)
-        if i == 0 and epoch == 0:
+        if mode == 'w':
             csv_writer.writerow(['Epoch', 'Total Epochs', 'Iteration', 'Total Iterations', 'Loss_D', 'Loss_G', 'D(x)', 'D(G(z))_Real', 'D(G(z))_Fake'])
         
         # Escribir los datos de esta iteración
         csv_writer.writerow(log_data)
-
