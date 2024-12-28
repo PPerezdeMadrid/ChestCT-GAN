@@ -38,7 +38,7 @@ def initialize_model(model_type, params, device):
         netD.apply(wgan_weights_init)
     return netG, netD
 
-def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device):
+def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
     G_losses, D_losses, img_list = [], [], []
     real_label, fake_label = 1, 0
     iters = 0
@@ -92,11 +92,22 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
             iters += 1
 
         epoch_time = time.time() - start_time
-        print(f"Epoch [{epoch + 1}/{params['nepochs']}] completed in {epoch_time:.2f} seconds.")
+        print(f"Epoch [{epoch + 1}] completed in {epoch_time:.2f} seconds.")
+
+        # Save each epoch
+        save_epoch(  
+            epoch=epoch + 1,    
+            model_path=model_path,
+            netG=netG,
+            netD=netD,
+            optimizerG=optimizerG,
+            optimizerD=optimizerD,
+            params=params
+        )
 
     return G_losses, D_losses, img_list
 
-def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device):
+def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path):
     # Stores generated images as training progresses
     img_list = []
     # Stores generator losses during training
@@ -152,11 +163,22 @@ def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noi
             iters += 1
 
         epoch_time = time.time() - start_time
-        print(f"Epoch [{epoch + 1}/{params['nepochs']}] completed in {epoch_time:.2f} seconds.")
+        print(f"Epoch [{epoch + 1}] completed in {epoch_time:.2f} seconds.")
+
+        # Save each epoch
+        save_epoch(  
+            epoch=epoch + 1,    
+            model_path=model_path,
+            netG=netG,
+            netD=netD,
+            optimizerG=optimizerG,
+            optimizerD=optimizerD,
+            params=params
+        )
 
     return G_losses, D_losses, img_list
 
-def save_model(model_type, epoch, model_path, netG, netD, optimizerG, optimizerD, params):
+def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
     if epoch % params['save_epoch'] == 0:
         torch.save({
             'generator': netG.state_dict(),
@@ -164,7 +186,19 @@ def save_model(model_type, epoch, model_path, netG, netD, optimizerG, optimizerD
             'optimizerG': optimizerG.state_dict(),
             'optimizerD': optimizerD.state_dict(),
             'params': params
-        }, f'{model_path}/model_{model_type}_epoch_{epoch}.pth')
+        }, f'{model_path}/model_epoch_{epoch}.pth')
+
+
+def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
+    # Save the final trained model
+    torch.save({
+        'generator': netG.state_dict(),
+        'discriminator': netD.state_dict(),
+        'optimizerG': optimizerG.state_dict(),
+        'optimizerD': optimizerD.state_dict(),
+        'params': params
+    },  f'{model_path}/model_ChestCT.pth') # FUERA del repo!
+
 
 def plot_training_losses(G_losses, D_losses):
     plt.figure(figsize=(10, 5))
@@ -207,8 +241,8 @@ def main():
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
         # Train DCGAN
-        G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device)
-        save_model('dcgan', params, model_path, netG, netD, optimizerG, optimizerD, params)
+        G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
+        save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         save_gif(img_list, 'ChestTC_dcgan.gif')
         plot_training_losses(G_losses, D_losses)
 
@@ -223,8 +257,8 @@ def main():
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
         # Train WGAN
-        G_losses, D_losses, img_list = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device)
-        save_model('wgan', params, model_path, netG, netD, optimizerG, optimizerD, params)
+        G_losses, D_losses, img_list = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
+        save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         save_gif(img_list, 'ChestTC_wgan.gif')
         plot_training_losses(G_losses, D_losses)
 
