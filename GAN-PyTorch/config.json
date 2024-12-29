@@ -1,7 +1,7 @@
 {
     "params": {
         "bsize": 128,
-        "imsize": 128,
+        "imsize": 64, 
         "nc": 1,
         "nz": 100,
         "ngf": 128,

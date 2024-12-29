@@ -1,8 +1,4 @@
-import os
-import json
-import torch
-import random
-import time
+import os,json,torch,random,time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch.optim as optim
@@ -11,6 +7,7 @@ from dcgan import Generator, Discriminator, weights_init
 from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
 from utils import get_chestct, log_training_info
 import argparse
+import numpy as np
 
 def setup_device():
     # Use Apple GPU (Metal) if available, else use Intel GPU, else use CPU
@@ -79,7 +76,7 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
 
             # Log training info
             if i % 50 == 0:
-                log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
+                log_training_info('dcgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
@@ -150,7 +147,7 @@ def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noi
 
             # Log training info
             if i % 50 == 0:
-                log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, 0, D_G_z2)
+                log_training_info('wgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, 0, D_G_z2)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
@@ -198,6 +195,7 @@ def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
         'optimizerD': optimizerD.state_dict(),
         'params': params
     },  f'{model_path}/model_ChestCT.pth') # FUERA del repo!
+    print("==> Final model saved.")
 
 
 def plot_training_losses(G_losses, D_losses):
@@ -227,7 +225,7 @@ def main():
     config = load_config()
     params = config["params"]
     
-    dataloader = get_chestct(params)
+    dataloader = get_chestct(params['imsize'])
     sample_batch = next(iter(dataloader))
     
     fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)

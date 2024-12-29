@@ -53,7 +53,7 @@ checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', weights_only=True)
 params = checkpoint['params']
 
 # Get the data
-dataloader = get_chestct(params)
+dataloader = get_chestct(params['imsize'])
 
 # Load the generator and discriminator
 netG = Generator(params).to(device)

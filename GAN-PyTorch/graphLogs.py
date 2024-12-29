@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Cargar el archivo CSV
-file_path = "training_log_dcgan.csv"  # Asegúrate de usar la ruta correcta
+file_path = "training_log_wgan.csv"  # Asegúrate de usar la ruta correcta
 df = pd.read_csv(file_path)
 
 # Convertir columnas relevantes a tipos numéricos
