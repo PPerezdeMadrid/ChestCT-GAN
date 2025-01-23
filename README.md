@@ -10,6 +10,8 @@ npm start
 
 La interfaz estará corriendo en `http://localhost:3000`
 
+# Datos
+Toda la información sobre como se han recabado los datos está en la carpeta "Data"
 # Scripts 
 
 ### `generate.py`

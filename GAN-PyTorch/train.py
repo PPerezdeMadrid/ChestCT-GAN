@@ -231,6 +231,7 @@ def main():
     fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)
     
     if args.model == 'dcgan':
+        print("\033[92mDCGAN model\033[0m")
         model_path = config["model"]["path_dcgan"]
         criterion = torch.nn.BCELoss()
 
@@ -245,6 +246,7 @@ def main():
         plot_training_losses(G_losses, D_losses)
 
     elif args.model == 'wgan':
+        print("\033[92mWGAN model\033[0m")
         model_path = config["model"]["path_wgan"]
         # No need for BCELoss in WGAN
         # Instead, we will calculate the Wasserstein loss directly

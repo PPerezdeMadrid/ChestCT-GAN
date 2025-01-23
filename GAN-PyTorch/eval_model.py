@@ -284,6 +284,7 @@ print(f"{'-' * 30}")
 ############################################   
 """
 
+"""
 if not torch.cuda.is_available():
     print("CUDA no disponible. Se calculará el valor LISP con la CPU")
     # Cargar el modelo LPIPS
@@ -341,6 +342,45 @@ else:
 
     lpips_score = lpips_model(image1, image2)
     print(f"LPIPS Score: {lpips_score.item():.4f}")
+"""
+
+import torch
+import lpips
+from PIL import Image
+from torchvision import transforms
+
+# Configurar dispositivo
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Ejecutando en {'GPU' if device.type == 'cuda' else 'CPU'}")
+
+# Cargar el modelo LPIPS
+model = lpips.LPIPS(net='vgg').to(device)  # Puedes cambiar 'alex' por 'vgg' si prefieres
+
+# Función para cargar y preprocesar imágenes
+def load_image(image_path):
+    image = Image.open(image_path).convert('RGB')  # Asegurar formato RGB
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),  # Asegurar tamaño esperado por LPIPS
+        transforms.ToTensor(),  # Convertir a tensor
+        # LPIPS no requiere normalización adicional (usa características internas del modelo)
+    ])
+    return transform(image).unsqueeze(0).to(device)  # Añadir dimensión batch y mover al dispositivo
+
+# Función para calcular LPIPS
+def calculate_lpips(model, img1_path, img2_path):
+    img1 = load_image(img1_path)
+    img2 = load_image(img2_path)
+    with torch.no_grad():  # Desactivar gradientes para evaluación
+        lpips_score = model(img1, img2)
+    return lpips_score.item()
+
+# Rutas de las imágenes
+real_image_path = '../../../ChestCTKaggle/Data/valid/normal/5.png'
+generated_image_path = f'{image_path}/generated_image_30.png'
+
+# Calcular LPIPS
+lpips_value = calculate_lpips(model, real_image_path, generated_image_path)
+print(f"LPIPS Score: {lpips_value:.4f}")
 
 
 

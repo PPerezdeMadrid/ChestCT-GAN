@@ -19,3 +19,9 @@ Evaluar modelo
 python eval_model.py --load_path ..\..\model\model_wgan\model_epoch_990.pth
 ```
 Por defecto: generated_images/model_ChestCT.pth 
+
+Generar gráfico de pérdidas del discriminador y generador
+
+```bash
+python3 graphLogs.py --csv training_log_wgan.csv
+```

@@ -2,6 +2,7 @@ import torch, csv
 import torchvision.transforms as transforms
 from torchvision import datasets
 import os
+from datetime import datetime
 
 # Ruta a los datasets
 path="../../../ChestCTKaggle/Data/"
@@ -56,7 +57,9 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     - D_G_z2: salida del discriminador en datos generados (segunda vez).
     - log_file: nombre del archivo CSV para guardar los datos.
     """
-    name_csv = f'training_log_{model}'
+
+    fecha = datetime.now().strftime('%Y-%m-%d')
+    name_csv = f'training_log_{model}_{fecha}.csv'
 
     # Imprimir en consola
     print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f' % (
