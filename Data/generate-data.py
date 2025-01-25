@@ -38,14 +38,15 @@ def calculate_lpips(model, img1_path, img2_path, device):
         lpips_score = model(img1, img2)
     return lpips_score.item()
 
-def process_dicom_folders(path_NBIA_Data, reference_image_path, transformed_dir, discarded_dir, threshold=0.6):
+def process_dicom_folders(path_NBIA_Data, reference_images_paths, transformed_dir, discarded_dir, threshold=0.3500):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = lpips.LPIPS(net='vgg').to(device)
+    model = lpips.LPIPS(net='alex').to(device)
     
     ensure_directory_exists(transformed_dir)
     ensure_directory_exists(discarded_dir)
     
     results = []
+    image_counter = 1  # Counter for naming images as ChestCT_X.png
 
     # Read the metadata CSV
     metadata_path = os.path.join(path_NBIA_Data, 'metadata.csv')  # Path to the CSV file
@@ -57,7 +58,7 @@ def process_dicom_folders(path_NBIA_Data, reference_image_path, transformed_dir,
     
     print(f"Found {len(metadata)} records with valid Study UID.")
     start_time = time.time()
-    
+
     for _, row in metadata.iterrows():
         # Get the folder path from Download Timestamp
         folder_path = os.path.join(path_NBIA_Data, row['File Location'])
@@ -73,18 +74,26 @@ def process_dicom_folders(path_NBIA_Data, reference_image_path, transformed_dir,
             for file in files:
                 if file.lower().endswith('.dcm'):
                     dicom_path = os.path.join(root, file)
-                    png_filename = f"{os.path.splitext(file)[0]}.png"
+                    png_filename = f"ChestCT_{image_counter}.png"  # Using image_counter to name the files
                     output_png_path = os.path.join(transformed_dir, png_filename)
                     
                     # Convert the DICOM image to PNG
                     dicom_to_png(dicom_path, output_png_path)
                     
-                    # Calculate LPIPS value
-                    lpips_value = calculate_lpips(model, reference_image_path, output_png_path, device)
-                    print(f"LPIPS score for {png_filename}: {lpips_value:.4f}")
+                    # Initialize a flag to check if the image should be moved
+                    move_to_transformed = False
+                    
+                    # Compare the DICOM image with each reference image
+                    for reference_image_path in reference_images_paths:
+                        lpips_value = calculate_lpips(model, reference_image_path, output_png_path, device)
+                        print(f"LPIPS score for {png_filename} with {reference_image_path}: {lpips_value:.4f}")
+                        
+                        if lpips_value <= threshold:
+                            move_to_transformed = True
+                            break  # If any LPIPS score is below the threshold, move to transformed directory
                     
                     # Move the image to the appropriate folder based on LPIPS
-                    if lpips_value < threshold:
+                    if move_to_transformed:
                         final_path = os.path.join(transformed_dir, png_filename)
                         print(f"Moving {png_filename} to transformed directory.")
                     else:
@@ -95,6 +104,7 @@ def process_dicom_folders(path_NBIA_Data, reference_image_path, transformed_dir,
                     
                     # Store the result
                     results.append((png_filename, lpips_value))
+                    image_counter += 1  # Increment the image counter
     
     # Save results to a CSV file
     with open("lpips_results.csv", "w") as f:
@@ -112,8 +122,8 @@ def process_dicom_folders(path_NBIA_Data, reference_image_path, transformed_dir,
 # Example usage
 process_dicom_folders(
     path_NBIA_Data='../../../../ChestCT-NBIA/manifest-1608669183333',  # Path to the folder containing metadata.csv and Lung-PET-CT-Dx
-    reference_image_path='Ejemplo_de_imagen.png',
+    reference_images_paths=['Imagen_Ref1.png', 'Imagen_Ref2.png', 'Imagen_Ref3.png'],
     transformed_dir='Data-Transformed/',
     discarded_dir='Discarded/',
-    threshold=0.360
+    threshold=0.3500
 )

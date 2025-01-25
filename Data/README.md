@@ -97,8 +97,12 @@ Se analizan los diferentes estudios realizados para determinar qué imágenes so
 ### Métrica LPIPS para Selección de Imágenes
 
 He creado un programa que tome una imágen de referencia y le aplique la métrica LISPS que utilizamos en la evaluación de la GAN (para evaluar la similitud perceptual de dos imágenes).
-![Imagen de referencia](Ejemplo_de_imagen.png)
-Imagen de Referencia
+
+Imágenes de Referencia:
+![Imagen de referencia 1](Imagen_Ref1.png)
+![Imagen de referencia 2](Imagen_Ref2.png)
+![Imagen de referencia 3](Imagen_Ref3.png)
+
 
 Ejemplo de salida:
 ```bash
