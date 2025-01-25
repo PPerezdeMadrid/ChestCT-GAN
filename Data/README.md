@@ -113,7 +113,7 @@ Processed 1-40.png: LPIPS=0.2691
 ```
 
 **Criterio:**  
-Imágenes con **LPIPS < 0.3600** se consideran útiles.
+Imágenes con **LPIPS < 0.3500** se consideran útiles.
 
 - **Imagen Inferior**  
   `1-01.dcm`: LPIPS = 0.4339  
