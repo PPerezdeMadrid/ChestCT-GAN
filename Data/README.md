@@ -46,7 +46,7 @@ Estas imágenes suelen corresponder a cortes de tomografías computarizadas (CT)
 #### Visualización de Imágenes
 La función **`show_dicom_images()`** permite generar un conjunto de 9 imágenes representativas a partir de los archivos DICOM.
 
-![Imágenes DICOM](DICOM_to_images.png)
+![Imágenes DICOM](img_doc/DICOM_to_images.png)
 
 ---
 
@@ -87,10 +87,10 @@ Se analizan los diferentes estudios realizados para determinar qué imágenes so
    - Las imágenes seleccionadas deben corresponder a cortes superiores del tórax, visibles en referencia a ejemplos como:
 
    **Corte Correcto:**
-   ![Corte Correcto](Sujeto_A0002.png)
+   ![Corte Correcto](img_doc/Sujeto_A0002.png)
 
    **Corte Incorrecto:**
-   ![Corte Incorrecto](A0002_corte_incorrecto.png)
+   ![Corte Incorrecto](img_doc/A0002_corte_incorrecto.png)
 
 ---
 
