@@ -42,4 +42,58 @@ router.post('/deleteUser',  (req, res) => {
 });
 
 
+router.get('/editUser/:id', (req, res) => {
+  const userId = req.params.id;
+  const getUserQuery = 'SELECT * FROM usuarios WHERE id = ?';
+
+  console.log()
+  db.get(getUserQuery, [userId], (err, row) => {
+    if (err) {
+      console.error('Error al obtener el usuario:', err.message);
+      return res.redirect('/adminUsers');
+    }
+    if (!row) {
+      return res.redirect('/adminUsers'); // Si no se encuentra el usuario
+    }
+    res.render('adminViews/adminUsers', {
+      user: req.session.user,
+      userData: row
+    });
+  });
+});
+
+
+router.post('/editUser/:id', (req, res) => {
+  const userId = req.params.id;
+  const { name, username, email, num_colegiado, is_admin } = req.body;
+
+  console.log('Datos recibidos para editar el usuario:', {
+    userId, 
+    name, 
+    username, 
+    email, 
+    num_colegiado, 
+    is_admin
+  });
+
+  const updateUserQuery = `UPDATE usuarios SET 
+                            name = ?, 
+                            username = ?, 
+                            email = ?, 
+                            num_colegiado = ?, 
+                            is_admin = ? 
+                            WHERE id = ?`;
+
+  db.run(updateUserQuery, [name, username, email, num_colegiado, is_admin, userId], function(err) {
+    if (err) {
+      console.error('Error al actualizar el usuario:', err.message);
+      return res.redirect(`/adminContact/editUser/${userId}`);
+    }
+    console.log(`Usuario con ID ${userId} actualizado con éxito.`);
+    res.redirect('/adminUsers');
+  });
+});
+
+
+
 module.exports = router;
