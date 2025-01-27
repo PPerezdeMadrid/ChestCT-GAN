@@ -48,6 +48,7 @@ router.post('/loginCliente', (req, res) => {
           isAdmin: user.is_admin
         };
 
+
         // Redirigir o renderizar la vista de perfil con los datos de sesión.
         // res.render('profile', { user: req.session.user });
         res.redirect('/profile');

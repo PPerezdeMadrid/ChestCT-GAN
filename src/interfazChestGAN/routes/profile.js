@@ -79,7 +79,6 @@ router.post('/updateUsername', function(req, res) {
       }
 
       req.session.user.username = newUsername;
-      console.log("Nombre de usuario actualizado con éxito");
 
       res.send({ message: 'Nombre de usuario actualizado con éxito', newUsername });
     });
@@ -136,7 +135,6 @@ router.post('/saveAvatar', (req, res) => {
 
 /* Actualizar Nombre */
 router.post('/updateName', function(req, res) {
-  console.log("Ha entrado en profile updateName")
   const { newName } = req.body;
   const { email } = req.session.user;
 

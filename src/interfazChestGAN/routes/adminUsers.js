@@ -28,21 +28,17 @@ router.get('/', (req, res) => {
 
 router.get('/getUsers', (req, res) => {
   const getMessagesQuery = 'SELECT * FROM usuarios';
-  
+
   db.all(getMessagesQuery, (err, rows) => {
     if (err) {
       console.error('Error al obtener los usuarios:', err.message);
-      return res.render('adminViews/adminUsers', {
-        user: req.session.user,
-        message: '🌟 ¡Oh no! Algo salió mal al cargar los usuarios. Inténtalo más tarde. 🌟'
-      });
+      return res.status(500).json({ message: '🌟 ¡Oh no! Algo salió mal al cargar los usuarios. Inténtalo más tarde. 🌟' });
     }
-    res.render('adminViews/adminUsers', {
-      user: req.session.user,
-      message: rows
-    });
+    // Enviar los usuarios como JSON
+    res.json(rows);
   });
 });
+
 
 
 // Borrar mensaje
@@ -82,18 +78,17 @@ router.get('/editUser/:id', (req, res) => {
 });
 
 
-router.post('/editUser/:id', (req, res) => {
-  const userId = req.params.id;
-  const { name, username, email, num_colegiado, is_admin } = req.body;
+router.post('/editUser', (req, res) => {
+  const { name, username, email, num_colegiado, is_admin: is_admin, id: userId } = req.body; 
 
-  console.log('Datos recibidos para editar el usuario:', {
-    userId, 
-    name, 
-    username, 
-    email, 
-    num_colegiado, 
-    is_admin
-  });
+    console.log('Datos recibidos para editar el usuario:', {
+        userId, 
+        name, 
+        username, 
+        email, 
+        num_colegiado, 
+        is_admin
+    });
 
   // Verificar si el username o email ya existen en la base de datos
   const checkUserQuery = `SELECT * FROM usuarios WHERE (username = ? OR email = ?) AND id != ?`;
@@ -124,10 +119,18 @@ router.post('/editUser/:id', (req, res) => {
     db.run(updateUserQuery, [name, username, email, num_colegiado, is_admin, userId], function(err) {
       if (err) {
         console.error('Error al actualizar el usuario:', err.message);
-        return res.redirect(`/adminContact/editUser/${userId}`);
+        return res.redirect(`/adminContact/editUser`);
       }
       console.log(`Usuario con ID ${userId} actualizado con éxito.`);
-      res.redirect('/adminUsers');
+      req.session.user = {
+        id: userId,
+        name,
+        username,
+        email,
+        num_colegiado,
+        is_admin
+      };
+      res.json({ success: '✅ Usuario actualizado con éxito. ✅'});
     });
   });
 });

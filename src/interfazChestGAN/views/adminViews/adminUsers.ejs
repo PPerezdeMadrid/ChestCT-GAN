@@ -60,115 +60,189 @@
                 <div class="titlepage">
                     <h2>Usuarios</h2>
                     <p>Consulta toda la información relacionada con los usuarios y accede a los detalles relevantes de manera sencilla.</p>
+                        <!-- Mostrar el mensaje global de error si existe -->
+                        <div id="message-container">
+                            <% if (typeof message !== 'undefined' && message) { %>
+                                <div class="alert alert-info"><%= message %></div>
+                            <% } %>
+                        </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Mostrar el mensaje global de error si existe -->
-    <% if (typeof message !== 'undefined' && message) { %>
-        <div class="alert alert-info"><%= message %></div>
-    <% } %>
+    
+    <!-- Lista de usuarios -->
+    <div id="userList">
+        <!-- Aquí se cargarán los usuarios dinámicamente -->
+    </div>
+    
 
     <!-- Mostrar un mensaje de error si hay un error específico -->
     <% if (typeof error !== 'undefined' && error) { %>
         <div class="alert alert-danger"><%= error %></div>
     <% } %>
 
-    <!-- Users from database Start-->
-    <div class="container mt-5">
+    <!-- Users from database Start-->    
+    <div class="container mt-5" id="userTable">
         <table>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Nombre de Usuario</th>
                     <th>Email</th>
-                    <th>num_colegiado</th>
-                    <th>is_admin</th>
+                    <th>Nº de Colegiado</th>
+                    <th>¿Es administrador?</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-            <% messages.forEach(message => { %>
-                <tr>
-                <td><%= message.name %></td>
-                <td><%= message.username %></td>
-                <td><%= message.email %></td>
-                <td><%= message.num_colegiado %></td>
-                <td><%= message.is_admin %></td>
-                <td>
-                    <!-- Botón para editar usuario -->
-                    <button class="btn btn-primary danger"  style="background-color: #2ecc71" data-toggle="modal" data-target="#editUserModal<%= message.id %>">Editar</button>
-
-                    <!-- Modal para editar usuario -->
-                    <div class="modal fade" id="editUserModal<%= message.id %>" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="editUserModalLabel">Editar Usuario</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <!-- Mostrar mensaje de error si existe dentro del modal -->
-                                <% if (typeof error !== 'undefined' && error) { %>
-                                    <div class="alert alert-danger" role="alert">
-                                        <%= error %>
-                                    </div>
-                                <% } %>
-                                <form action="adminUsers/editUser/<%= message.id %>" method="POST">
-                                    <div class="modal-body">
-                                        <!-- Campo oculto para el id del usuario -->
-                                        <input type="hidden" name="id" value="<%= message.id %>">
-                                        <div class="form-group">
-                                            <label for="name<%= message.id %>">Nombre:</label>
-                                            <input type="text" class="form-control" id="name<%= message.id %>" name="name" value="<%= message.name %>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="username<%= message.id %>">Nombre de Usuario:</label>
-                                            <input type="text" class="form-control" id="username<%= message.id %>" name="username" value="<%= message.username %>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email<%= message.id %>">Email:</label>
-                                            <input type="email" class="form-control" id="email<%= message.id %>" name="email" value="<%= message.email %>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="num_colegiado<%= message.id %>">Num Colegiado:</label>
-                                            <input type="text" class="form-control" id="num_colegiado<%= message.id %>" name="num_colegiado" value="<%= message.num_colegiado %>" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="is_admin<%= message.id %>">Administrador:</label>
-                                            <select class="form-control" id="is_admin<%= message.id %>" name="is_admin">
-                                                <option value="true" <%= message.is_admin === 'true' ? 'selected' : '' %>>Sí</option>
-                                                <option value="false" <%= message.is_admin === 'false' ? 'selected' : '' %>>No</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>                                    
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botón para eliminar usuario -->
-                    <form action="adminUsers/deleteUser" method="POST" style="display:inline;">
-                        <input type="hidden" name="id" value="<%= message.id %>">
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                    
-                    <!-- Enlace para enviar un correo de respuesta -->
-                    <a href="mailto:<%= message.email %>?subject=Respuesta%20a%20tu%20mensaje&body=Hola%2C%20gracias%20por%20tu%20mensaje.%20Aquí%20está%20mi%20respuesta.%20[Escribe%20aquí%20tu%20respuesta]">
-                        <button class="btn btn-primary">Enviar Email</button>
-                    </a>
-                </td>
-                </tr>
-            <% }); %>
+                <!-- Los usuarios se cargarán aquí con AJAX -->
             </tbody>
         </table>
     </div>
+
+    <!-- Modal (genérico para todos los usuarios) -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Editar Usuario</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- Mostrar mensaje de error si existe dentro del modal -->
+                <div id="error-message" class="alert alert-danger" style="display:none;" role="alert"></div>
+                <form id="editUserForm" method="POST">
+                    <div class="modal-body">
+                        <!-- Campo oculto para el id del usuario -->
+                        <input type="hidden" name="id" id="userId">
+                        <div class="form-group">
+                            <label for="name">Nombre:</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Nombre de Usuario:</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="num_colegiado">Num Colegiado:</label>
+                            <input type="text" class="form-control" id="num_colegiado" name="num_colegiado" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_admin">Administrador:</label>
+                            <select class="form-control" id="is_admin" name="is_admin" required>
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Cargar los usuarios con AJAX
+            function loadUsers() {
+                $.ajax({
+                    url: '/adminUsers/getUsers', 
+                    method: 'GET',
+                    success: function(data) {
+                        // Limpiar la tabla antes de cargar los nuevos datos
+                        $('#userTable tbody').empty();
+
+                        // Recorrer los usuarios y agregarlos a la tabla
+                        data.forEach(function(user) {
+                            const row = `
+                                <tr>
+                                    <td>${user.id}</td>
+                                    <td>${user.name}</td>
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.num_colegiado}</td>
+                                    <td>${user.is_admin ? 'Sí' : 'No'}</td>
+                                    <td>
+                                        <!-- Botón para editar usuario -->
+                                        <button class="btn btn-primary" style="background-color: #2ecc71" data-toggle="modal" data-target="#editUserModal" data-id="${user.id}" data-name="${user.name}" data-username="${user.username}" data-email="${user.email}" data-num_colegiado="${user.num_colegiado}" data-is_admin="${user.is_admin}">Editar</button>
+                                        <!-- Botón para eliminar usuario -->
+                                        <form action="/adminUsers/deleteUser" method="POST" style="display:inline;">
+                                            <input type="hidden" name="id" value="${user.id}">
+                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            `;
+                            $('#userTable tbody').append(row);
+                        });
+                    },
+                    error: function() {
+                        alert('Hubo un error al cargar los usuarios.');
+                    }
+                });
+            }
+
+            loadUsers();
+
+            // Abrir el modal con la información del usuario para editar
+            $('#editUserModal').on('show.bs.modal', function(e) {
+                const button = $(e.relatedTarget);
+                const userId = button.data('id');
+                const name = button.data('name');
+                const username = button.data('username');
+                const email = button.data('email');
+                const num_colegiado = button.data('num_colegiado');
+                const is_admin = button.data('is_admin');
+
+                $('#userId').val(userId);
+                $('#name').val(name);
+                $('#username').val(username);
+                $('#email').val(email);
+                $('#num_colegiado').val(num_colegiado);
+                $('#is_admin').val(is_admin);
+            });
+
+            // Enviar el formulario de edición de usuario
+            $('#editUserForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+
+                console.log('Formulario enviado:', formData);  // Verificar qué datos se están enviando
+
+                $.ajax({
+                    url: '/adminUsers/editUser',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#message-container').html('<div class="alert alert-info">' + response.success + '</div>');
+                            $('#editUserModal').modal('hide');
+                            loadUsers();
+                        } else {
+                            $('#error-message').text(response.error).show();
+                        }
+                    },
+                    error: function() {
+                        alert('Hubo un error al editar el usuario.');
+                    }
+                });
+            });
+
+            
+        });
+    </script>
 </section>
 
 <%- include('../footer') %>
