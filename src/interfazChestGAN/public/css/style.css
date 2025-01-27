@@ -1262,3 +1262,95 @@ ul.location_icon li a:hover {
    }
 /** Toggle End **/
 
+
+/** logout Start **/
+/* From Uiverse.io by vinodjangid07 */ 
+.Btn-logout {
+     display: flex;
+     align-items: center;
+     justify-content: flex-start;
+     margin-left: 5%;
+     width: 30%;
+     height: 40%;
+     border: none;
+     border-radius: 10%;
+     cursor: pointer;
+     position: relative;
+     overflow: hidden;
+     transition-duration: .3s;
+     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+     background-color: rgb(255, 65, 65);
+ }
+
+ /* plus sign */
+ .Btn-logout .sign {
+     visibility: visible; /* Por defecto, la clase 'sign' está oculta */
+     left: 0;
+ }
+ 
+ .Btn-logout:hover .sign {
+     visibility: visible; /* Cuando se pasa el cursor por encima, la clase 'sign' se vuelve visible */
+ }
+ 
+ .sign {
+     display: flex;
+     align-items: center;
+     justify-content: center; /* Centra el contenido del signo */
+     width: 17px;
+ }
+
+ .sign svg {
+     width: 17px;
+ }
+
+ .sign svg path {
+     fill: white;
+ }
+ /* text */
+ .text-logout {
+     position: absolute;
+     right: 0%;
+     opacity: 0;
+     color: white;
+     font-size: 1em;
+     font-weight: 600;
+     transition-duration: .3s;
+     white-space: pre;
+ }
+ /* hover effect on button width */
+ .Btn-logout:hover {
+     width: 90%;
+     border-radius: 10px;
+     transition-duration: .3s;
+ }
+
+ .Btn-logout:hover .sign {
+     width: 30%;
+     transition-duration: .3s;
+     align-items: left;
+ }
+ /* hover effect button's text */
+ .Btn-logout:hover .text-logout {
+     opacity: 1;
+     width: 70%;
+     transition-duration: .3s;
+     padding-right: 10px;
+     
+ }
+ /* button click effect*/
+ .Btn-logout:active {
+     transform: translate(2px ,2px);
+ }
+
+ .bottom_header{
+     position: relative;
+     bottom: 0;
+     margin-left: 2%;
+ }
+/** Logout end **/
+
+@media (max-width: 767px) {
+     a,p,table,button{
+          font-size: 5vw;
+     }
+ }

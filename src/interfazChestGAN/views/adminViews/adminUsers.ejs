@@ -40,6 +40,18 @@
     .btn-primary:hover {
         background-color: #2980b9;
     }
+    .alert-info {
+        background-color: #d9edf7;
+        color: #31708f;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    .alert-danger {
+        background-color: #f2dede;
+        color: #a94442;
+        padding: 15px;
+        border-radius: 5px;
+    }
 </style>
 <section class="background-blue">
     <div class="container">
@@ -52,22 +64,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Mostrar el mensaje global de error si existe -->
+    <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-info"><%= message %></div>
+    <% } %>
+
+    <!-- Mostrar un mensaje de error si hay un error específico -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
     <!-- Users from database Start-->
     <div class="container mt-5">
-        <% if (typeof message !== 'undefined') { %>
-            <div class="alert alert-info"><%= message %></div>
-        <% } %>
-
         <table>
             <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Nombre de Usuario</th>
-                <th>Email</th>
-                <th>num_colegiado</th>
-                <th>is_admin</th>
-                <th>Acciones</th>
-            </tr>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Email</th>
+                    <th>num_colegiado</th>
+                    <th>is_admin</th>
+                    <th>Acciones</th>
+                </tr>
             </thead>
             <tbody>
             <% messages.forEach(message => { %>
@@ -81,7 +100,7 @@
                     <!-- Botón para editar usuario -->
                     <button class="btn btn-primary danger"  style="background-color: #2ecc71" data-toggle="modal" data-target="#editUserModal<%= message.id %>">Editar</button>
 
-                   <!-- Modal para editar usuario -->
+                    <!-- Modal para editar usuario -->
                     <div class="modal fade" id="editUserModal<%= message.id %>" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -91,6 +110,12 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
+                                <!-- Mostrar mensaje de error si existe dentro del modal -->
+                                <% if (typeof error !== 'undefined' && error) { %>
+                                    <div class="alert alert-danger" role="alert">
+                                        <%= error %>
+                                    </div>
+                                <% } %>
                                 <form action="adminUsers/editUser/<%= message.id %>" method="POST">
                                     <div class="modal-body">
                                         <!-- Campo oculto para el id del usuario -->
@@ -122,13 +147,11 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                                         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
+                                    </div>                                    
                                 </form>
-                                
                             </div>
                         </div>
                     </div>
-
 
                     <!-- Botón para eliminar usuario -->
                     <form action="adminUsers/deleteUser" method="POST" style="display:inline;">

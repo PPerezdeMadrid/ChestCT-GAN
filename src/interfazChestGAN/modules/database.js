@@ -15,7 +15,8 @@ function createDatabase() {
         email TEXT NOT NULL UNIQUE,
         num_colegiado TEXT NOT NULL,
         password TEXT NOT NULL,
-        is_admin INTEGER DEFAULT 0
+        is_admin INTEGER DEFAULT 0,
+        avatar TEXT DEFAULT '/images/avatar1.jpg'
       )`, (err) => {
         if (err) {
           console.error('Error al crear la tabla users:', err.message);

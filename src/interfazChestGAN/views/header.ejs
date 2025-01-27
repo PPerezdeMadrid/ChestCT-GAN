@@ -14,6 +14,13 @@
       <meta name="author" content="">
       <!-- bootstrap css -->
       <link rel="stylesheet" href="/css/bootstrap.min.css">
+      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+      <!-- JavaScript de Bootstrap (incluyendo Popper.js) -->
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
       <!-- style css -->
       <link rel="stylesheet" href="/css/style.css">
       <!-- Responsive-->
@@ -25,6 +32,8 @@
       <!-- Tweaks for older IEs-->
       <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+      
+
       <!-- Font Awesome -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
        
@@ -36,18 +45,32 @@
    <body class="main-layout">
       <div id="mySidepanel" class="sidepanel">
          <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-         <a href="/">Inicio</a>
-         <a href="/proyecto">Proyecto</a>
-         <a href="/contact">Contacto</a>
+         <a href="/"><span class="fa fa-home"></span>  Inicio</a>
+         <a href="/proyecto"> <span class="fa fa-folder-open"></span>  Proyecto</a>
+         <a href="/contact"><span class="fa fa-envelope"></span>  Contacto</a>
+         <a href="/blog"><span class="fa fa-newspaper"></span>  Blog</a>
+         <% if (typeof user == 'undefined') { %>
          <a href="/login">Iniciar Sesión</a>
-         <a href="/blog">Blog</a>
+         <% } %>
          <% if (typeof user !== 'undefined') { %>
-             <a href="/profile">Perfil</a>
+             <a href="/profile"> <span class="fa fa-user-circle"></span>  Perfil</a>
              <a href="/LungCT">Tomografías</a>
              <% if (user.isAdmin) { %> <!-- Verifica si el usuario es administrador -->
                  <a href="/adminContact">Mensajes de Contacto</a>
                  <a href="/adminBlog">Añadir Entrada al Blog</a>
                  <a href="/adminUsers">Usuarios</a>
+                 <div class="container-fluid py-5 bottom_header">
+                     <!-- Botón cerrar sesión /logout -->
+                     <!-- /* From Uiverse.io by vinodjangid07 */ -->
+                     <a href="/logout" class="Btn-logout" style="margin-left: 5%; bottom:0;">
+                        <div class="sign">
+                           <svg viewBox="0 0 512 512">
+                                 <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path>
+                           </svg>
+                           <span class="text-logout">   Logout</span>
+                        </div>
+                     </a>
+                  </div>     
              <% } %>
          <% } %>
       </div>
@@ -93,7 +116,11 @@
                         <ul class="conat_info d_none ">
                            <li><a href="/proyecto"><i class="fa fa-folder-open" aria-hidden="true"></i></a></li>
                            <li><a href="/contact"><i class="fa fa-envelope" aria-hidden="true"></i></a></li>
-                           <li><a href="/login"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
+                           <% if (typeof user !== 'undefined') { %>
+                              <li><a href="/profile"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
+                           <% } else { %>
+                              <li><a href="/login"><i class="fa fa-user-circle" aria-hidden="true"></i></a></li>
+                           <% } %> 
                         </ul>
                         <button class="openbtn" onclick="toggleNav()"><img src="/images/menu_icon.png" alt="#"/> </button> 
                      </div>

@@ -49,7 +49,9 @@ router.post('/loginCliente', (req, res) => {
         };
 
         // Redirigir o renderizar la vista de perfil con los datos de sesión.
-        res.render('profile', { user: req.session.user });
+        // res.render('profile', { user: req.session.user });
+        res.redirect('/profile');
+
       } else {
         return res.render('login', { message: 'Usuario o contraseña incorrecto.' });
       }
@@ -76,6 +78,7 @@ router.post('/registerClient', (req, res) => {
       return res.render('login', { 
         message: '🌟 ¡Oh no! Algo salió mal. Por favor, intenta nuevamente más tarde. 🌟' 
       });
+      
     }
 
     if (row) {
@@ -115,9 +118,24 @@ router.post('/registerClient', (req, res) => {
       db.run(insertUserQuery, queryParams, function (err) {
         if (err) {
           console.error('Error al insertar el usuario:', err.message);
-          return res.render('login', { 
-            message: 'No hemos podido registrar tu usuario. Inténtalo de nuevo.' 
-          });
+          if (err.message.includes('UNIQUE constraint failed')) {
+            if(err.message.includes('usuarios.email')){
+              return res.render('login', { 
+                message: '⚠️ El correo electrónico ya está registrado. Intenta con otro correo. ⚠️' ,
+                user: req.session.user
+              });
+            }else{
+              return res.render('login', { 
+                message: '⚠️ El usuario ya está registrado. Intenta con nombre de usuario ⚠️' ,
+                user: req.session.user
+              });
+            }
+          } else {
+            return res.render('login', { 
+              message: 'No hemos podido registrar tu usuario. Inténtalo de nuevo.' 
+            });
+          }
+          
         }
 
         req.session.user = {

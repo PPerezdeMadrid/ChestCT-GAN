@@ -26,6 +26,25 @@ router.get('/', (req, res) => {
 });
 
 
+router.get('/getUsers', (req, res) => {
+  const getMessagesQuery = 'SELECT * FROM usuarios';
+  
+  db.all(getMessagesQuery, (err, rows) => {
+    if (err) {
+      console.error('Error al obtener los usuarios:', err.message);
+      return res.render('adminViews/adminUsers', {
+        user: req.session.user,
+        message: '🌟 ¡Oh no! Algo salió mal al cargar los usuarios. Inténtalo más tarde. 🌟'
+      });
+    }
+    res.render('adminViews/adminUsers', {
+      user: req.session.user,
+      message: rows
+    });
+  });
+});
+
+
 // Borrar mensaje
 router.post('/deleteUser',  (req, res) => {
   const { id } = req.body;
@@ -76,21 +95,40 @@ router.post('/editUser/:id', (req, res) => {
     is_admin
   });
 
-  const updateUserQuery = `UPDATE usuarios SET 
-                            name = ?, 
-                            username = ?, 
-                            email = ?, 
-                            num_colegiado = ?, 
-                            is_admin = ? 
-                            WHERE id = ?`;
+  // Verificar si el username o email ya existen en la base de datos
+  const checkUserQuery = `SELECT * FROM usuarios WHERE (username = ? OR email = ?) AND id != ?`;
 
-  db.run(updateUserQuery, [name, username, email, num_colegiado, is_admin, userId], function(err) {
+  db.get(checkUserQuery, [username, email, userId], (err, row) => {
     if (err) {
-      console.error('Error al actualizar el usuario:', err.message);
-      return res.redirect(`/adminContact/editUser/${userId}`);
+      console.error('Error al verificar la existencia de usuario:', err.message);
+      return res.status(400).send({error: 'Error al verificar la existencia de usuario'});
     }
-    console.log(`Usuario con ID ${userId} actualizado con éxito.`);
-    res.redirect('/adminUsers');
+
+    if (row) {
+      // return res.status(400).json({ error: 'El email o el nombre de usuario ya existe, debe elegir otro.' });
+      return res.render('adminViews/adminUsers', {
+        user: req.session.user,
+        message: '❌ El email o el nombre de usuario ya existe, debe elegir otro. ❌',
+      });
+    }
+
+    // Si no existe, proceder a actualizar el usuario
+    const updateUserQuery = `UPDATE usuarios SET 
+                              name = ?, 
+                              username = ?, 
+                              email = ?, 
+                              num_colegiado = ?, 
+                              is_admin = ? 
+                              WHERE id = ?`;
+
+    db.run(updateUserQuery, [name, username, email, num_colegiado, is_admin, userId], function(err) {
+      if (err) {
+        console.error('Error al actualizar el usuario:', err.message);
+        return res.redirect(`/adminContact/editUser/${userId}`);
+      }
+      console.log(`Usuario con ID ${userId} actualizado con éxito.`);
+      res.redirect('/adminUsers');
+    });
   });
 });
 

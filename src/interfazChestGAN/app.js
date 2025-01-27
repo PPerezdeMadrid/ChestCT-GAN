@@ -4,6 +4,7 @@ var session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var createError = require('http-errors');
 
 var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/login');
@@ -81,9 +82,21 @@ app.get('/logout', (req, res) => {
 });
 
 
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// Middleware de manejo de errores
+app.use(function(err, req, res, next) {
+  // Establecer el estado HTTP del error
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // Renderizar una página de error
+  res.status(err.status || 500);
+  res.render('error');  // Asumiendo que tienes una vista llamada "error.ejs"
+});
+
 
 module.exports = checkAuthenticated;
-
-
-
 module.exports = app;
