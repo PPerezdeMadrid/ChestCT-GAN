@@ -1,6 +1,7 @@
 import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 
 """
 python3 graphLogs.py --csv training_log_wgan.csv
@@ -41,8 +42,16 @@ plt.grid(alpha=0.3)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 
-# Mostrar la gráfica
+# Ajustar el diseño
 plt.tight_layout()
-plt.show()
+
+# Obtener la fecha actual para el nombre del archivo
+fecha_actual = datetime.now().strftime("%Y%m%d_%H%M%S")
+file_name = f"LossDLossG_{fecha_actual}.png"
+
+# Guardar la gráfica como archivo PNG
+plt.savefig(file_name)
+print(f"Gráfica guardada como {file_name}")
+
 
 
