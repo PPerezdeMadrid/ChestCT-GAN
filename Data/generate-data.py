@@ -44,7 +44,7 @@ def process_dicom_folders(path_NBIA_Data, reference_images_paths, transformed_di
     
     ensure_directory_exists(transformed_dir)
     ensure_directory_exists(discarded_dir)
-    
+
     results = []
     image_counter = 1  # Counter for naming images as ChestCT_X.png
 
@@ -75,7 +75,7 @@ def process_dicom_folders(path_NBIA_Data, reference_images_paths, transformed_di
                 if file.lower().endswith('.dcm'):
                     dicom_path = os.path.join(root, file)
                     png_filename = f"ChestCT_{image_counter}.png"  # Using image_counter to name the files
-                    output_png_path = os.path.join(transformed_dir, png_filename)
+                    output_png_path = os.path.join(transformed_dir, png_filename)  # Save in transformed_dir
                     
                     # Convert the DICOM image to PNG
                     dicom_to_png(dicom_path, output_png_path)
@@ -116,14 +116,14 @@ def process_dicom_folders(path_NBIA_Data, reference_images_paths, transformed_di
 
     end_time = time.time()  
     elapsed_time = end_time - start_time  
-    print(f"Execution Time: {elapsed_time:.2f} seconds") 
+    print(f"\033[33mExecution Time: {elapsed_time:.2f} seconds\033[0m")  # Print in yellow color
 
 
 # Example usage
 process_dicom_folders(
     path_NBIA_Data='../../../../ChestCT-NBIA/manifest-1608669183333',  # Path to the folder containing metadata.csv and Lung-PET-CT-Dx
     reference_images_paths=['Imagen_Ref1.png', 'Imagen_Ref2.png', 'Imagen_Ref3.png'],
-    transformed_dir='Data-Transformed/',
+    transformed_dir='Data-Transformed/cancer',
     discarded_dir='Discarded/',
     threshold=0.3500
 )

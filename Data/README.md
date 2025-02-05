@@ -186,3 +186,7 @@ El script analiza las imágenes, guarda los resultados en `lpips_results.csv` y 
 
 ---
 Este proceso sistemático permite clasificar y organizar imágenes médicas de manera eficiente, asegurando la calidad de los datos utilizados para el entrenamiento de la GAN.
+
+# Resultados
+![Pérdidas Generador y Discriminador](img_doc/LossGLossD_2Feb2025.png)
+![Imágenes generadas con los datos de TCIA](img_doc/generate_NBIA_2feb2025.png)

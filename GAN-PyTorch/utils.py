@@ -40,6 +40,24 @@ def get_chestct(img_size=64):
 
     return combined_loader
 
+def get_NBIA(img_size=128, data_path="../Data/Data-Transformed"):
+    transform = transforms.Compose([
+        transforms.Grayscale(), 
+        transforms.Resize((img_size,img_size)),
+        transforms.ToTensor(),  # Convertir a tensor
+        transforms.Normalize((0.5,), (0.5,))  # Normalización a [-1, 1]
+    ])
+    # Cargar las imágenes desde la subcarpeta 'cancer'
+    dataset = datasets.ImageFolder(root=f'{data_path}', transform=transform)
+
+    # Cargar los datos en un DataLoader
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
+
+    # Verificar el tamaño del dataset
+    print(f"===> Tamaño del conjunto de datos: {len(dataset)}")
+    return dataloader
+
+
 
 def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2):
     """

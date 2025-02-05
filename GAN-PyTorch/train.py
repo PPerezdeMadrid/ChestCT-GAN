@@ -5,7 +5,7 @@ import torch.optim as optim
 import torchvision.utils as vutils
 from dcgan import Generator, Discriminator, weights_init
 from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
-from utils import get_chestct, log_training_info
+from utils import get_chestct, log_training_info, get_NBIA
 import argparse
 import numpy as np
 
@@ -217,15 +217,22 @@ def save_gif(img_list, filename='ChestTC.gif'):
     anim.save(filename, dpi=80, writer='imagemagick')
 
 def main():
+    DATASET_CHOICES = {
+        "chestct": get_chestct,
+        "nbia": get_NBIA
+    }
     parser = argparse.ArgumentParser(description='Train a DCGAN or WGAN model.')
     parser.add_argument('--model', choices=['dcgan', 'wgan'], default='dcgan', help='Choose between "dcgan" and "wgan" models to train.')
+    parser.add_argument('--dataset', choices=DATASET_CHOICES.keys(), default='chestct', help='Choose the dataset: "chestct" or "nbia".')
     args = parser.parse_args()
 
     device = setup_device()
     config = load_config()
     params = config["params"]
     
-    dataloader = get_chestct(params['imsize'])
+    # dataloader = get_chestct(params['imsize'])
+    dataloader = DATASET_CHOICES[args.dataset](img_size=params["imsize"])
+
     sample_batch = next(iter(dataloader))
     
     fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)

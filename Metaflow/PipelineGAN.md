@@ -1,6 +1,8 @@
 # Pipeline de **MLOPS** con **Metaflow**
 Este documento presenta una idea de como quedaría el archivo principal de metaflow
 
+![Pipeline MLOPS](Pipeline.png)
+
 ```python
 from metaflow import FlowSpec, step, Parameter
 import pandas as pd
@@ -11,8 +13,6 @@ python ChestCancerGAN.py run
 """
 
 class ChestGAN(FlowSpec):
-
-    csv_file = Parameter("csv_file", help="Path to the movies CSV file")
 
     @step
     def start(self):
@@ -31,6 +31,7 @@ class ChestGAN(FlowSpec):
         """ Evaluar el modelo """
         # eval_model.py --> archivo EvalModel_{fecha}.md
         # graphLog.py --> Guardar img LossDLossG_{fecha}.png
+        # Si cae más de un umbral., no generar img y que se le envíe al admin , generar report entrenamiento fallido
 
     @step
     def generate_imgs(self):
