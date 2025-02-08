@@ -17,6 +17,7 @@ src/Pipeline/MacSetup.md
 # Archivos del sistema operativo
 .DS_Store
 src/.DS_Store
+*/.DS_Store
 Thumbs.db
 
 # Entorno virtual de Python
