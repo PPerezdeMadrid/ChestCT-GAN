@@ -1,5 +1,65 @@
-.idea
-.vscode
-src/.DS_Store
+# Imágenes generadas a partir del primer STEP del pipeline de MLOPS
+src/Data/Data-Transformed/
+src/Data/Data-Discarded/
+
+# Archivos y carpetas de editores de código
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del sistema operativo
 .DS_Store
+src/.DS_Store
+Thumbs.db
+
+# Entorno virtual de Python
+.venv/
+venv/
+src/.venv/
+
+# Dependencias de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs y bases de datos temporales de Python
+*.log
+*.sqlite3
+
+# Configuración y archivos de caché
+*.env
+.envrc
+*.bak
+*.tmp
+
+# Dependencias de Node.js
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Archivos de compilación
+dist/
+build/
+out/
+
+# Git y archivos de control de versiones
+.git/
+.gitignore
+
+# Archivos de Node.js para empaquetado y configuración
+package-lock.json
+yarn.lock
+
+# Archivos grandes y de medios no deseados
+*.gif
+*.mp4
+*.avi
+*.zip
+*.tar.gz
+*.7z
 
