@@ -1,6 +1,6 @@
 # Imágenes generadas a partir del primer STEP del pipeline de MLOPS
-src/Pipeline/Data/Data-Transformed/
-src/Pipeline/Data/Data-Discarded/
+src/Pipeline/Data/Data-Transformed
+src/Pipeline/Data/Data-Discarded
 src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
