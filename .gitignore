@@ -1,6 +1,6 @@
 # Imágenes generadas a partir del primer STEP del pipeline de MLOPS
-src/Data/Data-Transformed/
-src/Data/Data-Discarded/
+src/Pipeline/Data/Data-Transformed/
+src/Pipeline/Data/Data-Discarded/
 
 # Archivos y carpetas de editores de código
 .idea/
