@@ -1,14 +1,13 @@
 import torch, json, lpips
 import torchvision.transforms as transforms
-from torchvision.models import inception_v3  #--> versión antigua
 from torchvision import models
 from torch.nn import functional as F
-from dcgan import Generator  # Asegúrate de que este módulo está definido
+from gan import Generator 
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct 
-from dcgan import Generator, Discriminator
+from gan import Generator, Discriminator
 from skimage.metrics import structural_similarity as ssim
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -1,9 +1,8 @@
 import torch, json, lpips
 import torchvision.transforms as transforms
-from torchvision.models import inception_v3  #--> versión antigua
 from torchvision import models
 from torch.nn import functional as F
-from dcgan import Generator  # Asegúrate de que este módulo está definido
+from dcgan import Generator 
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
