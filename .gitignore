@@ -4,6 +4,11 @@ src/Pipeline/Data/Data-Discarded
 src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
+src/Pipeline/model
+src/Pipeline/images
+
+# No subir modelos 
+*.pth
 
 # Archivos y carpetas de editores de código
 .idea/

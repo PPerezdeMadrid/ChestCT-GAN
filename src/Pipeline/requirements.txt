@@ -8,3 +8,4 @@ scikit-image
 matplotlib
 lpips
 tqdm
+pydicom

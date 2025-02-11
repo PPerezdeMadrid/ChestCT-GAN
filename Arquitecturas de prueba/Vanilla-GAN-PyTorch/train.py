@@ -84,16 +84,16 @@ for epoch in tqdm(range(max_epoch), desc="Epochs", dynamic_ncols=True):
         
         step += 1
 
-
-# Guardar el modelo entrenado
+# Guardar el modelo
 torch.save({
-    'epoch': epoch,
+    'epoch': max_epoch,
+    'n_noise': n_noise,
     'D_state_dict': D.state_dict(),
     'G_state_dict': G.state_dict(),
     'D_optimizer_state_dict': D_opt.state_dict(),
     'G_optimizer_state_dict': G_opt.state_dict(),
-}, f'model_gan_{params["nepochs"]}')
-
+    'params': params
+}, f'../../../model_gan_{params["nepochs"]}')
 
 # Generar imagen final
 G.eval()

@@ -35,7 +35,7 @@ print_green(f'{device} will be used.\n')
 
 # Cargar el modelo entrenado con weights_only=True para una mayor seguridad
 checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', weights_only=True)
-params = checkpoint['params']
+params = checkpoint["params"]
 
 # Get the data
 dataloader = get_chestct(params)

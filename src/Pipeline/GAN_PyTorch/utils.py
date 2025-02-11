@@ -12,11 +12,11 @@ test_path = path+"test"
 
 def get_chestct(img_size=64):
     transform = transforms.Compose([
-        transforms.Grayscale(),  # Convertir a escala de grises
+        transforms.Grayscale(), 
         # transforms.Resize((128, 128)),
         transforms.Resize((img_size,img_size)),
-        transforms.ToTensor(),  # Convertir a tensor
-        transforms.Normalize((0.5,), (0.5,))  # Normalización a [-1, 1]
+        transforms.ToTensor(),  
+        transforms.Normalize((0.5,), (0.5,))  
     ])
 
     # Cargar los datasets
@@ -40,7 +40,7 @@ def get_chestct(img_size=64):
 
     return combined_loader
 
-def get_NBIA(img_size=128, data_path="../Data/Data-Transformed"):
+def get_NBIA(img_size=64, data_path="Data/Data-Transformed"):
     transform = transforms.Compose([
         transforms.Grayscale(), 
         transforms.Resize((img_size,img_size)),

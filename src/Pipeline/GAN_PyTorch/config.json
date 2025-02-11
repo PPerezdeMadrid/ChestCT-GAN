@@ -6,17 +6,17 @@
         "nz": 100,
         "ngf": 128,
         "ndf": 128,
-        "nepochs": 1000,
+        "nepochs": 10,
         "lr": 0.0001,
         "beta1": 0.5,
         "beta2": 0.999,
         "save_epoch": 10
     },
     "model": {
-        "path_dcgan": "../../model/model_dcgan",
-        "path_wgan": "../../model/model_wgan",
-        "image_path_dcgan": "../../images/images_dcgan",
-        "image_path_wgan": "../../images/images_wgan"
+        "path_dcgan": "model/model_dcgan",
+        "path_wgan": "model/model_wgan",
+        "image_path_dcgan": "images/images_dcgan",
+        "image_path_wgan": "images/images_wgan"
     }
 }
 

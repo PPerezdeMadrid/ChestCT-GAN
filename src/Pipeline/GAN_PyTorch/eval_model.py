@@ -1,9 +1,9 @@
 import torch, json, lpips, argparse
 import torchvision.transforms as transforms
-from torchvision.models import inception_v3  #--> versión antigua
+from torchvision.models import inception_v3 
 from torchvision import models
 from torch.nn import functional as F
-from dcgan import Generator  # Asegúrate de que este módulo está definido
+from dcgan import Generator 
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
@@ -284,71 +284,6 @@ print(f"{'-' * 30}")
 ############################################   
 """
 
-"""
-if not torch.cuda.is_available():
-    print("CUDA no disponible. Se calculará el valor LISP con la CPU")
-    # Cargar el modelo LPIPS
-    loss_fn = lpips.LPIPS(net='alex')  # Funciona sin cuda
-
-    # Si estás usando GPU, mover el modelo a GPU
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    loss_fn = loss_fn.to(device)
-
-    def calculate_lpips(real_image, generated_image):
-        # Asegúrate de que las imágenes tengan el formato correcto
-        real_image = real_image.unsqueeze(0).float().to(device)  # Añadir batch y mover a GPU/CPU
-        generated_image = generated_image.unsqueeze(0).float().to(device)
-
-        # Calcular la distancia LPIPS
-        distance = loss_fn(real_image, generated_image)
-        return distance.item()
-
-    def load_image(image_path):
-        image = Image.open(image_path).convert('RGB')
-        transform = transforms.Compose([
-            transforms.Resize((224, 224)),  # Redimensionar a 224x224 (tamaño esperado por VGG/ResNet)
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        return transform(image)
-
-    # Cargar las imágenes
-    real_image = load_image('../../../ChestCTKaggle/Data/valid/normal/5.png')
-    generated_image = load_image(f'{image_path}/generated_image_30.png')
-
-    # Calcular el valor LPIPS
-    lpips_value = calculate_lpips(real_image, generated_image)
-    print(f"LPIPS: {lpips_value:.4f}")
-
-
-else:
-    print("CUDA disponible. El modelo se ejecutará en la GPU.")
-
-    lpips_model = lpips.LPIPS(net='vgg').cuda() # Más optimo
-
-    # Función para cargar y preprocesar imágenes
-    def load_image(image_path):
-        image = Image.open(image_path).convert('RGB')
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
-        return transform(image).unsqueeze(0).cuda()
-
-    # Cargar imágenes de ejemplo
-    image1 = load_image(f'{image_path}/generated_image_30.png')
-    image2 = load_image('../../../ChestCTKaggle/Data/valid/normal/5.png')
-
-
-    lpips_score = lpips_model(image1, image2)
-    print(f"LPIPS Score: {lpips_score.item():.4f}")
-"""
-
-import torch
-import lpips
-from PIL import Image
-from torchvision import transforms
-
 # Configurar dispositivo
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Ejecutando en {'GPU' if device.type == 'cuda' else 'CPU'}")
@@ -381,11 +316,4 @@ generated_image_path = f'{image_path}/generated_image_30.png'
 # Calcular LPIPS
 lpips_value = calculate_lpips(model, real_image_path, generated_image_path)
 print(f"LPIPS Score: {lpips_value:.4f}")
-
-
-
-
-
-
-
 

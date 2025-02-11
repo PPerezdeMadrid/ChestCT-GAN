@@ -269,6 +269,7 @@ def main():
         save_gif(img_list, 'ChestTC_wgan.gif')
         plot_training_losses(G_losses, D_losses)
 
+"""
 if __name__ == '__main__':
     main()
-
+"""
