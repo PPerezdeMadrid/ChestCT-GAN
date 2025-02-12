@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, Parameter
 import pandas as pd
 import random
 from Data.generateData import process_dicom_folders
-from GAN_PyTorch import train_pipeline # type: ignore
+from GAN_PyTorch import train_pipeline, eval_model_pipeline 
 
 """
 python ChestCancerGAN.py run|show|check
@@ -15,7 +15,6 @@ class ChestGAN(FlowSpec):
     # Parámetros
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
     dataset = Parameter('dataset', default='nbia', help='Dataset: chestct o nbia')
-    model_path = Parameter('model_path', help='Ruta para guardar el modelo', default='models/')
     
 
     @step
@@ -45,7 +44,6 @@ class ChestGAN(FlowSpec):
         params = {
             'model_type': self.model_type,
             'dataset': self.dataset,
-            'model_path': self.model_path
         }
         train_pipeline.main(params) 
         self.next(self.eval_model)
@@ -56,13 +54,16 @@ class ChestGAN(FlowSpec):
     @step
     def eval_model(self):
         """ Evaluar el modelo """
-        # eval_model.py --> archivo EvalModel_{fecha}.md
-        # graphLog.py --> Guardar img LossDLossG_{fecha}.png
-        # Si cae más de un umbral, no generar img y que se le envíe al admin , generar report entrenamiento fallido
-        self.passed_evaluation = random.choice([True, False])  # Simulación del resultado
         print("\033[94mEvaluating model...\033[0m")
-        print(f'\033[94mEvaluation ==> {self.passed_evaluation}\033[0m')
         # self.next(self.generate_imgs if self.passed_evaluation else self.generate_report) --> Metaflow no permite 
+
+
+        # 1) Generamos img_eval_lpips.png para poder aplicar la métrica LPISP ==> ../Data/images/images_{model_type}/img_eval_lpips.png'
+        # 2) Ejecutamos eval model ==> evaluation/evaluation_{model}/EvalModel_{model_type}_{date}.md
+        accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score = eval_model_pipeline.main(self.model_type)
+        self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score)
+
+        print(f'\033[94mEvaluation Score ==> {self.model_score}\033[0m')
         self.next(self.generate_report)
 
 
@@ -81,7 +82,7 @@ class ChestGAN(FlowSpec):
         """ Generar Imágenes Sintéticas """
         # generate.py --> Guardar img en "Data-Transformed" como Sinthetic_X_{fecha}.png siendo X el número de img generada. 
         # Aquí desde la web se podrá acceder a las img sintéticas y presentarlas a usuarios
-        if self.passed_evaluation:
+        if self.model_score>7:
             print("\033[94mGenerating Images...\033[0m")
         else:
             print("\033[94mImages are not going to be generated due to a bad scoring in the evaluation step.\033[0m")
@@ -94,4 +95,4 @@ class ChestGAN(FlowSpec):
         print("\033[94mThe pipeline has come to an END\033[0m")
 
 if __name__ == "__main__":
-    ChestGAN().run()
+    ChestGAN()
