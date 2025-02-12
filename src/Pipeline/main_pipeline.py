@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, Parameter
 import pandas as pd
 import random
 from Data.generateData import process_dicom_folders
-from GAN_PyTorch import train_pipeline, eval_model_pipeline 
+from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline
 
 """
 python ChestCancerGAN.py run|show|check
@@ -15,6 +15,7 @@ class ChestGAN(FlowSpec):
     # Parámetros
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
     dataset = Parameter('dataset', default='nbia', help='Dataset: chestct o nbia')
+    num_output = Parameter('num_output', default=100, help='Number of images to be generated')
     
 
     @step
@@ -45,7 +46,7 @@ class ChestGAN(FlowSpec):
             'model_type': self.model_type,
             'dataset': self.dataset,
         }
-        train_pipeline.main(params) 
+        self.finalmodel_name = train_pipeline.main(params) 
         self.next(self.eval_model)
         # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
         # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
@@ -55,10 +56,8 @@ class ChestGAN(FlowSpec):
     def eval_model(self):
         """ Evaluar el modelo """
         print("\033[94mEvaluating model...\033[0m")
-        # self.next(self.generate_imgs if self.passed_evaluation else self.generate_report) --> Metaflow no permite 
-
-
         # 1) Generamos img_eval_lpips.png para poder aplicar la métrica LPISP ==> ../Data/images/images_{model_type}/img_eval_lpips.png'
+        generate_pipeline.generate_one_img(self.model_type)
         # 2) Ejecutamos eval model ==> evaluation/evaluation_{model}/EvalModel_{model_type}_{date}.md
         accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score = eval_model_pipeline.main(self.model_type)
         self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score)
@@ -73,8 +72,8 @@ class ChestGAN(FlowSpec):
         # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
         # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
         # Desde la Web los administradores deberían poder acceder a estos PDFs
-        
 
+        
         print("\033[94mCreating a report...\033[0m")
         self.next(self.generate_imgs)
 
@@ -82,12 +81,14 @@ class ChestGAN(FlowSpec):
     @step
     def generate_imgs(self):
         """ Generar Imágenes Sintéticas """
-        # generate.py --> Guardar img en "Data-Transformed" como Sinthetic_X_{fecha}.png siendo X el número de img generada. 
-        # Aquí desde la web se podrá acceder a las img sintéticas y presentarlas a usuarios
         if self.model_score>7:
             print("\033[94mGenerating Images...\033[0m")
+            # Generar imágenes en images/images_{model}/Synthetic_{model_type}_{i + 1}_{current_date}.png
+            generate_pipeline.main(self.model_type, self.num_output, self.finalmodel_name)
+
         else:
             print("\033[94mImages are not going to be generated due to a bad scoring in the evaluation step.\033[0m")
+
         self.next(self.end)
 
 

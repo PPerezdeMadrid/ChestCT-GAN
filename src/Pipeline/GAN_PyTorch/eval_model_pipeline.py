@@ -140,7 +140,7 @@ def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_s
 
 def main(model_type):
     print_green("Evaluating model...")
-    config = load_config("config.json")
+    config = load_config("GAN_PyTorch/config.json")
     model_path = config["model"][f"path_{model_type}"]
     report_path = config["model"][f'evaluation_{model_type}']
     device = setup_device()

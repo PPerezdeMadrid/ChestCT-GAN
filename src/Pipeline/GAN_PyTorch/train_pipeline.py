@@ -190,16 +190,17 @@ def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
 
 
 def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
-
+    date = datetime.now().strftime("%Y-%m-%d")
     torch.save({
         'generator': netG.state_dict(),
         'discriminator': netD.state_dict(),
         'optimizerG': optimizerG.state_dict(),
         'optimizerD': optimizerD.state_dict(),
         'params': params
-    }, os.path.join(model_path, 'model_ChestCT.pth'))
+    }, os.path.join(model_path, f'model_ChestCT_{date}.pth'))
 
     print("==> Modelo final guardado en:", os.path.join(model_path, 'model_ChestCT.pth'))
+    return f'model_ChestCT_{date}.pth'
 
 
 
@@ -255,8 +256,10 @@ def main(params):
 
         # Entrenar DCGAN
         G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
-        save_model(model_path, netG, netD, optimizerG, optimizerD, params)
+        finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
+        return finalmodel_name
+        
 
     elif model_type == 'wgan':
         print("\033[92mWGAN model\033[0m")
@@ -269,5 +272,6 @@ def main(params):
 
         # Entrenar WGAN
         G_losses, D_losses, img_list = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
-        save_model(model_path, netG, netD, optimizerG, optimizerD, params)
+        finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
+        return finalmodel_name
