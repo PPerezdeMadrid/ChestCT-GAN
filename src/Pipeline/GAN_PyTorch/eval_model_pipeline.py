@@ -2,8 +2,8 @@ import torch,json,lpips
 import torchvision.transforms as transforms
 from torchvision import models
 from torch.nn import functional as F
-from GAN_PyTorch.dcgan import GeneratorDC, DiscriminatorDC
-from GAN_PyTorch.wgan import GeneratorW, DiscriminatorW
+from GAN_PyTorch.dcgan import Generator as GeneratorDC, Discriminator as DiscriminatorDC
+from GAN_PyTorch.wgan import Generator as GeneratorW, Discriminator as DiscriminatorW
 from PIL import Image
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
