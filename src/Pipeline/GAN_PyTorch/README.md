@@ -63,36 +63,19 @@ Para visualizar la evolución de las pérdidas del generador y el discriminador 
 python3 graphLogs.py --csv training_log_wgan.csv
 ```
 
-# Estructura de archivos 
+## Estructura del GAN_PyTorch
 
-Aquí tienes el README en español con la estructura de archivos de tu proyecto:  
+### Scripts Adaptados al Pipeline de Metaflow
 
----
+Los siguientes archivos están adaptados para ser utilizados dentro del pipeline de Metaflow, lo que facilita su automatización y gestión en flujos de trabajo más complejos:
 
-# **README: Estructura del Proyecto**  
+- `eval_model_pipeline.py`: Script de evaluación de modelos adaptado a Metaflow.
+- `generate_pipeline.py`: Script de generación de imágenes adaptado a Metaflow.
+- `train_pipeline.py`: Script de entrenamiento de modelos adaptado a Metaflow.
 
-## **Descripción del Proyecto**  
-Este proyecto está diseñado para el entrenamiento y evaluación de Redes Generativas Adversarias (GANs) aplicadas a imágenes médicas, específicamente radiografías de tórax. La estructura del repositorio incluye scripts para entrenamiento, evaluación, optimización de hiperparámetros y ejecución de la tubería de procesamiento.  
+Estos scripts han sido diseñados para integrarse con las funcionalidades del pipeline de Metaflow, permitiendo una ejecución más controlada y escalable en entornos que requieren procesos automatizados de Machine Learning.
 
----
-
-## **Estructura de Directorios**  
-
-## **Directorio Principal: `Pipeline/`**  
-- **`Data/`** - Carpeta para almacenar datasets.  
-- **`GAN_PyTorch/`** - Contiene scripts y archivos relacionados con GANs.  
-- **`Metaflow/`** - Probablemente almacena scripts de automatización del flujo de trabajo.  
-- **`README.md`** - Documentación del proyecto.  
-- **`pipeline.md`** - Documentación sobre la tubería de procesamiento.  
-- **`main_pipeline.py`** - Script principal de ejecución del pipeline.  
-- **`requirements.txt`** - Lista de dependencias necesarias.  
-- **`training_log_dcgan_*.csv`** - Registros de entrenamiento de distintos experimentos con DCGAN.  
-- **`Pipeline.png`** - Imagen representativa de la tubería de procesamiento.  
-
----
-
-## **Directorio `GAN_PyTorch/`**  
-Contiene scripts y archivos específicamente relacionados con el entrenamiento y evaluación de modelos GAN.  
+### Resto de archivos
 
 - **Modelos GAN**  
   - `dcgan.py` - Implementación de Deep Convolutional GAN (DCGAN).  

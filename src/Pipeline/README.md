@@ -20,3 +20,24 @@ dataset_path = "../../../../ChestCT-NBIA/manifest-1608669183333"  # CAMBIAR !!
 cd src/Pipeline
 python main_pipeline.py run
 ```
+
+---
+
+## Estructura del directorio 
+
+```bash
+📂 Pipeline
+│-- 📂 Data                  # Datos utilizados para entrenamiento
+│-- 📂 GAN_PyTorch           # Implementación de las arquitecturas GAN en PyTorch
+│-- 📂 model                 # * Modelos entrenados y checkpoints 
+│-- 📂 images                # * Imágenes generadas por el modelo
+│-- 📂 evaluation            # * Archivos sobre la evaluación de los checkpoints
+│-- 📄 README.md             # Este archivo
+│-- 📄 requirements.txt      # Dependencias necesarias para ejecutar el proyecto
+│-- 📄 pipeline.md           # Descripción de la pipeline de datos
+│-- 📄 template_EvalModel.md # Plantilla para la evaluación del modelo
+│-- 📄 main_pipeline.py      # Script principal del pipeline de Metaflow
+│-- 📄 Pipeline.png          # Diagrama del pipeline
+
+Nota*: Se genera automáticamente con el pipeline
+```
