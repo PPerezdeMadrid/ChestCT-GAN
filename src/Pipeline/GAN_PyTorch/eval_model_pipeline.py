@@ -2,7 +2,8 @@ import torch,json,lpips
 import torchvision.transforms as transforms
 from torchvision import models
 from torch.nn import functional as F
-from dcgan import Generator, Discriminator
+from GAN_PyTorch.dcgan import GeneratorDC, DiscriminatorDC
+from GAN_PyTorch.wgan import GeneratorW, DiscriminatorW
 from PIL import Image
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
@@ -24,11 +25,15 @@ def setup_device():
     else:
         return torch.device("cpu")
 
-def load_model(model_path, device):
+def load_model(model_path, device, model_type):
     checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', map_location=device)
     params = checkpoint['params']
-    netG = Generator(params).to(device)
-    netD = Discriminator(params).to(device)
+    if model_type == 'dcgan':
+        netG = GeneratorDC(params).to(device)
+        netD = DiscriminatorDC(params).to(device)
+    elif model_type == 'wgan':
+        netG = GeneratorW(params).to(device)
+        netD = DiscriminatorW(params).to(device)
     netG.load_state_dict(checkpoint['generator'])
     netD.load_state_dict(checkpoint['discriminator'])
     netG.eval()
@@ -140,7 +145,7 @@ def main(model_type):
     report_path = config["model"][f'evaluation_{model_type}']
     device = setup_device()
     print(device, " will be used.\n")
-    netG, netD, params = load_model(model_path, device)
+    netG, netD, params = load_model(model_path, device, model_type)
     dataloader = get_chestct(params['imsize'])
     
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)

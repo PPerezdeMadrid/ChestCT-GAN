@@ -73,6 +73,8 @@ class ChestGAN(FlowSpec):
         # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
         # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
         # Desde la Web los administradores deberían poder acceder a estos PDFs
+        
+
         print("\033[94mCreating a report...\033[0m")
         self.next(self.generate_imgs)
 
