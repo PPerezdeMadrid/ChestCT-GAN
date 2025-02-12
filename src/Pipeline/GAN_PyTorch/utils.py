@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # Ruta a los datasets
-path="../../../ChestCTKaggle/Data/"
+path="../../../ChestCTKaggle/Data/" # CAMBIAR, directorio descargado de Kaggle
 train_path = path+"train" 
 valid_path = path+"valid"  
 test_path = path+"test"  
@@ -77,7 +77,12 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     """
 
     fecha = datetime.now().strftime('%Y-%m-%d')
+    eval_dir = "evaluation"
+    if not os.path.exists(eval_dir):
+        os.makedirs(eval_dir)
     name_csv = f'training_log_{model}_{fecha}.csv'
+    save_path = os.path.join(eval, name_csv)
+    
 
     # Imprimir en consola
     print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f' % (
@@ -99,7 +104,7 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     # Modo de escritura dependiendo de la primera iteración (para que sobreescriba)
     mode = 'w' if i == 0 and epoch == 0 else 'a'
     
-    with open(name_csv, mode, newline='') as csvfile:
+    with open(save_path, mode, newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         
         if mode == 'w':

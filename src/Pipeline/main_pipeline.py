@@ -48,8 +48,10 @@ class ChestGAN(FlowSpec):
             'model_path': self.model_path
         }
         train_pipeline.main(params) 
-        # Se guarda los logs img del modelo de las pérdidas del generador y discriminador r
         self.next(self.eval_model)
+        # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
+        # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
+        # model/model_{model}/model_ChestCT.pth
 
     @step
     def eval_model(self):

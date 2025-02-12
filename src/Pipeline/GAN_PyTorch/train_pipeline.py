@@ -203,10 +203,13 @@ def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
 
 
 
-def plot_training_losses(G_losses, D_losses, save_dir='./'):
+def plot_training_losses(G_losses, D_losses,model, save_dir='evaluation'):
     current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
     
-    save_path = f'{save_dir}/training_losses_{current_time}.png'
+    save_path = f'{save_dir}/training_losses_{current_time}_{model}.png'
 
     plt.figure(figsize=(10, 5))
     plt.title("Generator and Discriminator Loss During Training")
@@ -243,6 +246,7 @@ def main(params):
     if model_type == 'dcgan':
         print("\033[92mDCGAN model\033[0m")
         model_path = config["model"]["path_dcgan"]
+        eval_path = config["model"]["evaluation_dcgan"]
         criterion = torch.nn.BCELoss()
 
         netG, netD = initialize_model('dcgan', params, device)
@@ -252,11 +256,12 @@ def main(params):
         # Entrenar DCGAN
         G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
         save_model(model_path, netG, netD, optimizerG, optimizerD, params)
-        # plot_training_losses(G_losses, D_losses)
+        plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
 
     elif model_type == 'wgan':
         print("\033[92mWGAN model\033[0m")
         model_path = config["model"]["path_wgan"]
+        eval_path = config["model"]["evaluation_wgan"]
 
         netG, netD = initialize_model('wgan', params, device)
         optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
@@ -265,4 +270,4 @@ def main(params):
         # Entrenar WGAN
         G_losses, D_losses, img_list = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
         save_model(model_path, netG, netD, optimizerG, optimizerD, params)
-        # plot_training_losses(G_losses, D_losses)
+        plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)

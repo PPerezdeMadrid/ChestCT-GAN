@@ -16,7 +16,9 @@
         "path_dcgan": "model/model_dcgan",
         "path_wgan": "model/model_wgan",
         "image_path_dcgan": "images/images_dcgan",
-        "image_path_wgan": "images/images_wgan"
+        "image_path_wgan": "images/images_wgan",
+        "evaluation_dcgan": "evaluation/evaluation_dcgan",
+        "evaluation_wgan": "evaluation/evaluation_wgan"
     }
 }
 

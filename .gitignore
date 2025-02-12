@@ -6,6 +6,7 @@ src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
 src/Pipeline/model
 src/Pipeline/images
+src/Pipeline/evaluation
 
 # No subir modelos 
 *.pth
