@@ -174,5 +174,5 @@ def main(model_type):
     with open(output_path, "w") as md_file:
         md_file.write(report_content)
     print(f"Report saved to {output_path}")
-    return accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score
+    return accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, output_path
 

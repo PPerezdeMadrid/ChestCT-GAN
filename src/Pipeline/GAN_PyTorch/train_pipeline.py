@@ -75,7 +75,7 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
 
             # Log training info
             if i % 50 == 0:
-                log_training_info('dcgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
+                log_csv_path = log_training_info('dcgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
@@ -101,7 +101,7 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
             params=params
         )
 
-    return G_losses, D_losses, img_list
+    return G_losses, D_losses, img_list,log_csv_path 
 
 def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path):
     # Stores generated images as training progresses
@@ -146,7 +146,7 @@ def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noi
 
             # Log training info
             if i % 50 == 0:
-                log_training_info('wgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, 0, D_G_z2)
+                log_csv_path = log_training_info('wgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, 0, D_G_z2)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
@@ -172,7 +172,7 @@ def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noi
             params=params
         )
 
-    return G_losses, D_losses, img_list
+    return G_losses, D_losses, img_list, log_csv_path 
 
 def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
     if not os.path.exists(model_path):
@@ -224,6 +224,7 @@ def plot_training_losses(G_losses, D_losses,model, save_dir='evaluation'):
     plt.close() 
 
     print(f"Training losses plot saved as: {save_path}")
+    return save_path
 
 
 # En train.py
@@ -255,10 +256,10 @@ def main(params):
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
         # Entrenar DCGAN
-        G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
+        G_losses, D_losses, img_list, log_csv_path = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
         finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
-        plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
-        return finalmodel_name
+        plot_path = plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
+        return finalmodel_name, plot_path, log_csv_path
         
 
     elif model_type == 'wgan':
@@ -271,7 +272,7 @@ def main(params):
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
         # Entrenar WGAN
-        G_losses, D_losses, img_list = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
+        G_losses, D_losses, img_list,log_csv_path = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
         finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
-        plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
-        return finalmodel_name
+        plot_path = plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
+        return finalmodel_name, plot_path,log_csv_path

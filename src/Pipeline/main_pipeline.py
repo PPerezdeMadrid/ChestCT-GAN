@@ -1,8 +1,8 @@
 from metaflow import FlowSpec, step, Parameter
 import pandas as pd
-import json
+import json, datetime
 from Data.generateData import process_dicom_folders
-from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline
+from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline
 
 """
 python ChestCancerGAN.py run|show|check
@@ -27,8 +27,7 @@ class ChestGAN(FlowSpec):
     @step
     def start(self):
         """ Selección de Imágenes para el modelo """
-        # generate-data.py
-        # Cogemos las imágenes de TCIA y las dividimos en "Data-Transformed" y "Data-Discarded" (S3 Bucket divido en carpetas)
+
         print("\033[94mChoosing Data...\033[0m")
         """
         process_dicom_folders(
@@ -44,15 +43,13 @@ class ChestGAN(FlowSpec):
     @step
     def train_model(self):
         """ Entrenar el modelo """
-        # Utilizar las imágenes de Data-Transformed para el entrenamiento
-        # Guardar el modelo "ChestTC_GAN.pth" en un servidor virtual (EC2)
 
         print("\033[94mTraining model...\033[0m")
         params = {
             'model_type': self.model_type,
             'dataset': self.dataset,
         }
-        self.finalmodel_name = train_pipeline.main(params) 
+        self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
         self.next(self.eval_model)
         # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
         # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
@@ -63,27 +60,15 @@ class ChestGAN(FlowSpec):
         """ Evaluar el modelo """
         print("\033[94mEvaluating model...\033[0m")
         # 1) Generamos img_eval_lpips.png para poder aplicar la métrica LPISP ==> ../Data/images/images_{model_type}/img_eval_lpips.png'
-        generate_pipeline.generate_one_img(self.model_type)
+        generate_pipeline.generate_one_img(self.model_type, "img_eval_lpips.png")
         # 2) Ejecutamos eval model ==> evaluation/evaluation_{model}/EvalModel_{model_type}_{date}.md
-        accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score = eval_model_pipeline.main(self.model_type)
+        accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, self.eval_md_path = eval_model_pipeline.main(self.model_type)
         self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score)
 
         print(f'\033[94mEvaluation Score ==> {self.model_score}\033[0m')
-        self.next(self.generate_report)
-
-
-    @step
-    def generate_report(self):
-        """ Generar un informe mensual """
-        # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
-        # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
-        # Desde la Web los administradores deberían poder acceder a estos PDFs
-
-        
-        print("\033[94mCreating a report...\033[0m")
         self.next(self.generate_imgs)
 
-    # SÍ PASA LA EVALUACIÓN
+
     @step
     def generate_imgs(self):
         """ Generar Imágenes Sintéticas """
@@ -95,6 +80,30 @@ class ChestGAN(FlowSpec):
         else:
             print("\033[94mImages are not going to be generated due to a bad scoring in the evaluation step.\033[0m")
 
+        self.next(self.generate_report)
+
+    @step
+    def generate_report(self):
+        """ Generar un informe mensual """
+        print("\033[94mCreating a report...\033[0m")
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+        model_trained = f"model/model_{self.model_type}/{self.finalmodel_name}"
+        filename = report_pipeline.generate_report_pdf(
+            data_transformed = "../Data/Data-Transformed/cancer/",
+            data_discarded="../Data/Data-Discarded",
+            model=self.model_type,
+            model_trained=model_trained,
+            log_training=self.csv_log,
+            graph_training=self.plot_path,
+            img_to_eval=f"../Data/images/images_{self.model_type}/img_eval_lpips.png'",
+            report_eval=self.eval_md_path,
+            image_path=f"../images/images_{self.model_type}",
+            filename=f"report_{current_date}.pdf"
+        )
+        # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
+        # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
+        print(f"\033[94mReport created at {filename}\033[0m")
         self.next(self.end)
 
 

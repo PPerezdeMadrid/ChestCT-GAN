@@ -117,3 +117,4 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
         
         # Escribir los datos de esta iteración
         csv_writer.writerow(log_data)
+    return save_path

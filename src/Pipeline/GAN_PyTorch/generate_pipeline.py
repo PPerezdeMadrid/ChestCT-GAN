@@ -114,7 +114,7 @@ def create_image_grid(image_files, output_path, grid_size=(3, 3)):
     print(f'==> Cuadrícula de imágenes guardada en {grid_image_path}')
    
 
-def generate_one_img(model_type='dcgan'):
+def generate_one_img(model_type='dcgan', img_name="img_eval_lpips.png"):
     """Generar y guardar una sola imagen utilizando el generador del modelo"""
     
     device = get_device
@@ -146,7 +146,7 @@ def generate_one_img(model_type='dcgan'):
         os.makedirs(eval_path)
 
     # Guardar la imagen generada
-    image_path = os.path.join(eval_path, 'img_eval_lpips.png')
+    image_path = os.path.join(eval_path, img_name)
     save_image(normalized_img, image_path)
     print(f'==> Imagen generada y guardada en {image_path}')
 
