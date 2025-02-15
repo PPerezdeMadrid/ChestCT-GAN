@@ -19,6 +19,10 @@
         "image_path_wgan": "images/images_wgan",
         "evaluation_dcgan": "evaluation/evaluation_dcgan",
         "evaluation_wgan": "evaluation/evaluation_wgan"
+    },
+    "datasets":{
+        "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
+        "nbia": "../../../../ChestCT-NBIA/manifest-1608669183333"
     }
 }
 

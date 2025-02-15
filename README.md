@@ -161,3 +161,13 @@ PSNR Score:          10.42 dB
 ```
 
 Nota: 1000 epochs ha tardado unas 26 horas. 
+
+
+
+## Referencias
+
+Si utilizas este conjunto de datos en tu trabajo, por favor cita la siguiente referencia:
+
+Li, P., Wang, S., Li, T., Lu, J., HuangFu, Y., & Wang, D. (2020).  
+*A Large-Scale CT and PET/CT Dataset for Lung Cancer Diagnosis (Lung-PET-CT-Dx)* [Data set].  
+The Cancer Imaging Archive. [https://doi.org/10.7937/TCIA.2020.NNC2-0461](https://doi.org/10.7937/TCIA.2020.NNC2-0461)

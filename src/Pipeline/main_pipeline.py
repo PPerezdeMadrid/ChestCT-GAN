@@ -1,16 +1,22 @@
 from metaflow import FlowSpec, step, Parameter
 import pandas as pd
-import random
+import json
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline
 
 """
 python ChestCancerGAN.py run|show|check
 """
-dataset_path = "../../../../ChestCT-NBIA/manifest-1608669183333" # CAMBIAR !!
+
+def load_config():
+    with open('GAN_PyTorch/config.json', 'r') as json_file:
+        return json.load(json_file)
 
 
 class ChestGAN(FlowSpec):
+
+    params = load_config()
+    dataset_nbia_path = params["datsets"]["nbia"]
 
     # Parámetros
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
@@ -26,7 +32,7 @@ class ChestGAN(FlowSpec):
         print("\033[94mChoosing Data...\033[0m")
         """
         process_dicom_folders(
-            path_NBIA_Data= dataset_path,
+            path_NBIA_Data= dataset_nbia_path,
             reference_images_paths=['Data/Imagen_Ref1.png', 'Data/Imagen_Ref2.png', 'Data/Imagen_Ref3.png'],
             transformed_dir='Data/Data-Transformed/cancer',
             discarded_dir='Data/Data-Discarded/',

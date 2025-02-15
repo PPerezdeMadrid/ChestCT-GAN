@@ -1,11 +1,16 @@
-import torch, csv
+import torch, csv, json
 import torchvision.transforms as transforms
 from torchvision import datasets
 import os
 from datetime import datetime
 
 # Ruta a los datasets
-path="../../../ChestCTKaggle/Data/" # CAMBIAR, directorio descargado de Kaggle
+def load_config():
+    with open('GAN_PyTorch/config.json', 'r') as json_file:
+        return json.load(json_file)
+
+config = load_config()
+path = config["datasets"]["chestKaggle"]
 train_path = path+"train" 
 valid_path = path+"valid"  
 test_path = path+"test"  
