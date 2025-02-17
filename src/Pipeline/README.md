@@ -41,3 +41,33 @@ python main_pipeline.py run
 
 Nota*: Se genera automáticamente con el pipeline
 ```
+
+```bash
+python3 main_pipeline.py show 
+Metaflow 2.13.9 executing ChestGAN for user:palomaperezdemadrid
+
+
+
+Step start
+    Selección de Imágenes para el modelo 
+    => train_model
+
+Step train_model
+    Entrenar el modelo 
+    => eval_model
+
+Step eval_model
+    Evaluar el modelo 
+    => generate_imgs
+
+Step generate_imgs
+    Generar Imágenes Sintéticas 
+    => generate_report
+
+Step generate_report
+    Generar un informe mensual 
+    => end
+
+Step end
+    Fin del pipeline.
+```

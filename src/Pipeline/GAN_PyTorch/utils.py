@@ -15,6 +15,14 @@ train_path = path+"train"
 valid_path = path+"valid"  
 test_path = path+"test"  
 
+def get_dataloader(dataset_type, img_size=64):
+    if dataset_type == 'chestct':
+        return get_chestct(img_size)
+    elif dataset_type == 'nbia':
+        return get_NBIA(img_size)
+    else:
+        raise ValueError(f"Unknown dataset type: {dataset_type}")
+    
 def get_chestct(img_size=64):
     transform = transforms.Compose([
         transforms.Grayscale(), 
@@ -82,11 +90,11 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     """
 
     fecha = datetime.now().strftime('%Y-%m-%d')
-    eval_dir = "evaluation"
+    eval_dir = f"evaluation/evaluation_{model}"
     if not os.path.exists(eval_dir):
         os.makedirs(eval_dir)
     name_csv = f'training_log_{model}_{fecha}.csv'
-    save_path = os.path.join(eval, name_csv)
+    save_path = os.path.join(eval_dir, name_csv)
     
 
     # Imprimir en consola

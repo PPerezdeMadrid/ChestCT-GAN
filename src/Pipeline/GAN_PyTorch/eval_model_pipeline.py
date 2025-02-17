@@ -7,7 +7,7 @@ from GAN_PyTorch.wgan import Generator as GeneratorW, Discriminator as Discrimin
 from PIL import Image
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
-from utils import get_chestct
+from GAN_PyTorch.utils import get_dataloader, get_chestct, get_NBIA
 from datetime import datetime
 
 def print_green(text):
@@ -104,11 +104,14 @@ def evaluate_psnr(dataloader, netG, device, params):
             num_batches += 1
     return psnr_total / num_batches
 
-def calculate_lpips(model, img1_path, img2_path):
+def calculate_lpips(model, img1_path, img2_path, device):
     transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
     img1, img2 = Image.open(img1_path).convert('RGB'), Image.open(img2_path).convert('RGB')
     img1, img2 = transform(img1).unsqueeze(0), transform(img2).unsqueeze(0)
+    img1, img2 = img1.to(device), img2.to(device)
+    model = model.to(device) #  Make sure the model is on the same device as well
     return model(img1, img2).item()
+
 
 def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score):
     """Calcula una puntuación del 1 y 10 basado en las métricas del modelo"""
@@ -138,7 +141,7 @@ def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_s
 
 
 
-def main(model_type):
+def main(model_type, dataset):
     print_green("Evaluating model...")
     config = load_config("GAN_PyTorch/config.json")
     model_path = config["model"][f"path_{model_type}"]
@@ -146,14 +149,14 @@ def main(model_type):
     device = setup_device()
     print(device, " will be used.\n")
     netG, netD, params = load_model(model_path, device, model_type)
-    dataloader = get_chestct(params['imsize'])
+    dataloader = get_dataloader(dataset, params["imsize"])
     
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     model_lpips = lpips.LPIPS(net='vgg').to(device)
-    img_generated = f'../Data/images/images_{model_type}/img_eval_lpips.png' # Se necesita generar 1 imagen al menos para evaluar
-    lpips_score = calculate_lpips(model_lpips, '../Data/Imagen_Ref1.png', img_generated)
+    img_generated = f'evaluation/evaluation_{model_type}/img_eval_lpips.png' # Se necesita generar 1 imagen al menos para evaluar
+    lpips_score = calculate_lpips(model_lpips, 'Data/Imagen_Ref1.png', img_generated, device=device)
     
     date = datetime.now().strftime('%Y-%m-%d')
     report_name = f'EvalModel_{model_type}_{date}.md'
@@ -162,15 +165,29 @@ def main(model_type):
     with open('template_EvalModel.md', 'r', encoding='utf-8') as file:
         template = file.read()
 
-    # Reemplazar las variables en la plantilla
-    report_content = template.format(
-        model_type=model_type,
-        accuracy_discriminator=accuracy_discriminator,
-        accuracy_generator=accuracy_generator,
-        ssim_score=ssim_score,
-        psnr_score=psnr_score,
-        lpips_score=lpips_score,
-    )
+    print("\033[94mImprimiendo los valores antes de generar el reporte:\033[0m")
+    print(f"Tipo de Modelo: {model_type}")
+    print(f"Precisión del Discriminador: {accuracy_discriminator * 100:.2f}%")
+    print(f"Precisión del Generador: {accuracy_generator * 100:.2f}%")
+    print(f"SSIM (Índice de Similitud Estructural): {ssim_score:.4f}")
+    print(f"PSNR (Relación Señal-Ruido de Pico): {psnr_score:.2f} dB")
+    print(f"LPIPS (Similitud Perceptual de Parches de Imagen Aprendida): {lpips_score:.4f}")
+
+        # Reemplazar las variables en la plantilla
+    try:
+        report_content = template.format(
+            model_type=model_type.upper(),  # Asegúrate de convertir model_type a mayúsculas si es necesario
+            accuracy_discriminator=f"{accuracy_discriminator * 100:.2f}",  # Convertir a string con formato adecuado
+            accuracy_generator=f"{accuracy_generator * 100:.2f}",
+            ssim_score=f"{ssim_score:.4f}",
+            psnr_score=f"{psnr_score:.2f}",
+            lpips_score=f"{lpips_score:.4f}",
+        )
+    except AttributeError as e:
+        print(f"Error during formatting: {e}")
+        print(f"Types: {type(model_type)}, {type(accuracy_discriminator)}, {type(accuracy_generator)}, {type(ssim_score)}, {type(psnr_score)}, {type(lpips_score)}")
+        report_content = None
+
     with open(output_path, "w") as md_file:
         md_file.write(report_content)
     print(f"Report saved to {output_path}")

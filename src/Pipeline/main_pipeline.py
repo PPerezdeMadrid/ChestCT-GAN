@@ -16,7 +16,7 @@ def load_config():
 class ChestGAN(FlowSpec):
 
     params = load_config()
-    dataset_nbia_path = params["datsets"]["nbia"]
+    dataset_nbia_path = params["datasets"]["nbia"]
 
     # Parámetros
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
@@ -49,7 +49,10 @@ class ChestGAN(FlowSpec):
             'model_type': self.model_type,
             'dataset': self.dataset,
         }
-        self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
+        # self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
+        self.finalmodel_name = "model_ChestCT_2025-02-17.pth"
+        self.plot_path = "evaluation/evaluation_dcgan/training_losses_2025-02-17_20-14-53_dcgan.png"
+        self.csv_log = "evaluation/training_log_dcgan_2025-02-17.csv"
         self.next(self.eval_model)
         # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
         # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
@@ -60,9 +63,9 @@ class ChestGAN(FlowSpec):
         """ Evaluar el modelo """
         print("\033[94mEvaluating model...\033[0m")
         # 1) Generamos img_eval_lpips.png para poder aplicar la métrica LPISP ==> ../Data/images/images_{model_type}/img_eval_lpips.png'
-        generate_pipeline.generate_one_img(self.model_type, "img_eval_lpips.png")
+        generate_pipeline.generate_one_img(model_type= self.model_type, img_name="img_eval_lpips.png", model_name=self.finalmodel_name)
         # 2) Ejecutamos eval model ==> evaluation/evaluation_{model}/EvalModel_{model_type}_{date}.md
-        accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, self.eval_md_path = eval_model_pipeline.main(self.model_type)
+        accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, self.eval_md_path = eval_model_pipeline.main(self.model_type, self.dataset)
         self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score)
 
         print(f'\033[94mEvaluation Score ==> {self.model_score}\033[0m')

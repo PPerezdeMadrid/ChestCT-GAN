@@ -26,11 +26,12 @@ def get_device():
 
 def load_model(params, model_type, device):
     """Carga el modelo adecuado en función del tipo especificado."""
+    print(f"Model type received: {model_type}")
     if model_type == 'dcgan':
-        netG = DCGANGenerator(params).to(device)
+        netG = DCGANGenerator(params["params"]).to(device)
         image_path = params["model"]["image_path_dcgan"]
     elif model_type == 'wgan':
-        netG = WGANGenerator(params).to(device)
+        netG = WGANGenerator(params["params"]).to(device)
         image_path = params["model"]["image_path_wgan"]
     else:
         raise ValueError("Unsupported model type")
@@ -114,25 +115,27 @@ def create_image_grid(image_files, output_path, grid_size=(3, 3)):
     print(f'==> Cuadrícula de imágenes guardada en {grid_image_path}')
    
 
-def generate_one_img(model_type='dcgan', img_name="img_eval_lpips.png"):
+def generate_one_img(model_type='dcgan', img_name="img_eval_lpips.png", model_name="ChestGAN.pth"):
     """Generar y guardar una sola imagen utilizando el generador del modelo"""
     
-    device = get_device
-    params = load_config()
+    device = get_device()
+    config = load_config()
+    params = config["params"]
 
     if model_type=='dcgan':
-        model_path = params["model"]["path_dcgan"]
-        eval_path = params["model"]["evaluation_dcgan"]
+        model_path = config["model"]["path_dcgan"]
+        eval_path = config["model"]["evaluation_dcgan"]
     elif model_type == 'wgan':
-        model_path = params["model"]["path_wgan"]
-        eval_path = params["model"]["evaluation_wgan"]
+        model_path = config["model"]["path_wgan"]
+        eval_path = config["model"]["evaluation_wgan"]
 
-    state_dict = torch.load(model_path, map_location=device)
+    print(f"======> {model_path}/{model_name}")
+    state_dict = torch.load(f"{model_path}/{model_name}", map_location=device)
 
-    netG, _ = load_model(params, model_type, device)
+    netG, img_path = load_model(config, model_type, device)
 
     netG.load_state_dict(state_dict['generator'])
-    print(f"Cargado el modelo {model_type} desde {model_path}")
+    print(f"Cargado el modelo {model_type} desde {f'{model_path}/{model_name}'}")
 
     noise = torch.randn(1, params['nz'], 1, 1, device=device)  # Solo 1 imagen
 
