@@ -12,6 +12,8 @@ Los datos utilizados provienen de **The Cancer Imaging Archive (TCIA)**, especí
 
 ### Probar el Código de data.py
 
+En caso de que no funcione el archivo `NBIA_download.py` puede descargarse los archivos de la siguiente forma:
+
 1. **Descarga del Manifest**  
    - Descargue el archivo `.tcia` desde [Lung-PET-CT-Dx en TCIA](https://www.cancerimagingarchive.net/collection/lung-pet-ct-dx/).
 
@@ -190,3 +192,5 @@ Este proceso sistemático permite clasificar y organizar imágenes médicas de m
 # Resultados
 ![Pérdidas Generador y Discriminador](img_doc/LossGLossD_2Feb2025.png)
 ![Imágenes generadas con los datos de TCIA](img_doc/generate_NBIA_2feb2025.png)
+
+

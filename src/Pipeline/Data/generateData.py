@@ -48,7 +48,9 @@ def setup_logging():
     )
 
 def process_dicom_folders(path_NBIA_Data, reference_images_paths, transformed_dir, discarded_dir, threshold=0.3500):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
     model = lpips.LPIPS(net='alex').to(device)
     
     ensure_directory_exists(transformed_dir)
