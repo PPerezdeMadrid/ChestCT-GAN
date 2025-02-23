@@ -7,6 +7,9 @@ src/Pipeline/MacSetup.md
 src/Pipeline/model
 src/Pipeline/images
 src/Pipeline/evaluation
+Arquitecturas-de-prueba/DCGAN-PyTorch/model_prueba
+Arquitecturas-de-prueba/DCGAN-PyTorch/images_prueba
+Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation
 
 # No subir modelos 
 *.pth

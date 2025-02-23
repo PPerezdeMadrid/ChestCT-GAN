@@ -10,3 +10,4 @@ lpips
 tqdm
 pydicom
 reportlab
+fpdf

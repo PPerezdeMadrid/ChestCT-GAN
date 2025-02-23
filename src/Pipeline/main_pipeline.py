@@ -3,6 +3,7 @@ import pandas as pd
 import json, datetime
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline
+from metaflow.plugins import kubernetes
 
 """
 python ChestCancerGAN.py run|show|check
@@ -29,17 +30,16 @@ class ChestGAN(FlowSpec):
         """ Selección de Imágenes para el modelo """
 
         print("\033[94mChoosing Data...\033[0m")
-        """
         process_dicom_folders(
-            path_NBIA_Data= dataset_nbia_path,
+            path_NBIA_Data= self.dataset_nbia_path,
             reference_images_paths=['Data/Imagen_Ref1.png', 'Data/Imagen_Ref2.png', 'Data/Imagen_Ref3.png'],
             transformed_dir='Data/Data-Transformed/cancer',
             discarded_dir='Data/Data-Discarded/',
             threshold=0.3500
         )
-        """
         self.next(self.train_model) 
 
+    # @kubernetes(cpu=4, memory=16)
     @step
     def train_model(self):
         """ Entrenar el modelo """
@@ -49,16 +49,17 @@ class ChestGAN(FlowSpec):
             'model_type': self.model_type,
             'dataset': self.dataset,
         }
-        # self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
-        self.finalmodel_name = "model_ChestCT_2025-02-17.pth"
-        self.plot_path = "evaluation/evaluation_dcgan/training_losses_2025-02-17_20-14-53_dcgan.png"
-        self.csv_log = "evaluation/training_log_dcgan_2025-02-17.csv"
+        self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
+        # self.finalmodel_name = "model_ChestCT_2025-02-17.pth"
+        # self.plot_path = "evaluation/evaluation_dcgan/training_losses_2025-02-17_20-14-53_dcgan.png"
+        # self.csv_log = "evaluation/training_log_dcgan_2025-02-17.csv"
         self.next(self.eval_model)
         # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
         # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
         # model/model_{model}/model_ChestCT.pth
 
     @step
+    # @kubernetes(cpu=2, memory=16)
     def eval_model(self):
         """ Evaluar el modelo """
         print("\033[94mEvaluating model...\033[0m")
@@ -71,7 +72,7 @@ class ChestGAN(FlowSpec):
         print(f'\033[94mEvaluation Score ==> {self.model_score}\033[0m')
         self.next(self.generate_imgs)
 
-
+    # @kubernetes(cpu=2, memory=8)
     @step
     def generate_imgs(self):
         """ Generar Imágenes Sintéticas """
@@ -86,6 +87,7 @@ class ChestGAN(FlowSpec):
         self.next(self.generate_report)
 
     @step
+    # @kubernetes(cpu=1, memory=4)
     def generate_report(self):
         """ Generar un informe mensual """
         print("\033[94mCreating a report...\033[0m")
