@@ -22,7 +22,7 @@
     },
     "datasets":{
         "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
-        "nbia": "../../../../ChestCT-NBIA/manifest-1608669183333"
+        "nbia": "../Data/Data-Transformed"
     }
 }
 

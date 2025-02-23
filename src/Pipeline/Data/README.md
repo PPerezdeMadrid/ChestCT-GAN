@@ -176,7 +176,7 @@ Solo se procesan los estudios aceptados para reducir ruido y optimizar el entren
 Este script procesa imágenes médicas **DICOM**, las convierte a **PNG**, evalúa su similitud con una imagen de referencia mediante la métrica **LPIPS**, y las clasifica en dos carpetas:  
 
 - **`Data-Transformed/`** → Si la similitud con la referencia es alta.  
-- **`Discarded/`** → Si la similitud es baja.  
+- **`Data-Discarded/`** → Si la similitud es baja.  
 
 Para ejecutarlo, es necesario especificar:  
 - **`path_NBIA_Data`** → Carpeta con los datos y `metadata.csv`.  

@@ -21,8 +21,8 @@
         "evaluation_wgan": "evaluation_prueba/evaluation_wgan"
     },
     "datasets":{
-        "chestKaggle": "../../../../../TFG/ChestCTKaggle/Data/",
-        "nbia": "../../../../ChestCT-NBIA/manifest-1608669183333"
+        "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
+        "nbia": "../../src/Pipeline/Data/Data-Transformed"
     }
 }
 

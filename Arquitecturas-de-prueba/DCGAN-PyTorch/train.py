@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 import torch.optim as optim
 import torchvision.utils as vutils
 from dcgan import Generator, Discriminator, weights_init
-from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
+# from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
 from utils import get_chestct, log_training_info, get_NBIA
 import argparse
 import numpy as np
@@ -29,10 +29,12 @@ def initialize_model(model_type, params, device):
         netD = Discriminator(params).to(device)
         netD.apply(weights_init)
     elif model_type == 'wgan':
+        """
         netG = WGANGenerator(params).to(device)
         netG.apply(wgan_weights_init)
         netD = WGANDiscriminator(params).to(device)
         netD.apply(wgan_weights_init)
+        """
     return netG, netD
 
 def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
@@ -262,6 +264,7 @@ def main():
 
     elif args.model == 'wgan':
         print("\033[92mWGAN model\033[0m")
+        """
         model_path = config["model"]["path_wgan"]
         # No need for BCELoss in WGAN
         # Instead, we will calculate the Wasserstein loss directly
@@ -276,6 +279,7 @@ def main():
         save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         # save_gif(img_list, 'ChestTC_wgan.gif')
         plot_training_losses(G_losses, D_losses, params['num_epochs'])
+        """
 
 
 if __name__ == '__main__':

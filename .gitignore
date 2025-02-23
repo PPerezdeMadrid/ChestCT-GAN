@@ -14,6 +14,9 @@ Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation
 # No subir modelos 
 *.pth
 
+# No subir PDFs
+*.pdf
+
 # Archivos y carpetas de editores de código
 .idea/
 .vscode/
