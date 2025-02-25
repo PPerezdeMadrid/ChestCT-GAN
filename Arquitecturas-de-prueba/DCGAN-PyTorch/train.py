@@ -240,7 +240,8 @@ def main():
     params = config["params"]
     
     # dataloader = get_chestct(params['imsize'])
-    dataloader = DATASET_CHOICES[args.dataset](img_size=params["imsize"])
+    # dataloader = DATASET_CHOICES[args.dataset](img_size=params["imsize"])
+    dataloader = DATASET_CHOICES[args.dataset](img_size=512)
     print(f"====> Dataloader {dataloader}")
 
     sample_batch = next(iter(dataloader))

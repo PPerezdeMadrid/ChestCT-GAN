@@ -54,7 +54,7 @@ def get_chestct(img_size=64):
 
     return combined_loader
 
-def get_NBIA(img_size=64):
+def get_NBIA(img_size=512):
     config = load_config()
     data_path = config["datasets"]["nbia"]
     transform = transforms.Compose([
@@ -67,7 +67,7 @@ def get_NBIA(img_size=64):
     dataset = datasets.ImageFolder(root=f'{data_path}', transform=transform)
 
     # Cargar los datos en un DataLoader
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=128, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
 
     # Verificar el tamaño del dataset
     print(f"===> Tamaño del conjunto de datos: {len(dataset)}")
