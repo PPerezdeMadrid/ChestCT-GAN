@@ -24,7 +24,7 @@ def get_dataloader(dataset_type, img_size=64):
     else:
         raise ValueError(f"Unknown dataset type: {dataset_type}")
     
-def get_chestct(img_size=64):
+def get_chestct(img_size=64, bsize=128):
     transform = transforms.Compose([
         transforms.Grayscale(), 
         # transforms.Resize((128, 128)),
@@ -47,14 +47,14 @@ def get_chestct(img_size=64):
     combined_dataset = torch.utils.data.ConcatDataset([train_dataset, valid_dataset, test_dataset])
 
     # Crear un solo data loader
-    combined_loader = torch.utils.data.DataLoader(combined_dataset, batch_size=128, shuffle=True)
+    combined_loader = torch.utils.data.DataLoader(combined_dataset, batch_size=bsize, shuffle=True)
 
     # Verificar el tamaño del dataset combinado
     print(f"===> Tamaño del conjunto combinado: {len(combined_dataset)}")
 
     return combined_loader
 
-def get_NBIA(img_size=512):
+def get_NBIA(img_size=512, bsize=8):
     config = load_config()
     data_path = config["datasets"]["nbia"]
     transform = transforms.Compose([
@@ -67,7 +67,7 @@ def get_NBIA(img_size=512):
     dataset = datasets.ImageFolder(root=f'{data_path}', transform=transform)
 
     # Cargar los datos en un DataLoader
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=8, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=bsize, shuffle=True)
 
     # Verificar el tamaño del dataset
     print(f"===> Tamaño del conjunto de datos: {len(dataset)}")

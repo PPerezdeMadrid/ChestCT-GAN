@@ -74,6 +74,8 @@ if not os.path.exists(image_path):
 
 normalized_images = (generated_img + 1) / 2  # normaliza las imágenes a [0, 1]
 
+# Probar --> normalized_images = (generated_img - generated_img.min()) / (generated_img.max() - generated_img.min())
+
 # Guardar las imágenes generadas
 for i, img in enumerate(normalized_images):
     file_path = os.path.join(image_path, f'generated_image_{i + 1}.png')

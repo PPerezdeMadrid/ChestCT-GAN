@@ -236,12 +236,13 @@ def main():
     args = parser.parse_args()
 
     device = setup_device()
+    print(f"\033[92mUsing the device {device}\033[0m")
     config = load_config()
     params = config["params"]
     
     # dataloader = get_chestct(params['imsize'])
     # dataloader = DATASET_CHOICES[args.dataset](img_size=params["imsize"])
-    dataloader = DATASET_CHOICES[args.dataset](img_size=512)
+    dataloader = DATASET_CHOICES[args.dataset](img_size=params["imsize"],bsize=params["bsize"])
     print(f"====> Dataloader {dataloader}")
 
     sample_batch = next(iter(dataloader))

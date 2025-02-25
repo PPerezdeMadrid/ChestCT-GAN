@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chestgan-pipeline
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chestgan-pipeline
+  template:
+    metadata:
+      labels:
+        app: chestgan-pipeline
+    spec:
+      containers:
+        - name: chestgan-pipeline
+          image: pperezdem/metaflow-pipeline:latest
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2"
+            limits:
+              memory: "8Gi"
+              cpu: "4"
