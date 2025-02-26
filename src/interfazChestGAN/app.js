@@ -99,9 +99,9 @@ app.use(function(err, req, res, next) {
 });
 
 // Listening on port 80
-const PORT = 80;
+const PORT = 443;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${443}`);
 });
 
 module.exports = checkAuthenticated;
