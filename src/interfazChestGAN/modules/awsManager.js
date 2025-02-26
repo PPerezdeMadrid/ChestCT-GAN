@@ -38,4 +38,46 @@ const getPresignedUrl = (key) => {
   return s3.getSignedUrl('getObject', params);
 };
 
-module.exports = { listFiles, getPresignedUrl };
+/* Listar imágenes en la carpeta "images" */
+async function listImagesInFolder(bucketName, folderPath) {
+    const params = {
+      Bucket: bucketName,
+      Prefix: folderPath, 
+    };
+  
+    try {
+      const data = await s3.listObjectsV2(params).promise();
+      return data.Contents; // Lista de objetos (archivos) en el bucket
+    } catch (error) {
+      console.error("Error al obtener los objetos:", error);
+      return [];
+    }
+  }
+  
+  // Función para obtener la URL firmada de una imagen
+  function getS3ImageUrl(bucketName, imagePath) {
+    const params = {
+      Bucket: bucketName,
+      Key: imagePath,
+      Expires: 60 // Tiempo de expiración en segundos para la URL firmada
+    };
+  
+    // Generar la URL firmada (si las imágenes son privadas) o usar la URL pública si es accesible
+    return s3.getSignedUrl('getObject', params);
+  }
+  
+// Función principal para obtener las URLs firmadas de todas las imágenes en la carpeta
+async function getAllImageUrls(bucketName, folderPath) {
+    const images = await listImagesInFolder(bucketName, folderPath);
+  
+    // Obtener la URL firmada para cada imagen
+    const imageUrls = images.map(image => {
+      return getS3ImageUrl(bucketName, image.Key);
+    });
+  
+    return imageUrls;
+  }
+  
+
+module.exports = { listFiles, getPresignedUrl, getAllImageUrls };
+
