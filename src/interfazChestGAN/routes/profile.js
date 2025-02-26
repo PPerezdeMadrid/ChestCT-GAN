@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const bcrypt = require('bcrypt');
 const sqlite3 = require('sqlite3').verbose();
-
+const { listFiles, getPresignedUrl } = require('../modules/awsManager'); 
 
 // Conectar a la base de datos
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -153,6 +153,27 @@ router.post('/updateName', function(req, res) {
     res.send({ message: 'Nombre actualizado con éxito', newName });
   });
 });
+
+/* GET archivos de evaluation_dcgan (s3) */
+router.get('/evaluation', async (req, res) => {
+  if (req.session.user.isAdmin) { 
+    try {
+      const files = await listFiles();
+      const filesWithUrls = files.map(file => ({
+        name: file,
+        url: getPresignedUrl(file)
+      }));
+      console.log(filesWithUrls)
+      res.json({ urlEvaluation: filesWithUrls }); // ← Corrección aquí
+    } catch (err) {
+      console.error('Error al obtener archivos', err);
+      res.status(500).json({ error: 'Error al obtener los archivos' });
+    }
+  } else {
+    res.status(403).json({ error: 'Acceso denegado' });
+  }
+});
+
 
 
 
