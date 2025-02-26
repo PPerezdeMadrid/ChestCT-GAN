@@ -4,6 +4,7 @@ import json, datetime
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline
 from metaflow.plugins import kubernetes
+from upload_s3Bucket import upload_files_to_s3
 
 """
 python ChestCancerGAN.py run|show|check
@@ -109,8 +110,23 @@ class ChestGAN(FlowSpec):
         # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
         # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
         print(f"\033[94mReport created at {filename}\033[0m")
-        self.next(self.end)
+        self.next(self.upload_files_cloud)
 
+    @step 
+    def upload_files_cloud(self):
+        config = load_config()
+        bucket_name = 'tfg-chestgan-bucket'
+
+        folder_name_images = 'images_dcgan'
+        folder_name_evaluation = 'evaluation_dcgan'
+
+        # Subir imágenes generadas por el modelo
+        img_gen_upload = upload_files_to_s3(["model"]["image_path_dcgan"], bucket_name, folder_name_images, '.png')
+        # Subir archivos de evaluación
+        eval_upload = upload_files_to_s3(config["model"]["evaluation_dcgan"], bucket_name, folder_name_evaluation)
+        print(img_gen_upload)
+        print(eval_upload)
+        self.next(self.end)
 
     @step
     def end(self):

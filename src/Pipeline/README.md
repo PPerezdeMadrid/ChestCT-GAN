@@ -71,3 +71,5 @@ Step generate_report
 Step end
     Fin del pipeline.
 ```
+
+Requisitos: Kubernetes, awscli, ...

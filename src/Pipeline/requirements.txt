@@ -11,3 +11,4 @@ tqdm
 pydicom
 reportlab
 fpdf
+boto3

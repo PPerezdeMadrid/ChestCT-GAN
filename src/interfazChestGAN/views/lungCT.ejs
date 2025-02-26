@@ -21,112 +21,94 @@
       <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
    </div>
    <hr>
-   <!-- Select imgs Start -->
-   <style>
-      /* From Uiverse.io by akshat-patel28 */ 
-      .card {
-      display: flex;
-      flex-direction: column;
-      background-color: var(--white);
-      border-radius: 10px;
-      box-shadow: 0px 10px 12px rgba(0, 0, 0, 0.08),
-         -4px -4px 12px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      transition: all 0.3s;
-      cursor: pointer;
-      box-sizing: border-box;
-      margin: 10% 10%;
-      padding: 10px;
-      }
 
-      .card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0px 20px 20px rgba(0, 0, 0, 0.1),
-         -4px -4px 12px rgba(0, 0, 0, 0.08);
-      }
+   <div class="service_main" style="text-align: center;" id="image-gallery">
+      <!-- La imagen se cargará aquí dinámicamente -->
+   </div>  
 
-      .card-image-container {
-      border-radius: 10px;
-      margin-bottom: 12px;
-      overflow: hidden;
-      background-color: rgb(235, 231, 231);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      }
-
-      .card-image-container img{
-         width: 80%;
-      }
-
-
-   </style>
-   <div class="service_main" style="text-align: center;">
-      <div class="card">
-          <div class="card-image-container">
-              <img src="/images/iconoPulmones.png">
-          </div>
-          <div>
-              <div id="primary-buttons">
-                  <button class="btn btn-primary" onclick="showSecondaryButtons()">Real</button>
-                  <button class="btn btn-secondary dissapear">Falso</button>
-                  <button class="btn btn-danger dissapear">No estoy seguro</button>
-              </div>          
-          </div>
-          <div id="secondary-buttons" class="service_main_tech" style="margin: 5%; display: none;">
-              <button class="btn btn-warning"  onclick="handleSelection(this)">Adenocarcinoma</button>
-              <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células grandes</button>
-              <button class="btn btn-warning"  onclick="handleSelection(this)">Carcinoma de células escamosas</button>
-          </div>
-          <div style="text-align: center; margin-top: 20px;">
-              <button class="btn btn-outline-primary" onclick="resetButtons()">Volver</button>
-           </div>
-          <script defer>
-              function showSecondaryButtons() {
-                  document.getElementById('primary-buttons').style.display = 'none';
-                  document.getElementById('secondary-buttons').style.display = 'grid';
-              }
-  
-              function showPrimaryButtons() {
-                  document.getElementById('primary-buttons').style.display = 'block';
-                  document.getElementById('secondary-buttons').style.display = 'none';
-              }
-
-              function handleSelection(button) {
-                  // Ocultar todos los botones y mostrar solo el seleccionado
-                  const buttons = document.querySelectorAll('.card .btn');
-                  buttons.forEach(btn => {
-                    if (btn !== button) {
-                        btn.style.display = 'none';
-                    } else {
-                        btn.style.border = '2px solid #28a745';
-                    }
-                  });
-                  // Asegurar que el botón "Back" permanezca visible
-                  document.querySelector('.btn-outline-primary').style.display = 'inline-block';
-              }
-
-
-               function resetButtons() {
-                  // Volver a mostrar todos los botones en su estado inicial
-                  const buttons = document.querySelectorAll('.card .btn');
-                  buttons.forEach(btn => {
-                        btn.style.display = 'inline-block';
-                        btn.style.border = ''; // Eliminar borde de todos los botones
-                        btn.style.boxShadow = ''; // Eliminar sombra de todos los botones
-                  });
-                  showPrimaryButtons();
-               }
-          </script>
-      </div>
-  </div>  
   <div style="text-align: center; margin-top: 20px;">
-   <button class="btn btn-success" onclick="resetButtons()" >Enviar</button>
+   <button class="btn btn-success" onclick="nextImage()">Siguiente</button>
  </div>
+
 </section>
 
-<!-- Select imgs End -->
-
-    
-
 <%- include('footer') %>
+
+<script>
+  let currentIndex = 0; // Índice para la imagen actual
+
+  // Función para cargar imágenes desde la ruta '/get-images'
+  async function loadImages() {
+    try {
+      const response = await fetch('/LungCT/get-images');
+      const imageUrls = await response.json();
+      
+      // Guardamos las URLs de las imágenes en una variable global
+      window.imageUrls = imageUrls;
+
+      // Cargamos la primera imagen
+      showImage(currentIndex);
+    } catch (error) {
+      console.error('Error al cargar las imágenes:', error);
+    }
+  }
+
+  // Función para mostrar la imagen actual
+  function showImage(index) {
+    const imageGallery = document.getElementById('image-gallery');
+    const currentImageUrl = window.imageUrls[index];
+
+    // Limpiamos el contenedor de la galería
+    imageGallery.innerHTML = '';
+
+    // Creamos el contenedor para la imagen
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.style.border = '10px solid #f1f1f1';  // Marco de la foto
+    card.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.1)';  // Sombra para dar efecto de profundidad
+    card.style.borderRadius = '20px';  // Bordes redondeados como una foto
+    card.style.padding = '20px';  // Margen alrededor de la imagen
+    
+    const cardImageContainer = document.createElement('div');
+    cardImageContainer.classList.add('card-image-container');
+    
+    const img = document.createElement('img');
+    img.src = currentImageUrl;
+    img.alt = 'Imagen Tomografía Pulmonar';
+    img.style.width = '100%';
+    img.style.borderRadius = '15px';  // Bordes redondeados de la imagen
+    img.style.marginBottom = '15px';  // Margen entre la imagen y los botones
+    
+    cardImageContainer.appendChild(img);
+    card.appendChild(cardImageContainer);
+
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.id = 'primary-buttons';
+    buttonsDiv.innerHTML = `
+      <button class="btn btn-primary" onclick="handleSelection(this)">Real</button>
+      <button class="btn btn-secondary dissapear" onclick="handleSelection(this)">Falso</button>
+      <button class="btn btn-danger dissapear" onclick="handleSelection(this)">No estoy seguro</button>
+    `;
+    buttonsDiv.style.marginBottom = '20px';  // Margen entre los botones y el borde
+
+    card.appendChild(buttonsDiv);
+
+    const backButtonDiv = document.createElement('div');
+    backButtonDiv.style.textAlign = 'center';
+    backButtonDiv.style.marginTop = '20px';
+    backButtonDiv.innerHTML = '<button class="btn btn-outline-primary" onclick="resetButtons()">Volver</button>';
+
+    card.appendChild(backButtonDiv);
+
+    imageGallery.appendChild(card);
+  }
+
+  // Función para ir a la siguiente imagen
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % window.imageUrls.length; // Incrementamos el índice y lo cicla si llega al final
+    showImage(currentIndex);
+  }
+
+  // Llama a la función para cargar las imágenes cuando se carga la página
+  loadImages();
+</script>
