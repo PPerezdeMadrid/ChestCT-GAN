@@ -98,6 +98,11 @@ app.use(function(err, req, res, next) {
   res.render('error');  // Asumiendo que tienes una vista llamada "error.ejs"
 });
 
+// Listening on port 80
+const PORT = 80;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = checkAuthenticated;
 module.exports = app;
