@@ -2,7 +2,7 @@ from metaflow import FlowSpec, step, Parameter
 import pandas as pd
 import json, datetime
 from Data.generateData import process_dicom_folders
-from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline
+from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline, optimize_pipeline
 from metaflow.plugins import kubernetes
 from upload_s3Bucket import upload_files_to_s3
 
@@ -17,8 +17,9 @@ def load_config():
 
 class ChestGAN(FlowSpec):
 
-    params = load_config()
-    dataset_nbia_path = params["datasets"]["nbia"]
+    config = load_config()
+    dataset_nbia_path = config["datasets"]["nbia"]
+    current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
     # Parámetros
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
@@ -46,11 +47,11 @@ class ChestGAN(FlowSpec):
         """ Entrenar el modelo """
 
         print("\033[94mTraining model...\033[0m")
-        params = {
+        arg = {
             'model_type': self.model_type,
             'dataset': self.dataset,
         }
-        self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(params) 
+        self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(arg, self.config["params"] ) 
         # self.finalmodel_name = "model_ChestCT_2025-02-17.pth"
         # self.plot_path = "evaluation/evaluation_dcgan/training_losses_2025-02-17_20-14-53_dcgan.png"
         # self.csv_log = "evaluation/training_log_dcgan_2025-02-17.csv"
@@ -84,6 +85,8 @@ class ChestGAN(FlowSpec):
 
         else:
             print("\033[94mImages are not going to be generated due to a bad scoring in the evaluation step.\033[0m")
+            print("\033[1;34m[INFO] \033[94mInitializing hyperparameter optimization process...\033[0m")
+            optimize_pipeline.main(f"BestParameters_{self.current_date}", f"../evaluation/evaluation_{self.model_type}", self.model_type, self.dataset)
 
         self.next(self.generate_report)
 
@@ -92,7 +95,6 @@ class ChestGAN(FlowSpec):
     def generate_report(self):
         """ Generar un informe mensual """
         print("\033[94mCreating a report...\033[0m")
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
         model_trained = f"model/model_{self.model_type}/{self.finalmodel_name}"
         filename = report_pipeline.generate_report_pdf(
@@ -105,7 +107,7 @@ class ChestGAN(FlowSpec):
             img_to_eval=f"../Data/images/images_{self.model_type}/img_eval_lpips.png'",
             report_eval=self.eval_md_path,
             image_path=f"../images/images_{self.model_type}",
-            filename=f"report_{current_date}.pdf"
+            filename=f"report_{self.current_date}.pdf"
         )
         # report.py --> report_{fecha}.pdf en una carpeta del S3 Bucket
         # Genera un informe en PDF con las métricas de evaluación y la gráfica de pérdidas del generador y discriminador
@@ -117,13 +119,21 @@ class ChestGAN(FlowSpec):
         config = load_config()
         bucket_name = 'tfg-chestgan-bucket'
 
-        folder_name_images = 'images_dcgan'
-        folder_name_evaluation = 'evaluation_dcgan'
+        folder_name_images = f"images_{self.model_type}"
+        folder_name_evaluation = f"evaluation_{self.model_type}"
 
-        # Subir imágenes generadas por el modelo
-        img_gen_upload = upload_files_to_s3(["model"]["image_path_dcgan"], bucket_name, folder_name_images, '.png')
-        # Subir archivos de evaluación
-        eval_upload = upload_files_to_s3(config["model"]["evaluation_dcgan"], bucket_name, folder_name_evaluation)
+        
+        if self.model_type == 'dcgan':
+            # Subir imágenes generadas por el modelo
+            img_gen_upload = upload_files_to_s3(config["model"]["image_path_dcgan"], bucket_name, folder_name_images, '.png')
+            # Subir archivos de evaluación
+            eval_upload = upload_files_to_s3(config["model"]["evaluation_dcgan"], bucket_name, folder_name_evaluation)
+        elif self.model_type == 'wgan':
+            img_gen_upload = upload_files_to_s3(config["model"]["image_path_wgan"], bucket_name, folder_name_images, '.png')
+            eval_upload = upload_files_to_s3(config["model"]["evaluation_wgan"], bucket_name, folder_name_evaluation)
+        else:
+            print("\033[94mThe model type is not recognized, no images and documents will be uploaded to the s3 bucket. \033[0m")
+
         print(img_gen_upload)
         print(eval_upload)
         self.next(self.end)
@@ -135,3 +145,10 @@ class ChestGAN(FlowSpec):
 
 if __name__ == "__main__":
     ChestGAN()
+
+
+    """
+Nota: añadir @cards En Metaflow, la etiqueta @card se usa para generar visualizaciones y reportes en la interfaz de Metaflow UI.
+ Permite adjuntar información en formato Markdown, HTML o JSON a un paso específico del flujo (Step), facilitando la inspección de r
+ esultados, métricas o gráficos directamente en la UI.
+"""

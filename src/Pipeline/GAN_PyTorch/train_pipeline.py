@@ -228,20 +228,18 @@ def plot_training_losses(G_losses, D_losses,model, save_dir='evaluation'):
 
 
 # En train.py
-def main(params):
+def main(arg, params):
     DATASET_CHOICES = {
         "chestct": get_chestct,
         "nbia": get_NBIA
     }
     
-    model_type = params['model_type']
-    dataset = params['dataset']
+    model_type = arg['model_type']
+    dataset = arg['dataset']
     
     device = setup_device()
     config = load_config()
-    params = config["params"]
     
-    # Reemplazar la lógica del parser con los parámetros pasados
     dataloader = DATASET_CHOICES[dataset](img_size=params["imsize"])
     fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)
 

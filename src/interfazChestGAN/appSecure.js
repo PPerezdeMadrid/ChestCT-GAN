@@ -34,6 +34,8 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.use('/.well-known', express.static('/var/www/html/.well-known'));
+
 const createDatabase = require('./modules/database');
 createDatabase();
 
@@ -97,3 +99,7 @@ https.createServer(options, app).listen(443, () => {
 });
 
 module.exports = app;
+
+/*
+ sudo certbot certonly --webroot -w /var/www/html -d chestgan.duckdns.org
+*/
