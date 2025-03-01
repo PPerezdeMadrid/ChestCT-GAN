@@ -54,12 +54,12 @@ async function listImagesInFolder(bucketName, folderPath) {
     }
   }
   
-  // Función para obtener la URL firmada de una imagen
-  function getS3ImageUrl(bucketName, imagePath) {
+// Función para obtener la URL firmada de una imagen
+function getS3ImageUrl(bucketName, imagePath) {
     const params = {
       Bucket: bucketName,
       Key: imagePath,
-      Expires: 60 // Tiempo de expiración en segundos para la URL firmada
+      Expires: 180 // Tiempo de expiración en segundos para la URL firmada
     };
   
     // Generar la URL firmada (si las imágenes son privadas) o usar la URL pública si es accesible
@@ -67,16 +67,24 @@ async function listImagesInFolder(bucketName, folderPath) {
   }
   
 // Función principal para obtener las URLs firmadas de todas las imágenes en la carpeta
-async function getAllImageUrls(bucketName, folderPath) {
-    const images = await listImagesInFolder(bucketName, folderPath);
-  
-    // Obtener la URL firmada para cada imagen
-    const imageUrls = images.map(image => {
-      return getS3ImageUrl(bucketName, image.Key);
-    });
-  
-    return imageUrls;
+async function getAllImageUrls(bucketName, folderPaths) {
+  let allImages = [];
+
+  // Obtener imágenes de cada carpeta
+  for (const folderPath of folderPaths) {
+      const images = await listImagesInFolder(bucketName, folderPath);
+      allImages = allImages.concat(images);
   }
+
+  // Obtener las URLs firmadas de todas las imágenes
+  let imageUrls = allImages.map(image => getS3ImageUrl(bucketName, image.Key));
+
+  // Mezclar aleatoriamente las imágenes
+  imageUrls = imageUrls.sort(() => Math.random() - 0.5);
+
+  return imageUrls;
+}
+
   
 
 module.exports = { listFiles, getPresignedUrl, getAllImageUrls };

@@ -19,9 +19,9 @@ function createDatabase() {
         avatar TEXT DEFAULT '/images/avatar1.jpg'
       )`, (err) => {
         if (err) {
-          console.error('Error al crear la tabla users:', err.message);
+          console.error('Error al crear la tabla usuarios:', err.message);
         } else {
-          console.log('Tabla users creada o ya existente.');
+          console.log('Tabla usuarios creada o ya existente.');
         }
       });
 
@@ -35,7 +35,7 @@ function createDatabase() {
         )
       `, (err) => {
         if (err) {
-          console.error('Error al crear la tabla users:', err.message);
+          console.error('Error al crear la tabla mensajes_contacto:', err.message);
         } else {
           console.log('Tabla mensajes_contacto creada o ya existente.');
         }
@@ -52,9 +52,26 @@ function createDatabase() {
         )
       `, (err) => {
         if (err) {
-          console.error('Error al crear la tabla users:', err.message);
+          console.error('Error al crear la tabla entradas_blog:', err.message);
         } else {
           console.log('Tabla entradas_blog creada o ya existente.');
+        }
+      });
+
+      db.run(`
+        CREATE TABLE eval_tomografias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username VARCHAR(255) NOT NULL, 
+            is_real INTEGER CHECK (is_real IN (0,1)), 
+            image_url TEXT NOT NULL,
+            response VARCHAR(50) CHECK (response IN ('Real', 'Falso', 'No estoy seguro')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) {
+          console.error('Error al crear la tabla eval_tomografias:', err.message);
+        } else {
+          console.log('Tabla eval_tomografias creada o ya existente.');
         }
       });
 

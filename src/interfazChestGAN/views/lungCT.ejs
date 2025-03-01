@@ -8,9 +8,9 @@
                     <h2>Tomografías de pulmones</h2>
                     <br>
                     <% if (user) { %> 
-                    <p>  ¡Hola <%= user.name %> !</p>
+                      <p class="font-weight-bold">¡Hola, <%= user.name %>!</p>
                     <% } %>
-                   <p> Tu objetivo es identificar si las imágenes son reales o no. En caso de que sean reales, deberás indicar si los pulmones están sanos o si tienen cáncer (adenocarcinoma, carcinoma de células grandes o carcinoma células escamosas)</p>
+                    <p> Observa detenidamente la tomografía y pon a prueba tu intuición. ¿Crees que es una imagen real obtenida de un paciente o ha sido generada artificialmente por un modelo de inteligencia artificial? Si no estás completamente seguro, también puedes indicarlo. Tu evaluación es fundamental para mejorar la precisión de nuestros algoritmos y contribuir al avance de la tecnología médica. ¡Cada respuesta cuenta! </p>
                 </div>
             </div>
        </div>
@@ -26,10 +26,9 @@
       <!-- La imagen se cargará aquí dinámicamente -->
    </div>  
 
-  <div style="text-align: center; margin-top: 20px;">
-   <button class="btn btn-success" onclick="nextImage()">Siguiente</button>
- </div>
-
+   <div style="text-align: center; margin-top: 20px;">
+     <button class="btn btn-success" onclick="nextImage()">Siguiente</button>
+   </div>
 </section>
 
 <%- include('footer') %>
@@ -58,10 +57,8 @@
     const imageGallery = document.getElementById('image-gallery');
     const currentImageUrl = window.imageUrls[index];
 
-    // Limpiamos el contenedor de la galería
     imageGallery.innerHTML = '';
 
-    // Creamos el contenedor para la imagen
     const card = document.createElement('div');
     card.classList.add('card');
     card.style.border = '10px solid #f1f1f1';  // Marco de la foto
@@ -96,7 +93,6 @@
     const backButtonDiv = document.createElement('div');
     backButtonDiv.style.textAlign = 'center';
     backButtonDiv.style.marginTop = '20px';
-    backButtonDiv.innerHTML = '<button class="btn btn-outline-primary" onclick="resetButtons()">Volver</button>';
 
     card.appendChild(backButtonDiv);
 
@@ -107,6 +103,32 @@
   function nextImage() {
     currentIndex = (currentIndex + 1) % window.imageUrls.length; // Incrementamos el índice y lo cicla si llega al final
     showImage(currentIndex);
+  }
+
+  // Función para manejar la selección del usuario y enviar los datos al backend
+  async function handleSelection(button) {
+    const response = button.innerText;  // Captura la respuesta del botón presionado
+    const imageUrl = window.imageUrls[currentIndex]; // URL de la imagen actual
+
+    try {
+      const res = await fetch('/LungCT/save-response', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ imageUrl, response })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // alert(data.message); 
+        nextImage(); // Cargar la siguiente imagen
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error al enviar la respuesta:', error);
+    }
   }
 
   // Llama a la función para cargar las imágenes cuando se carga la página
