@@ -1,0 +1,131 @@
+<%- include('../header') %> 
+
+<section class="background-blue">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="titlepage">
+                    <h2>Estadísticas ChestGAN</h2>
+                    <br>
+                    <p>A continuación, se presentan las estadísticas clave sobre los mensajes de contacto, las publicaciones en el blog y los usuarios registrados, así como un análisis de las respuestas en las evaluaciones de tomografías.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Resumen de la Plataforma</h1>
+        <% if (typeof message !== 'undefined') { %>
+            <div class="alert <%= message.includes('Error') ? 'alert-danger' : 'alert-success' %>">
+                <%= message %>
+            </div>
+        <% } %>
+
+        <!-- Estadísticas principales -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-lg p-3">
+                    <h5 class="text-center">Mensajes de Contacto</h5>
+                    <p class="text-center"><%= contactMessages %></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-lg p-3">
+                    <h5 class="text-center">Publicaciones</h5>
+                    <p class="text-center"><%= publications %></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-lg p-3">
+                    <h5 class="text-center">Usuarios Registrados</h5>
+                    <p class="text-center"><%= users %></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de respuestas -->
+        <div class="card mt-4 shadow-lg p-3">
+            <h5 class="text-center">Estadísticas de la tabla de Evaluación de Tomografías</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card shadow-lg p-3">
+                        <h6 class="text-center">Total Respuestas</h6>
+                        <p class="text-center"><%= totalResponses %></p>
+                    </div>
+                    <div class="card shadow-lg p-3">
+                        <h6 class="text-center">Puntuación Media de Respuestas No Reales</h6>
+                        <p class="text-center"><%= avgNonRealResponse.toFixed(2) %></p>
+                    </div>
+                    <div class="card shadow-lg p-3">
+                        <h6 class="text-center">Imágenes Reales Respondidas</h6>
+                        <p class="text-center"><%= realResponses %></p>
+                    </div>
+                    <div class="card shadow-lg p-3">
+                        <h6 class="text-center">Imágenes No Reales Respondidas</h6>
+                        <p class="text-center"><%= nonRealResponses %></p>
+                    </div>
+                </div>
+            </div>
+            <!-- Filtro por fechas -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="startDate">Fecha de inicio:</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="<%= startDate %>">
+                </div>
+                <div class="col-md-6">
+                    <label for="endDate">Fecha de fin:</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="<%= endDate %>">
+                </div>
+                <div class="col-md-12 mt-3">
+                    <button type="button" id="filterBtn" class="btn btn-primary w-100">Aplicar Filtros</button>
+                </div>
+            </div>
+            <div id="responseData" data-counts="<%= JSON.stringify(responseCounts) %>"></div>
+
+            <!-- Gráfico de distribución de respuestas -->
+            <canvas id="responseChart"></canvas>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.getElementById('filterBtn').addEventListener('click', function() {
+                    var startDate = document.getElementById('startDate').value;
+                    var endDate = document.getElementById('endDate').value;
+
+                    // Redirigir a la misma ruta con las fechas seleccionadas como parámetros
+                    window.location.href = `/adminStatistics?startDate=${startDate}&endDate=${endDate}`;
+                });
+
+                var responseCounts = JSON.parse(document.getElementById('responseData').getAttribute('data-counts'));
+                console.log(responseCounts);  // Verifica los datos aquí
+                
+                var ctx = document.getElementById('responseChart').getContext('2d');
+                var responseChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                        datasets: [{
+                            label: 'Distribución de Respuestas',
+                            data: responseCounts, 
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
+            
+        </div>
+    </div>
+
+</section>
+
+<%- include('../footer') %>
+
+
+
