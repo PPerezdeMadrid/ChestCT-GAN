@@ -46,9 +46,10 @@ router.post('/save-response', (req, res) => {
   if (!username) {
       return res.status(401).json({ error: 'Usuario no autenticado' });
   }
-  console.log('Response: ', response)
-  console.log('URL: ', imageUrl)
 
+  console.log('Response:', response);
+  console.log('URL:', imageUrl);
+  
   // Determinar si la imagen es real según la carpeta de origen
   let isReal = imageUrl.includes('LungCT_real/') ? 1 : 0;
 

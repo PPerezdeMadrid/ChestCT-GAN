@@ -10,7 +10,7 @@
                     <% if (user) { %> 
                       <p class="font-weight-bold">¡Hola, <%= user.name %>!</p>
                     <% } %>
-                    <p> Observa detenidamente la tomografía y pon a prueba tu intuición. ¿Crees que es una imagen real obtenida de un paciente o ha sido generada artificialmente por un modelo de inteligencia artificial? Si no estás completamente seguro, también puedes indicarlo. Tu evaluación es fundamental para mejorar la precisión de nuestros algoritmos y contribuir al avance de la tecnología médica. ¡Cada respuesta cuenta! </p>
+                    <p> Observa detenidamente la tomografía y pon a prueba tu intuición. Evalúa qué tan realista crees que es esta imagen. Tu evaluación es fundamental para mejorar la precisión de nuestros algoritmos y contribuir al avance de la tecnología médica. ¡Cada respuesta cuenta! </p>
                 </div>
             </div>
        </div>
@@ -36,23 +36,17 @@
 <script>
   let currentIndex = 0; // Índice para la imagen actual
 
-  // Función para cargar imágenes desde la ruta '/get-images'
   async function loadImages() {
     try {
       const response = await fetch('/LungCT/get-images');
       const imageUrls = await response.json();
-      
-      // Guardamos las URLs de las imágenes en una variable global
       window.imageUrls = imageUrls;
-
-      // Cargamos la primera imagen
       showImage(currentIndex);
     } catch (error) {
       console.error('Error al cargar las imágenes:', error);
     }
   }
 
-  // Función para mostrar la imagen actual
   function showImage(index) {
     const imageGallery = document.getElementById('image-gallery');
     const currentImageUrl = window.imageUrls[index];
@@ -61,54 +55,51 @@
 
     const card = document.createElement('div');
     card.classList.add('card');
-    card.style.border = '10px solid #f1f1f1';  // Marco de la foto
-    card.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.1)';  // Sombra para dar efecto de profundidad
-    card.style.borderRadius = '20px';  // Bordes redondeados como una foto
-    card.style.padding = '20px';  // Margen alrededor de la imagen
-    
+    card.style.border = '10px solid #f1f1f1';
+    card.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.1)';
+    card.style.borderRadius = '20px';
+    card.style.padding = '20px';
+
     const cardImageContainer = document.createElement('div');
     cardImageContainer.classList.add('card-image-container');
-    
+
     const img = document.createElement('img');
     img.src = currentImageUrl;
     img.alt = 'Imagen Tomografía Pulmonar';
     img.style.width = '100%';
-    img.style.borderRadius = '15px';  // Bordes redondeados de la imagen
-    img.style.marginBottom = '15px';  // Margen entre la imagen y los botones
-    
+    img.style.borderRadius = '15px';
+    img.style.marginBottom = '15px';
+
     cardImageContainer.appendChild(img);
     card.appendChild(cardImageContainer);
 
-    const buttonsDiv = document.createElement('div');
-    buttonsDiv.id = 'primary-buttons';
-    buttonsDiv.innerHTML = `
-      <button class="btn btn-primary" onclick="handleSelection(this)">Real</button>
-      <button class="btn btn-secondary dissapear" onclick="handleSelection(this)">Falso</button>
-      <button class="btn btn-danger dissapear" onclick="handleSelection(this)">No estoy seguro</button>
+    const sliderDiv = document.createElement('div');
+    sliderDiv.style.textAlign = 'center';
+    sliderDiv.style.marginBottom = '20px';
+
+    sliderDiv.innerHTML = `
+      <label for="response-slider">Calificación (1 = Poco realista, 10 = Muy realista):</label>
+      <input type="range" id="response-slider" min="1" max="10" value="5" style="width: 100%;">
+      <p id="slider-value">5</p>
+      <button class="btn btn-primary" onclick="submitResponse()">Enviar</button>
     `;
-    buttonsDiv.style.marginBottom = '20px';  // Margen entre los botones y el borde
 
-    card.appendChild(buttonsDiv);
-
-    const backButtonDiv = document.createElement('div');
-    backButtonDiv.style.textAlign = 'center';
-    backButtonDiv.style.marginTop = '20px';
-
-    card.appendChild(backButtonDiv);
-
+    card.appendChild(sliderDiv);
     imageGallery.appendChild(card);
+
+    document.getElementById('response-slider').addEventListener('input', function () {
+      document.getElementById('slider-value').innerText = this.value;
+    });
   }
 
-  // Función para ir a la siguiente imagen
   function nextImage() {
-    currentIndex = (currentIndex + 1) % window.imageUrls.length; // Incrementamos el índice y lo cicla si llega al final
+    currentIndex = (currentIndex + 1) % window.imageUrls.length;
     showImage(currentIndex);
   }
 
-  // Función para manejar la selección del usuario y enviar los datos al backend
-  async function handleSelection(button) {
-    const response = button.innerText;  // Captura la respuesta del botón presionado
-    const imageUrl = window.imageUrls[currentIndex]; // URL de la imagen actual
+  async function submitResponse() {
+    const responseValue = document.getElementById('response-slider').value;
+    const imageUrl = window.imageUrls[currentIndex];
 
     try {
       const res = await fetch('/LungCT/save-response', {
@@ -116,13 +107,12 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ imageUrl, response })
+        body: JSON.stringify({ imageUrl, response: parseInt(responseValue, 10) })
       });
 
       const data = await res.json();
       if (res.ok) {
-        // alert(data.message); 
-        nextImage(); // Cargar la siguiente imagen
+        nextImage();
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -131,6 +121,5 @@
     }
   }
 
-  // Llama a la función para cargar las imágenes cuando se carga la página
   loadImages();
 </script>

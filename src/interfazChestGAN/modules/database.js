@@ -64,17 +64,16 @@ function createDatabase() {
             username VARCHAR(255) NOT NULL, 
             is_real INTEGER CHECK (is_real IN (0,1)), 
             image_url TEXT NOT NULL,
-            response VARCHAR(50) CHECK (response IN ('Real', 'Falso', 'No estoy seguro')),
+            response INTEGER CHECK (response BETWEEN 1 AND 10), 
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `, (err) => {
+    `, (err) => {
         if (err) {
-          console.error('Error al crear la tabla eval_tomografias:', err.message);
+            console.error('Error al crear la tabla eval_tomografias:', err.message);
         } else {
-          console.log('Tabla eval_tomografias creada o ya existente.');
+            console.log('Tabla eval_tomografias creada o ya existente.');
         }
-      });
-
+    });    
       // Cerrar la conexión
       db.close((err) => {
         if (err) {

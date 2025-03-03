@@ -54,7 +54,7 @@ async function listImagesInFolder(bucketName, folderPath) {
     }
   }
   
-// Función para obtener la URL firmada de una imagen
+/* Función para obtener la URL firmada de una imagen */
 function getS3ImageUrl(bucketName, imagePath) {
     const params = {
       Bucket: bucketName,
@@ -66,7 +66,7 @@ function getS3ImageUrl(bucketName, imagePath) {
     return s3.getSignedUrl('getObject', params);
   }
   
-// Función principal para obtener las URLs firmadas de todas las imágenes en la carpeta
+/* Función principal para obtener las URLs firmadas de todas las imágenes en la carpeta */
 async function getAllImageUrls(bucketName, folderPaths) {
   let allImages = [];
 
@@ -76,6 +76,9 @@ async function getAllImageUrls(bucketName, folderPaths) {
       allImages = allImages.concat(images);
   }
 
+  // Filtrar solo imágenes que contengan ".png" en el nombre
+  allImages = allImages.filter(image => image.Key.includes('.png'));
+
   // Obtener las URLs firmadas de todas las imágenes
   let imageUrls = allImages.map(image => getS3ImageUrl(bucketName, image.Key));
 
@@ -84,6 +87,7 @@ async function getAllImageUrls(bucketName, folderPaths) {
 
   return imageUrls;
 }
+
 
   
 
