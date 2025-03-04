@@ -84,6 +84,26 @@ app.get('/logout', (req, res) => {
   });
 });
 
+app.post("/notify", (req, res) => {
+  const { mensaje } = req.body;
+
+  if (!mensaje) {
+    return res.status(400).json({ error: "El mensaje es obligatorio" });
+  }
+
+  // Guardar en la base de datos
+  const query = `INSERT INTO notificaciones_mlops (mensaje) VALUES (?)`;
+  db.run(query, [mensaje], function (err) {
+    if (err) {
+      console.error("Error al insertar la notificación:", err.message);
+      return res.status(500).json({ error: "Error al guardar en la base de datos" });
+    }
+    console.log(`✅ Notificación guardada con ID ${this.lastID}`);
+    // res.status(200).json({ status: "ok", message: message });
+  });
+});
+
+
 
 app.use(function(req, res, next) {
   next(createError(404));

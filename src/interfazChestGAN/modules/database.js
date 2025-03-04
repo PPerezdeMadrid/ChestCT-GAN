@@ -73,7 +73,23 @@ function createDatabase() {
         } else {
             console.log('Tabla eval_tomografias creada o ya existente.');
         }
-    });    
+    });
+    
+      // Crear la tabla de notificaciones si no existe
+      db.run(
+        `CREATE TABLE IF NOT EXISTS notificaciones_mlops (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          mensaje TEXT NOT NULL,
+          fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+        (err) => {
+          if (err) {
+            console.error("Error al crear la tabla notificaciones_mlops:", err.message);
+          } else {
+            console.log("Tabla notificaciones_mlops creada o ya existente.");
+          }
+        }
+      );
       // Cerrar la conexión
       db.close((err) => {
         if (err) {

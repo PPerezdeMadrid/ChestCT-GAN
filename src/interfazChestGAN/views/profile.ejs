@@ -61,6 +61,8 @@
                         <% } %>
                     </div>
                     
+                    <!-- Contenedor para las notificaciones -->
+                    <div id="notifications-container" class="row justify-content-center mt-4"></div>
 
                     <div class="avatar-container text-center mt-4" style="display:none;">
                         <h3>Tu Avatar</h3>
@@ -368,3 +370,28 @@
     </div>
 
 <%- include('footer') %>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch('/profile/lastNotifications')
+            .then(response => response.json())
+            .then(notifications => {
+                const container = document.getElementById("notifications-container");
+    
+                if (notifications.length > 0) {
+                    notifications.forEach(notification => {
+                        const alertDiv = document.createElement("div");
+                        alertDiv.className = "alert alert-info"; 
+                        alertDiv.role = "alert";
+                        alertDiv.innerHTML = `📢 ${notification.mensaje} <br><small><i>${notification.fecha}</i></small>`;
+                        container.appendChild(alertDiv);
+                    });
+                } else {
+                    container.innerHTML = `<div class="alert alert-secondary" role="alert">No hay notificaciones recientes.</div>`;
+                }
+            })
+            .catch(error => console.error("Error al obtener notificaciones:", error));
+    });
+</script>
+    

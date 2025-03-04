@@ -175,7 +175,22 @@ router.get('/evaluation', async (req, res) => {
 });
 
 
+/* GET notificaciones de los últimos 7 días */
+router.get('/lastNotifications', function(req, res) {
+  const query = `
+    SELECT * FROM notificaciones_mlops 
+    WHERE fecha >= datetime('now', '-7 days') 
+    ORDER BY fecha DESC
+  `;
 
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Error al obtener notificaciones:', err.message);
+      return res.status(500).json({ error: 'Error al obtener las notificaciones' });
+    }
+    res.json(rows);
+  });
+});
 
 
 module.exports = router;

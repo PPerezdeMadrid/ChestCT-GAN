@@ -1,6 +1,5 @@
 from metaflow import FlowSpec, step, Parameter
-import pandas as pd
-import json, datetime
+import json, datetime, requests
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline, optimize_pipeline
 from upload_s3Bucket import upload_files_to_s3
@@ -24,6 +23,7 @@ class ChestGAN(FlowSpec):
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
     dataset = Parameter('dataset', default='nbia', help='Dataset: chestct o nbia')
     num_output = Parameter('num_output', default=100, help='Number of images to be generated')
+    ip_frontend = Parameter('ip_frontend', default="127.0.0.0", help='IP Address of the frontend')
     
 
     @step
@@ -51,9 +51,6 @@ class ChestGAN(FlowSpec):
             'dataset': self.dataset,
         }
         self.finalmodel_name, self.plot_path, self.csv_log = train_pipeline.main(arg, self.config["params"] ) 
-        # self.finalmodel_name = "model_ChestCT_2025-02-17.pth"
-        # self.plot_path = "evaluation/evaluation_dcgan/training_losses_2025-02-17_20-14-53_dcgan.png"
-        # self.csv_log = "evaluation/training_log_dcgan_2025-02-17.csv"
         self.next(self.eval_model)
         # evaluation/evaluation_{model}/training_log_{model}_{fecha}.csv ==> Logs de cada epoch
         # evaluation/evaluation_{model}/training_losses_{current_time}_{model}.png ==> Pérdida del G y D
@@ -140,6 +137,14 @@ class ChestGAN(FlowSpec):
     @step
     def end(self):
         """Fin del pipeline."""
+        # Notificar al frontend
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        webhook_url = f"http://{self.ip_frontend}/notificar"  
+        try:
+            response = requests.post(webhook_url, json={"mensaje": f"Se ha ejecutado el pipeline de MLOps a fecha {timestamp}"})
+            print("Respuesta del servidor:", response.json())
+        except Exception as e:
+            print(f"Error notificando al frontend: {e}")
         print("\033[94mThe pipeline has come to an END\033[0m")
 
 if __name__ == "__main__":
