@@ -3,7 +3,6 @@ import pandas as pd
 import json, datetime
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline, optimize_pipeline
-from metaflow.plugins import kubernetes
 from upload_s3Bucket import upload_files_to_s3
 
 """

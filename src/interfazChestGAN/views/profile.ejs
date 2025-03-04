@@ -326,38 +326,40 @@
                 <!-- Info Database End-->
                 
                 <!-- Evaluation from S3 Start -->
-                <div class="container mt-4">
-                    <h2 class="mb-3 text-center">📂 Archivos de Evaluación</h2>
-                    <div class="card shadow-lg p-3">
-                        <ul id="file-list" class="list-group">
-                            <li class="list-group-item text-center text-muted" id="loading-text">Cargando archivos...</li>
-                        </ul>
+                <% if (user.isAdmin) { %> 
+                    <div class="container mt-4">
+                        <h2 class="mb-3 text-center">📂 Archivos de Evaluación</h2>
+                        <div class="card shadow-lg p-3">
+                            <ul id="file-list" class="list-group">
+                                <li class="list-group-item text-center text-muted" id="loading-text">Cargando archivos...</li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                <script>
-                    document.addEventListener("DOMContentLoaded", async function () {
-                        const fileList = document.getElementById("file-list");
-                    
-                        try {
-                            const response = await fetch('/profile/evaluation');
-                            const data = await response.json();
-                    
-                            if (data.urlEvaluation && data.urlEvaluation.length > 0) {
-                                fileList.innerHTML = ""; // Limpiamos la lista antes de agregar elementos
-                                data.urlEvaluation.forEach(file => {
-                                    const listItem = document.createElement("li");
-                                    listItem.innerHTML = `<a href="${file.url}" target="_blank">${file.name}</a>`;
-                                    fileList.appendChild(listItem);
-                                });
-                            } else {
-                                fileList.innerHTML = "<li>No hay archivos disponibles.</li>";
+                    <script>
+                        document.addEventListener("DOMContentLoaded", async function () {
+                            const fileList = document.getElementById("file-list");
+                        
+                            try {
+                                const response = await fetch('/profile/evaluation');
+                                const data = await response.json();
+                        
+                                if (data.urlEvaluation && data.urlEvaluation.length > 0) {
+                                    fileList.innerHTML = ""; // Limpiamos la lista antes de agregar elementos
+                                    data.urlEvaluation.forEach(file => {
+                                        const listItem = document.createElement("li");
+                                        listItem.innerHTML = `<a href="${file.url}" target="_blank">${file.name}</a>`;
+                                        fileList.appendChild(listItem);
+                                    });
+                                } else {
+                                    fileList.innerHTML = "<li>No hay archivos disponibles.</li>";
+                                }
+                            } catch (error) {
+                                console.error("Error al obtener los archivos:", error);
+                                fileList.innerHTML = "<li>Error al cargar los archivos.</li>";
                             }
-                        } catch (error) {
-                            console.error("Error al obtener los archivos:", error);
-                            fileList.innerHTML = "<li>Error al cargar los archivos.</li>";
-                        }
-                    });
-                    </script>                    
+                        });
+                        </script>       
+                    <% } %>             
                 <!-- Evaluation from S3 End -->
 
             <!-- Profile End-->
