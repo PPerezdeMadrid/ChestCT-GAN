@@ -78,10 +78,13 @@
     sliderDiv.style.marginBottom = '20px';
 
     sliderDiv.innerHTML = `
+    <% if (user.isAdmin==0) { %>  
       <label for="response-slider">Calificación (1 = Poco realista, 10 = Muy realista):</label>
       <input type="range" id="response-slider" min="1" max="10" value="5" style="width: 100%;">
       <p id="slider-value">5</p>
+      <!-- Si es user.isAdmin no poner el botón de enviar -->
       <button class="btn btn-primary" onclick="submitResponse()">Enviar</button>
+    <% } %>
     `;
 
     card.appendChild(sliderDiv);

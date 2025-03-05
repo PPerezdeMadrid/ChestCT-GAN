@@ -62,8 +62,10 @@
                     </div>
                     
                     <!-- Contenedor para las notificaciones -->
+                    <% if (user.isAdmin) { %> 
                     <div id="notifications-container" class="row justify-content-center mt-4"></div>
-
+                    <% } %>
+                    
                     <div class="avatar-container text-center mt-4" style="display:none;">
                         <h3>Tu Avatar</h3>
                             <!-- Carga aquí la Imagen de la base de datos con AJAX-->
