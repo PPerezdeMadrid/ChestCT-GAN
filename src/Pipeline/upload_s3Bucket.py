@@ -3,9 +3,7 @@ import os
 import json
 from botocore.exceptions import NoCredentialsError
 
-"""
-Todo: revisar credenciales de aws. roles IAM.
-"""
+
 s3_client = boto3.client('s3')
 
 with open('GAN_PyTorch/config.json', 'r') as json_file:
@@ -35,6 +33,8 @@ def upload_files_to_s3(local_directory, bucket_name, folder_name, file_extension
                     return f"Error al cargar {file}: {e}"
 
 
+""" 
+ Ejemplo de uso 
 local_directory_images = config["model"]["image_path_dcgan"]
 local_directory_evaluation = config["model"]["evaluation_dcgan"] 
 
@@ -47,3 +47,4 @@ folder_name_evaluation = 'evaluation_dcgan'
 
 # upload_files_to_s3(local_directory_evaluation, bucket_name, folder_name_evaluation)
 upload_files_to_s3("evaluation/evaluation_dcgan", bucket_name, folder_name_evaluation)
+"""
