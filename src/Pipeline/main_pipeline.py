@@ -24,6 +24,7 @@ class ChestGAN(FlowSpec):
     dataset = Parameter('dataset', default='nbia', help='Dataset: chestct o nbia')
     num_output = Parameter('num_output', default=100, help='Number of images to be generated')
     ip_frontend = Parameter('ip_frontend', default="127.0.0.0", help='IP Address of the frontend')
+    yaml_path = Parameter('yaml_path', default="GAN_PyTorch/weights.yaml", help='Path to the weights yaml for the evaluation weights')
     
 
     @step
@@ -65,7 +66,7 @@ class ChestGAN(FlowSpec):
         generate_pipeline.generate_one_img(model_type= self.model_type, img_name="img_eval_lpips.png", model_name=self.finalmodel_name)
         # 2) Ejecutamos eval model ==> evaluation/evaluation_{model}/EvalModel_{model_type}_{date}.md
         accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, self.eval_md_path = eval_model_pipeline.main(self.model_type, self.dataset)
-        self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score)
+        self.model_score = eval_model_pipeline.validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, self.yaml_path)
 
         print(f'\033[94mEvaluation Score ==> {self.model_score}\033[0m')
         self.next(self.generate_imgs)

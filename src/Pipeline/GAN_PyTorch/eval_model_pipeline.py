@@ -1,4 +1,4 @@
-import torch,json,lpips
+import torch,json,lpips, yaml
 import torchvision.transforms as transforms
 from torchvision import models
 from torch.nn import functional as F
@@ -16,6 +16,11 @@ def print_green(text):
 def load_config(config_path):
     with open(config_path, 'r') as json_file:
         return json.load(json_file)
+    
+# Cargar configuración desde YAML
+def load_config_yaml(filepath="GAN_PyTorch/config.yaml"):
+    with open(filepath, "r") as file:
+        return yaml.safe_load(file)
 
 def setup_device():
     if torch.backends.mps.is_available():
@@ -113,29 +118,34 @@ def calculate_lpips(model, img1_path, img2_path, device):
     return model(img1, img2).item()
 
 
-def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score):
-    """Calcula una puntuación del 1 y 10 basado en las métricas del modelo"""
+def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, yaml_path):
+    """Calcula una puntuación del 1 al 10 basado en las métricas del modelo usando ponderaciones externas."""
+    weights_yaml = load_config_yaml(yaml_path)
+    weights = weights_yaml["weights"]
 
     score_discriminator = (accuracy_discriminator * 100) / 10
     score_generator = (accuracy_generator * 100) / 10
-
     score_ssim = ssim_score * 10
-    
-    if psnr_score >= 30:
-        score_psnr = 10
-    elif psnr_score >= 25:
-        score_psnr = 8
-    elif psnr_score >= 20:
-        score_psnr = 6
-    else:
-        score_psnr = 4
- 
+
+    # Obtener el puntaje de PSNR basado en rangos
+    score_psnr = 4  # Valor mínimo, si encuentra un rango superior, se reemplaza
+    for r in weights["psnr_score"]["ranges"]:
+        if psnr_score >= r["min"]:
+            score_psnr = r["score"]
+            break
+
     score_lpips = max(0, 10 - (lpips_score * 20))  # Invertir LPIPS: cuanto menor, mejor
 
-    # Calificación final: Promedio de todas las puntuaciones
-    puntuacion_total = (score_discriminator + score_generator + score_ssim + score_psnr + score_lpips) / 5
+    # Calificación final con ponderaciones
+    puntuacion_total = (
+        (score_discriminator * weights["accuracy_discriminator"]) +
+        (score_generator * weights["accuracy_generator"]) +
+        (score_ssim * weights["ssim_score"]) +
+        (score_psnr * weights["psnr_score"]["weight"]) +
+        (score_lpips * weights["lpips_score"])
+    )
+
     puntuacion_final = round(puntuacion_total)
-    
     return puntuacion_final
 
 
