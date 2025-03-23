@@ -24,8 +24,8 @@ with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
 
-model_path = config["model"]["path"]
-image_path = config["model"]["image_path"]
+model_path = config["model"]["path_dcgan"]
+image_path = config["model"]["image_path_dcgan"]
 
 print_green("Parameters uploaded")
 

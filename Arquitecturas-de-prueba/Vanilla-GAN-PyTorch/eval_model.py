@@ -15,7 +15,7 @@ with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
 params = config["params"]
-n_noise = 100
+n_noise = params["nz"]
 model_path = "../../../models/model_gan_1000.pth"
 
 # Configurar el dispositivo
