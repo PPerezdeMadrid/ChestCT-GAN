@@ -4,12 +4,20 @@ src/Pipeline/Data/Data-Discarded
 src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
-src/Pipeline/model
-src/Pipeline/images
-src/Pipeline/evaluation
-Arquitecturas-de-prueba/DCGAN-PyTorch/model_prueba
-Arquitecturas-de-prueba/DCGAN-PyTorch/images_prueba
-Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation
+# Ignorar todas las carpetas que comiencen con images, model o evaluation
+**/images*/
+**/model*/
+**/evaluation*/
+
+# Ignorar rutas específicas dentro del repositorio
+src/Pipeline/model/
+src/Pipeline/images/
+src/Pipeline/evaluation/
+Arquitecturas-de-prueba/DCGAN-PyTorch/model_prueba/
+Arquitecturas-de-prueba/DCGAN-PyTorch/images_prueba/
+Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation/
+X-Ray-Images/Data_train
+
 
 # No subir modelos 
 *.pth

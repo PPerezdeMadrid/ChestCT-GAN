@@ -40,7 +40,7 @@ def initialize_model(model_type, params, device):
 def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
     G_losses, D_losses, img_list = [], [], []
     # real_label, fake_label = 1, 0 para evitar el colapso del generador vamos a suavizar las etiquetas reales
-    real_label, fake_label = 0.9, 0.0
+    real_label, fake_label = 0.9, 0.1
     iters = 0
     for epoch in range(params['nepochs']):
         start_time = time.time()
