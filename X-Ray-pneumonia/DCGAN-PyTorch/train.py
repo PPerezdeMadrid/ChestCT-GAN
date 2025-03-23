@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 import torch.optim as optim
 import torchvision.utils as vutils
 from dcgan import Generator, Discriminator, weights_init
-from utils import log_training_info, get_xray
+from utils import log_training_info, get_xray  
 from datetime import datetime
 
 def setup_device():
