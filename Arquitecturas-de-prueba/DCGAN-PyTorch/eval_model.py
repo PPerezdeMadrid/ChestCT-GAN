@@ -10,7 +10,7 @@ from dcgan import Generator as GeneratorDC, Discriminator as DiscriminatorDC
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
-from utils import get_chestct
+from utils import get_chestct, get_NBIA
 from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
 
@@ -135,7 +135,7 @@ def eval_lpips(dataloader, netG, device, imsize):
     
 
 
-def main():
+def main(dataset="chestct"):
     print_green("Evaluating model...")
     model_path = config["model"][f"path_dcgan"]
     model_name = "model_epoch_100.pth"
@@ -146,7 +146,12 @@ def main():
     netG, netD, params = load_model(model_path, device,"dcgan", model_name)
     
     # Obtener el dataloader usando get_chestct
-    dataloader = get_chestct(params["imsize"], bsize=params["bsize"])
+    if dataset == "chestct":
+        dataloader = get_chestct(params["imsize"], bsize=params["bsize"])
+    elif dataset == "nbia":
+        dataloader = get_NBIA(params["imsize"], bsize=params["bsize"])
+    else:
+        raise ValueError(f"Unknown dataset type: {dataset}")
 
     # Evaluar los modelos
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
@@ -165,4 +170,4 @@ def main():
     print(f"{'-' * 30}")
 
 if __name__ == "__main__":
-    main()
+    main("nbia")

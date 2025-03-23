@@ -12,7 +12,7 @@ model_path = config["model"]["path_dcgan"]
 image_path = config["model"]["image_path_dcgan"]
 
 parser = argparse.ArgumentParser()
-model_name = "model_epoch_100.pth"
+model_name = "model_epoch_300.pth"
 parser.add_argument('-load_path', default=f'{model_path}/{model_name}', help='Checkpoint to load path from')
 parser.add_argument('-num_output', default=64, help='Number of generated outputs')
 args = parser.parse_args()

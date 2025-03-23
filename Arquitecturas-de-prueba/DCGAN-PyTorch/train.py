@@ -40,7 +40,7 @@ def initialize_model(model_type, params, device):
 def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
     G_losses, D_losses, img_list = [], [], []
     # real_label, fake_label = 1, 0 para evitar el colapso del generador vamos a suavizar las etiquetas reales
-    real_label, fake_label = 0.9, 0.1
+    real_label, fake_label = 0.99, 0.1
     iters = 0
     for epoch in range(params['nepochs']):
         start_time = time.time()
@@ -234,6 +234,7 @@ def main():
     parser.add_argument('--model', choices=['dcgan', 'wgan'], default='dcgan', help='Choose between "dcgan" and "wgan" models to train.')
     parser.add_argument('--dataset', choices=DATASET_CHOICES.keys(), default='nbia', help='Choose the dataset: "chestct" or "nbia".')
     args = parser.parse_args()
+    print(f"\033[92mUsing the dataset {args.dataset}\033[0m")
 
     device = setup_device()
     print(f"\033[92mUsing the device {device}\033[0m")
