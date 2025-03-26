@@ -1,8 +1,13 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import json
 
 # Cargar el archivo CSV
-file_path = "training_log_dcgan.csv"  # Asegúrate de usar la ruta correcta
+file_name = "training_log_dcgan_2025-03-23.csv"  
+with open("config.json", "r") as file:
+    config = json.load(file)
+    file_path = config["model"]["evaluation_dcgan"] + "/" + file_name
+
 df = pd.read_csv(file_path)
 
 # Convertir columnas relevantes a tipos numéricos

@@ -1,5 +1,4 @@
-import torch
-import json
+import torch,json,os
 import lpips
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -13,6 +12,8 @@ from scipy.linalg import sqrtm
 from utils import get_chestct, get_NBIA
 from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
+from scipy.linalg import sqrtm
+from tqdm import tqdm
 
 def print_green(text):
     print("\033[92m" + text + "\033[0m")
@@ -36,6 +37,7 @@ def load_model(model_path, device, model_type, model_name):
     netD.eval()
     return netG, netD, params
 
+"""
 def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
     total = 0
@@ -68,7 +70,45 @@ def evaluate_models(netG, netD, dataloader, device, params):
 
         accuracy_generator = correct_generator / 100
     
-    return accuracy_discriminator, accuracy_generator
+    return accuracy_discriminator, accuracy_generator"
+"""
+
+def evaluate_models(netG, netD, dataloader, device, params):
+    correct_discriminator = 0
+    total = 0
+    generator_confidence = 0  # Suma de las salidas del discriminador sobre imágenes generadas
+    
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+            b_size = real_data.size(0)
+            
+            # Evaluar el discriminador con imágenes reales
+            real_labels = torch.ones(b_size, device=device)  # 1 para reales
+            output_real = netD(real_data).view(-1)
+            correct_discriminator += (output_real.round() == real_labels).sum().item()
+            
+            # Evaluar el discriminador con imágenes falsas
+            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+            fake_labels = torch.zeros(b_size, device=device)  # 0 para falsas
+            output_fake = netD(fake_data.detach()).view(-1)
+            correct_discriminator += (output_fake.round() == fake_labels).sum().item()
+            
+            total += b_size * 2  # Total de ejemplos evaluados
+
+        accuracy_discriminator = correct_discriminator / total  # Precisión del discriminador
+
+        # Evaluación del generador con 1000 ejemplos en lugar de 100
+        num_samples = 1000
+        noise = torch.randn(num_samples, params['nz'], 1, 1, device=device)
+        generated_data = netG(noise)
+        output = netD(generated_data).view(-1)  # Predicciones del discriminador
+        
+        generator_confidence = output.mean().item()  # Promedio de confianza del discriminador en imágenes generadas
+
+    return accuracy_discriminator, generator_confidence
+
 
 
 def calculate_ssim(real_images, fake_images):
@@ -134,16 +174,68 @@ def eval_lpips(dataloader, netG, device, imsize):
     return lpips_value
     
 
+# inception v3 redimensiona  a 229x229 y compara con las imágenes reales, luego nunca obtendremos valores bajos debido a que aumenta el tamaño de las imágenes
+
+""" Código válido para calcular el FID con inception v3
+def calculate_fid(real_images, generated_images, imsize):
+    # Cargar el modelo Inception v3 preentrenado
+    inception_model = models.inception_v3(pretrained=True, transform_input=False)
+    inception_model.eval()
+    
+    # Transformaciones para las imágenes
+    transform = transforms.Compose([
+        transforms.Resize((229, 229)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
+        transforms.Grayscale(num_output_channels=3),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Típico en Inception v3
+    ])
+    
+    # Si `real_images` es una carpeta, obtener los archivos de imagen dentro de ella
+    if os.path.isdir(real_images):
+        real_images = [os.path.join(real_images, img) for img in os.listdir(real_images) if img.endswith(('jpg', 'png', 'jpeg'))]
+    
+    if os.path.isdir(generated_images):
+        generated_images = [os.path.join(generated_images, img) for img in os.listdir(generated_images) if img.endswith(('jpg', 'png', 'jpeg'))]
+    
+    # Aplicar transformaciones y obtener características
+    real_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in real_images]
+    generated_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in generated_images]
+    
+    # Convertir las listas de imágenes a tensores
+    real_images = torch.stack(real_images)
+    generated_images = torch.stack(generated_images)
+    
+    with torch.no_grad():
+        real_features = inception_model(real_images).detach().numpy()
+        generated_features = inception_model(generated_images).detach().numpy()
+    
+    # Calcular la media y la covarianza de las características
+    mu_real = np.mean(real_features, axis=0)
+    sigma_real = np.cov(real_features, rowvar=False)
+    mu_generated = np.mean(generated_features, axis=0)
+    sigma_generated = np.cov(generated_features, rowvar=False)
+    
+    # Calcular el FID
+    diff = mu_real - mu_generated
+    covmean = sqrtm(sigma_real.dot(sigma_generated))
+    
+    if np.iscomplexobj(covmean):
+        covmean = covmean.real
+    
+    fid = diff.dot(diff) + np.trace(sigma_real + sigma_generated - 2 * covmean)
+    return fid"
+"""
 
 def main(dataset="chestct"):
     print_green("Evaluating model...")
     model_path = config["model"][f"path_dcgan"]
-    model_name = "model_epoch_100.pth"
+    model_name = "model_epoch_1000_64.pth"
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
     # Cargar modelo
     netG, netD, params = load_model(model_path, device,"dcgan", model_name)
+    print_green(str(params))
     
     # Obtener el dataloader usando get_chestct
     if dataset == "chestct":
@@ -152,12 +244,24 @@ def main(dataset="chestct"):
         dataloader = get_NBIA(params["imsize"], bsize=params["bsize"])
     else:
         raise ValueError(f"Unknown dataset type: {dataset}")
+    
 
     # Evaluar los modelos
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_value = eval_lpips(dataloader, netG, device, params["imsize"])
+    generated_path = config['model']['image_path_dcgan']
+    real_path_adenocarcinoma = f"{config['datasets']['chestKaggle']}valid/adenocarcinoma_left.lower.lobe_T2_N0_M0_Ib"
+    real_path_large_carcinoma = f"{config['datasets']['chestKaggle']}valid/large.cell.carcinoma_left.hilum_T2_N2_M0_IIIa"
+    real_path_small_carcinoma = f"{config['datasets']['chestKaggle']}valid/squamous.cell.carcinoma_left.hilum_T1_N2_M0_IIIa"
+    fid_mean_adenocarcinoma = calculate_fid(real_images=real_path_adenocarcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
+    fid_mean_large_carcinoma = calculate_fid(real_images=real_path_large_carcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
+    fid_mean_small_carcinoma = calculate_fid(real_images=real_path_small_carcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
+
+    print(f"Adenocarcinoma FID: {fid_mean_adenocarcinoma:.4f}")
+    print("Large cell carcinoma FID: ", fid_mean_large_carcinoma)
+    print("Small cell carcinoma FID: ", fid_mean_small_carcinoma)
 
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
@@ -167,6 +271,7 @@ def main(dataset="chestct"):
     print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
     print(f"{'PSNR Score:':<20} {psnr_score:.4f}")
     print(f"{'LPIPS Score':<20} {lpips_value:.4f}")
+    # print(f"{'FID Score':<20} {fid_mean:.4f}")
     print(f"{'-' * 30}")
 
 if __name__ == "__main__":

@@ -30,16 +30,21 @@ class ChestGAN(FlowSpec):
     @step
     def start(self):
         """ Selección de Imágenes para el modelo """
-
-        print("\033[94mChoosing Data...\033[0m")
-        process_dicom_folders(
-            path_NBIA_Data= self.dataset_nbia_path,
-            reference_images_paths=['Data/Imagen_Ref1.png', 'Data/Imagen_Ref2.png', 'Data/Imagen_Ref3.png'],
-            transformed_dir='Data/Data-Transformed/cancer',
-            discarded_dir='Data/Data-Discarded/',
-            threshold=0.3500
-        )
-        self.next(self.train_model) 
+        # Si has elegido el dataset "nbia"
+        if self.dataset == 'nbia':
+            print("\033[94mChoosing Data...\033[0m")
+            process_dicom_folders(
+                path_NBIA_Data= self.dataset_nbia_path,
+                reference_images_paths=['Data/Imagen_Ref1.png', 'Data/Imagen_Ref2.png', 'Data/Imagen_Ref3.png'],
+                transformed_dir='Data/Data-Transformed/cancer',
+                discarded_dir='Data/Data-Discarded/',
+                threshold=0.3500
+            )
+            self.next(self.train_model)
+        else:
+            print("\033[94mData selected do not need preprocessing\033[0m")
+            self.next(self.train_model)
+       
 
     # @kubernetes(cpu=4, memory=16)
     @step

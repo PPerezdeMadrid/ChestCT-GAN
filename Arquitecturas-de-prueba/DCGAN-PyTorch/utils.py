@@ -97,7 +97,7 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     """
 
     fecha = datetime.now().strftime('%Y-%m-%d')
-    eval_dir = f"evaluation/evaluation_{model}"
+    eval_dir = f"evaluation_prueba/evaluation_{model}"
     if not os.path.exists(eval_dir):
         os.makedirs(eval_dir)
     name_csv = f'training_log_{model}_{fecha}.csv'

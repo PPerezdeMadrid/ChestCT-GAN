@@ -189,6 +189,7 @@ def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
             'optimizerG': optimizerG.state_dict(),
             'optimizerD': optimizerD.state_dict(),
             'params': params
+        # }, f'{model_path}/model_epoch_{epoch}_512.pth')
         }, f'{model_path}/model_epoch_{epoch}.pth')
 
 
@@ -201,7 +202,8 @@ def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
         'optimizerG': optimizerG.state_dict(),
         'optimizerD': optimizerD.state_dict(),
         'params': params
-    },  f'{model_path}/model_ChestCT.pth') # FUERA del repo!
+    # },  f'{model_path}/model_ChestCT_512.pth')
+    },  f'{model_path}/model_ChestCT.pth')
     print("==> Final model saved.")
 
 
@@ -226,6 +228,7 @@ def save_gif(img_list, filename='ChestTC.gif'):
     anim.save(filename, dpi=80, writer='imagemagick')
 
 def main():
+    start_time = time.time()
     DATASET_CHOICES = {
         "chestct": get_chestct,
         "nbia": get_NBIA
@@ -262,8 +265,18 @@ def main():
         # Train DCGAN
         G_losses, D_losses, img_list = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
         save_model(model_path, netG, netD, optimizerG, optimizerD, params)
-        # save_gif(img_list, 'ChestTC_dcgan.gif')
-        plot_training_losses(G_losses, D_losses, params['num_epochs'])
+        end_time = time.time()
+        print("="*50)
+        print(f"Training completed in {end_time - start_time:.2f} seconds.")
+        # Minutes
+        print(f"Training completed in {(end_time - start_time) / 60:.2f} minutes.")
+        # Hours
+        print(f"Training completed in {(end_time - start_time) / 3600:.2f} hours.")
+        print("="*50)
+        fecha = time.strftime("%Y%m%d")
+        # save_gif(img_list, f'ChestTC_dcgan_512_{fecha}.gif')
+        save_gif(img_list, f'ChestTC_dcgan_64_{fecha}.gif')
+        plot_training_losses(G_losses, D_losses, params['nepochs'])
 
     elif args.model == 'wgan':
         print("\033[92mWGAN model\033[0m")
