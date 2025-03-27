@@ -37,66 +37,78 @@ def initialize_model(model_type, params, device):
         """
     return netG, netD
 
+import time
+import torch
+import torchvision.utils as vutils
+
 def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
     G_losses, D_losses, img_list = [], [], []
-    # real_label, fake_label = 1, 0 para evitar el colapso del generador vamos a suavizar las etiquetas reales
-    real_label, fake_label = 0.99, 0.1
     iters = 0
+
     for epoch in range(params['nepochs']):
         start_time = time.time()
+        
         for i, data in enumerate(dataloader, 0):
             real_data = data[0].to(device)
             b_size = real_data.size(0)
 
-            # (1) Update D network
+            # (1) Update Discriminator (D)
             netD.zero_grad()
-            label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-            output = netD(real_data).view(-1)
-            errD_real = criterion(output, label)
-            errD_real.backward()
-            D_x = output.mean().item()
 
-            # Train with fake batch
+            # Etiquetas suavizadas (Técnica de Label Smoothing)
+            real_label = 0.85 + torch.rand(1).item() * 0.15  # Entre 0.85 y 1.0
+            fake_label = 0.0 + torch.rand(1).item() * 0.15  # Entre 0.0 y 0.15
+
+            # Real batch
+            label_real = torch.full((b_size,), real_label, dtype=torch.float, device=device)
+            output_real = netD(real_data).view(-1)
+            errD_real = criterion(output_real, label_real)
+            errD_real.backward()
+            D_x = output_real.mean().item()
+
+            # Fake batch
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
-            label.fill_(fake_label)
-            output = netD(fake_data.detach()).view(-1)
-            errD_fake = criterion(output, label)
+            label_fake = torch.full((b_size,), fake_label, dtype=torch.float, device=device)
+            output_fake = netD(fake_data.detach()).view(-1)
+            errD_fake = criterion(output_fake, label_fake)
             errD_fake.backward()
-            D_G_z1 = output.mean().item()
+            D_G_z1 = output_fake.mean().item()
 
             errD = errD_real + errD_fake
-            # Evita que D aprenda demasiado rápido
+
+            # Evita que D domine demasiado rápido
             if errD.item() > 0.1:
                 optimizerD.step()
 
-            # (2) Update G network
+            # (2) Update Generator (G)
             netG.zero_grad()
-            label.fill_(real_label)
-            output = netD(fake_data).view(-1)
-            errG = criterion(output, label)
+            label_real.fill_(real_label)  # Generador intenta engañar a D
+            output_fake_G = netD(fake_data).view(-1)
+            errG = criterion(output_fake_G, label_real)
             errG.backward()
-            D_G_z2 = output.mean().item()
+            D_G_z2 = output_fake_G.mean().item()
             optimizerG.step()
 
-            # Log training info
+            # Logging
             if i % 50 == 0:
-                log_training_info('dcgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
+                log_training_info('dcgan', epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
 
-            if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
+            """
+            if (iters % 100 == 0) or (epoch == params['nepochs']-1 and i == len(dataloader)-1):
                 with torch.no_grad():
-                    fake_data = netG(fixed_noise).detach().cpu()
-                img_list.append(vutils.make_grid(fake_data, padding=2, normalize=True))
-
+                    fake_data_fixed = netG(fixed_noise).detach().cpu()
+                img_list.append(vutils.make_grid(fake_data_fixed, padding=2, normalize=True))
+            """
             iters += 1
 
         epoch_time = time.time() - start_time
-        print(f"Epoch [{epoch + 1}] completed in {epoch_time:.2f} seconds.")
+        print(f"✅ Epoch [{epoch + 1}/{params['nepochs']}] completada en {epoch_time:.2f} segundos.")
 
-        # Save each epoch
+        # 🔹 Guardar modelo después de cada época
         save_epoch(  
             epoch=epoch + 1,    
             model_path=model_path,

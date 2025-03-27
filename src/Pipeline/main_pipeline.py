@@ -23,7 +23,7 @@ class ChestGAN(FlowSpec):
     model_type = Parameter('model_type', default='dcgan', help='Modelo a entrenar: dcgan o wgan')
     dataset = Parameter('dataset', default='nbia', help='Dataset: chestct o nbia')
     num_output = Parameter('num_output', default=100, help='Number of images to be generated')
-    ip_frontend = Parameter('ip_frontend', default="127.0.0.0", help='IP Address of the frontend')
+    ip_frontend = Parameter('ip_frontend', default="127.0.0.1", help='IP Address of the frontend')
     yaml_path = Parameter('yaml_path', default="GAN_PyTorch/weights.yaml", help='Path to the weights yaml for the evaluation weights')
     
 

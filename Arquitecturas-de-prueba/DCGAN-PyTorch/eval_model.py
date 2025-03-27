@@ -156,7 +156,8 @@ def eval_lpips(dataloader, netG, device, imsize):
     ])
 
     # Cargar dataset de imágenes reales
-    real_dataset = datasets.ImageFolder(root=f"{config['datasets']['chestKaggle']}/valid", transform=transform)
+    # real_dataset = datasets.ImageFolder(root=f"{config['datasets']['chestKaggle']}/valid", transform=transform)
+    real_dataset = datasets.ImageFolder(root=f"{config['datasets']['nbia']}", transform=transform)
     real_dataloader = DataLoader(real_dataset, batch_size=1, shuffle=True)
 
     # Obtener una imagen real del dataset
@@ -229,7 +230,7 @@ def calculate_fid(real_images, generated_images, imsize):
 def main(dataset="chestct"):
     print_green("Evaluating model...")
     model_path = config["model"][f"path_dcgan"]
-    model_name = "model_epoch_1000_64.pth"
+    model_name = "model_ChestCT.pth"
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -252,16 +253,6 @@ def main(dataset="chestct"):
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_value = eval_lpips(dataloader, netG, device, params["imsize"])
     generated_path = config['model']['image_path_dcgan']
-    real_path_adenocarcinoma = f"{config['datasets']['chestKaggle']}valid/adenocarcinoma_left.lower.lobe_T2_N0_M0_Ib"
-    real_path_large_carcinoma = f"{config['datasets']['chestKaggle']}valid/large.cell.carcinoma_left.hilum_T2_N2_M0_IIIa"
-    real_path_small_carcinoma = f"{config['datasets']['chestKaggle']}valid/squamous.cell.carcinoma_left.hilum_T1_N2_M0_IIIa"
-    fid_mean_adenocarcinoma = calculate_fid(real_images=real_path_adenocarcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
-    fid_mean_large_carcinoma = calculate_fid(real_images=real_path_large_carcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
-    fid_mean_small_carcinoma = calculate_fid(real_images=real_path_small_carcinoma, generated_images=generated_path, imsize=params["imsize"], device=device)
-
-    print(f"Adenocarcinoma FID: {fid_mean_adenocarcinoma:.4f}")
-    print("Large cell carcinoma FID: ", fid_mean_large_carcinoma)
-    print("Small cell carcinoma FID: ", fid_mean_small_carcinoma)
 
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
