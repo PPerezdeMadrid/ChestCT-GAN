@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import models
 from torch.nn import functional as F
 from dcgan import Generator as GeneratorDC, Discriminator as DiscriminatorDC
+from dcgan512 import Generator as GeneratorDC512, Discriminator as DiscriminatorDC512
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
@@ -25,8 +26,12 @@ def load_model(model_path, device, model_type, model_name):
     checkpoint = torch.load(f'{model_path}/{model_name}', map_location=device)
     params = checkpoint['params']
     if model_type == 'dcgan':
-        netG = GeneratorDC(params).to(device)
-        netD = DiscriminatorDC(params).to(device)
+        if params['imsize'] == 512:
+            netG = GeneratorDC512(params).to(device)
+            netD = DiscriminatorDC512(params).to(device)
+        else:
+            netG = GeneratorDC(params).to(device)
+            netD = DiscriminatorDC(params).to(device)
     elif model_type == 'wgan':
         """
         
@@ -227,10 +232,9 @@ def calculate_fid(real_images, generated_images, imsize):
     return fid"
 """
 
-def main(dataset="chestct"):
+def main(dataset="nbia", model_name="model_epoch_1000.pth"):
     print_green("Evaluating model...")
     model_path = config["model"][f"path_dcgan"]
-    model_name = "model_ChestCT.pth"
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -253,7 +257,7 @@ def main(dataset="chestct"):
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_value = eval_lpips(dataloader, netG, device, params["imsize"])
     generated_path = config['model']['image_path_dcgan']
-
+    print(model_name)
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
     print(f"{'-' * 30}")
@@ -266,4 +270,6 @@ def main(dataset="chestct"):
     print(f"{'-' * 30}")
 
 if __name__ == "__main__":
-    main("nbia")
+
+    main(dataset="nbia", model_name="model_epoch_800.pth")
+    main(dataset="nbia", model_name="model_epoch_900.pth")

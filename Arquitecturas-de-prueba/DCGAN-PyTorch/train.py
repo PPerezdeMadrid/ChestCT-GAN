@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch.optim as optim
 import torchvision.utils as vutils
+from dcgan512 import Generator as Generator512, Discriminator as Discriminator512, weights_init
 from dcgan import Generator, Discriminator, weights_init
 # from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
 from utils import get_chestct, log_training_info, get_NBIA
@@ -24,10 +25,16 @@ def load_config():
 
 def initialize_model(model_type, params, device):
     if model_type == 'dcgan':
-        netG = Generator(params).to(device)
-        netG.apply(weights_init)
-        netD = Discriminator(params).to(device)
-        netD.apply(weights_init)
+        if params['imsize'] == 512:
+            netG = Generator512(params).to(device)
+            netG.apply(weights_init)
+            netD = Discriminator512(params).to(device)
+            netD.apply(weights_init)
+        else:
+            netG = Generator(params).to(device)
+            netG.apply(weights_init)
+            netD = Discriminator(params).to(device)
+            netD.apply(weights_init)
     elif model_type == 'wgan':
         """
         netG = WGANGenerator(params).to(device)
@@ -106,9 +113,9 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
             iters += 1
 
         epoch_time = time.time() - start_time
-        print(f"✅ Epoch [{epoch + 1}/{params['nepochs']}] completada en {epoch_time:.2f} segundos.")
+        print(f"Epoch [{epoch + 1}/{params['nepochs']}] completada en {epoch_time:.2f} segundos.")
 
-        # 🔹 Guardar modelo después de cada época
+        # Guardar modelo después de cada época
         save_epoch(  
             epoch=epoch + 1,    
             model_path=model_path,
@@ -118,6 +125,12 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
             optimizerD=optimizerD,
             params=params
         )
+
+        if (iters % 100 == 0) or (epoch == params['nepochs']-1 and i == len(dataloader)-1):
+                with torch.no_grad():
+                    fake_data_fixed = netG(fixed_noise).detach().cpu()
+                img_list.append(vutils.make_grid(fake_data_fixed, padding=2, normalize=True))
+
 
     return G_losses, D_losses, img_list
 
@@ -235,7 +248,7 @@ def save_gif(img_list, filename='ChestTC.gif'):
     fig = plt.figure(figsize=(8, 8))
     plt.axis("off")
     ims = [[plt.imshow(np.transpose(i, (1, 2, 0)), animated=True)] for i in img_list]
-    anim = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
+    anim = animation.ArtistAnimation(fig, ims, interval=200, repeat_delay=1000, blit=True)
     plt.show()
     anim.save(filename, dpi=80, writer='imagemagick')
 
@@ -287,7 +300,9 @@ def main():
         print("="*50)
         fecha = time.strftime("%Y%m%d")
         # save_gif(img_list, f'ChestTC_dcgan_512_{fecha}.gif')
-        save_gif(img_list, f'ChestTC_dcgan_64_{fecha}.gif')
+        save_gif(img_list, f'ChestTC_dcgan_{params["imsize"]}_{fecha}.gif')
+
+        
         plot_training_losses(G_losses, D_losses, params['nepochs'])
 
     elif args.model == 'wgan':
