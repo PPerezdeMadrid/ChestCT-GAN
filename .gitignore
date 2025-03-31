@@ -18,6 +18,8 @@ Arquitecturas-de-prueba/DCGAN-PyTorch/model_prueba/
 Arquitecturas-de-prueba/DCGAN-PyTorch/images_prueba/
 Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation/
 X-Ray-Images/Data_train
+src/Pipeline/Data/Data-Transformed
+src/Pipeline/Data/Data-Discarded
 
 
 # No subir modelos 
