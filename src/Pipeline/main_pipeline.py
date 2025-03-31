@@ -40,10 +40,10 @@ class ChestGAN(FlowSpec):
                 discarded_dir='Data/Data-Discarded/',
                 threshold=0.3500
             )
-            self.next(self.train_model)
         else:
             print("\033[94mData selected do not need preprocessing\033[0m")
-            self.next(self.train_model)
+            
+        self.next(self.train_model)
        
 
     # @kubernetes(cpu=4, memory=16)

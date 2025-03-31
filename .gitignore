@@ -4,10 +4,11 @@ src/Pipeline/Data/Data-Discarded
 src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
-# Ignorar todas las carpetas que comiencen con images, model o evaluation
+# Ignorar todas las carpetas que comiencen con:
 **/images*/
 **/model*/
 **/evaluation*/
+**/Data-Discarded*/
 
 # Ignorar rutas específicas dentro del repositorio
 src/Pipeline/model/
