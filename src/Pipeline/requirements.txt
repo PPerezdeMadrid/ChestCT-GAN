@@ -13,3 +13,4 @@ reportlab
 fpdf
 boto3
 optuna
+nbiatoolkit

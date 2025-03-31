@@ -13,6 +13,6 @@ with NBIAClient() as client:
     # Descarga cada serie en la colección
     for series in series_list:
         client.downloadSeries(series['SeriesInstanceUID'], dir_name)
-        print("Descargado") 
+        print("Descargado", series['SeriesInstanceUID'])
 
     print(f'Colección {collection_name} descargada en: {dir_name}')

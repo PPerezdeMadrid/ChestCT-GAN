@@ -11,4 +11,5 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Comando para ejecutar el archivo principal
+CMD ["python", "python Data/NBIA_download.py"]
 CMD ["python", "main_pipeline.py", "run"]
