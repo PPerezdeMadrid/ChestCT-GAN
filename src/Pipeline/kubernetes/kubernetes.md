@@ -165,3 +165,17 @@ Cuando termines de usar el cluster de Kubernetes, puedes eliminar los recursos c
 ```bash
 kubectl delete -f deployment.yaml
 ```
+
+
+
+
+
+Primeros pasos: 
+1. Clonar el repositorio
+2. cd ChestCT-GAN/src/Pipeline
+3. mv kubernetes/deployment.yaml . 
+4. mv kubernetes/Dockerfile .
+5. minikube start 
+6. docker build -t metaflow-pipeline .
+7. (opcional subirlo a dockerhub o descargarselo de dockerhub)
+8. kubectl apply -f deployment.yaml

@@ -197,7 +197,7 @@ def generate_report_pdf(data_transformed="Data/Data-Transformed/cancer/",
     pdf.output(filename)
     print(f"PDF generado: {filename}")
 
-# Ejemplo de uso
+""" Ejemplo de uso
 model_type = "dcgan"
 accuracy_discriminator = 0.85
 accuracy_generator = 0.88
@@ -210,3 +210,4 @@ generate_report_pdf(accuracy_discriminator=accuracy_discriminator,
                     ssim_score=ssim_score,
                     psnr_score=psnr_score,
                     lpips_score=lpips_score)    
+"""
