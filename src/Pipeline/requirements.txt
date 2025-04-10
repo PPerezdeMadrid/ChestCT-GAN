@@ -14,3 +14,4 @@ fpdf
 boto3
 optuna
 nbiatoolkit
+opencv-python

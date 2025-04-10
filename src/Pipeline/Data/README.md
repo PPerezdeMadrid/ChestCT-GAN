@@ -96,23 +96,28 @@ Se analizan los diferentes estudios realizados para determinar qué imágenes so
 
 ---
 
-### Métrica LPIPS para Selección de Imágenes
+### Métrica LPIPS y SSMI para Selección de Imágenes
 
-He creado un programa que tome una imágen de referencia y le aplique la métrica LISPS que utilizamos en la evaluación de la GAN (para evaluar la similitud perceptual de dos imágenes).
+He creado un programa que tome varias imágenes de referencia y les aplique tanto la métrica LISPS que utilizamos en la evaluación de la GAN (para evaluar la similitud perceptual de dos imágenes) como SSMI. El objetivo es seleccionar automáticamente las imágenes generadas más similares a las de referencia buena, descartando aquellas que se asemejen a un conjunto definido de referencias negativas.
 
 Imágenes de Referencia:
 ![Imagen de referencia 1](Imagen_Ref1.png)
 ![Imagen de referencia 2](Imagen_Ref2.png)
 ![Imagen de referencia 3](Imagen_Ref3.png)
+![Imagen de referencia 4](Imagen_Ref4.png)
+![Imagen de referencia 5](Imagen_Ref5.png)
+![Imagen de referencia 6](Imagen_Ref6.png)
+![Imagen de referencia 7](Imagen_Ref7.png)
+![Imagen de referencia 8](Imagen_Ref8.png)
+
+Imágenes de Referencia para descartar:
+![Imagen de referencia descarte 1](Imagen_Discarded_1.png)
+![Imagen de referencia descarte 2](Imagen_Discarded_2.png)
+![Imagen de referencia descarte 3](Imagen_Discarded_3.png)
+![Imagen de referencia descarte 4](Imagen_Discarded_4.png)
 
 
-Ejemplo de salida:
-```bash
-Processed 1-42.png: LPIPS=0.2698
-Processed 1-43.png: LPIPS=0.2760
-Processed 1-41.png: LPIPS=0.2699
-Processed 1-40.png: LPIPS=0.2691
-```
+Nota: el programa solo mostrará una barra de progreso hasta que finalice la extracción. 
 
 **Criterio:**  
 Imágenes con **LPIPS < 0.3500** se consideran útiles.
@@ -121,6 +126,14 @@ Imágenes con **LPIPS < 0.3500** se consideran útiles.
   `1-01.dcm`: LPIPS = 0.4339  
 - **Imagen Superior**  
   `1-13.dcm`: LPIPS = 0.3518  
+
+Para la métrica SSIM, es más adecuado seleccionar imágenes cuyos valores se encuentren entre 0.5 y 0 cuando el objetivo es filtrar por diferencias estructurales.
+
+Los valores cercanos o superiores a 0.5 indican una similitud moderada con respecto a la imagen de referencia, lo cual puede ser útil si se desea mantener cierto parecido sin perder diversidad.
+
+Por otro lado, valores menores a 0 reflejan que la imagen es estructuralmente muy diferente, y en la práctica pueden estar causados por contrastes extremos, inversión de intensidades, o ruido.
+
+Por tanto, si se busca un dataset más pequeño pero con imágenes más relevantes, es recomendable utilizar un umbral cercano a 0.5. En cambio, si se prioriza tener más volumen, se puede optar por un umbral más bajo (más cercano a 0).
 
 ---
 
@@ -173,7 +186,7 @@ Solo se procesan los estudios aceptados para reducir ruido y optimizar el entren
 
 ### **Script `generateData.py`**  
 
-Este script procesa imágenes médicas **DICOM**, las convierte a **PNG**, evalúa su similitud con una imagen de referencia mediante la métrica **LPIPS**, y las clasifica en dos carpetas:  
+Este script procesa imágenes médicas **DICOM**, las convierte a **PNG**, evalúa su similitud con una imagen de referencia mediante la métrica **LPIPS**, y las clasifica en dos carpetas. Finalmente, recorre la carpeta de las imágenes que serán utilizadas para ajustar el brillo:  
 
 - **`Data-Transformed/`** → Si la similitud con la referencia es alta.  
 - **`Data-Discarded/`** → Si la similitud es baja.  

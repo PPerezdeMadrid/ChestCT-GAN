@@ -234,7 +234,8 @@ def calculate_fid(real_images, generated_images, imsize):
 
 def main(dataset="nbia", model_name="model_epoch_1000.pth"):
     print_green("Evaluating model...")
-    model_path = config["model"][f"path_dcgan"]
+    # model_path = config["model"][f"path_dcgan"]
+    model_path = "model_prueba/model_dcgan_64/"
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -270,6 +271,4 @@ def main(dataset="nbia", model_name="model_epoch_1000.pth"):
     print(f"{'-' * 30}")
 
 if __name__ == "__main__":
-
-    main(dataset="nbia", model_name="model_epoch_800.pth")
-    main(dataset="nbia", model_name="model_epoch_900.pth")
+    main(dataset="nbia", model_name="model_epoch_700_64.pth")
