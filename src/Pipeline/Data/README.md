@@ -207,3 +207,25 @@ Este proceso sistemático permite clasificar y organizar imágenes médicas de m
 ![Imágenes generadas con los datos de TCIA](img_doc/generate_NBIA_2feb2025.png)
 
 
+
+### Script: `generateData2.py`
+
+Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la similitud entre las imágenes transformadas y las imágenes de referencia utilizando el PSNR (Peak Signal-to-Noise Ratio). Si el PSNR entre una imagen transformada y una imagen de referencia es mayor que un umbral específico, la imagen se descarta y se mueve a la carpeta de "descartadas". Si no, se guarda en la carpeta de "transformadas". Además, antes de realizar el procesamiento, se descarta un 15% de las imágenes tanto al principio como al final de cada conjunto de archivos DICOM, eliminando imágenes de mala calidad o extremas que podrían interferir con el análisis.
+
+### ¿Cuándo usar cada uno?
+
+1. **`generateData.py`**:  
+   - **Cuándo usarlo**: Cuando la cantidad de imágenes es más importante que la calidad.  
+   - **¿Qué hace?**: Encontrarás imágenes con cortes inferiores y superiores (extremos), pero tendrás un volumen de imágenes mucho mayor. Es útil cuando tienes capacidad computacional suficiente para entrenar la GAN con una gran cantidad de datos.
+
+2. **`generateDataQuality.py`**:  
+   - **Cuándo usarlo**: Si no cuentas con mucha capacidad computacional y prefieres entrenar el modelo con un número menor de imágenes pero de mayor calidad.  
+   - **¿Qué hace?**: Este script se enfoca en eliminar los cortes incorrectos (los extremos de las imágenes), asegurando que las imágenes procesadas sean más precisas y adecuadas para algoritmos de clasificación, lo que mejora la calidad de las imágenes utilizadas en el entrenamiento.
+
+#### Imágenes del Paciente A001
+
+![Paciente A001](img_doc/DICOM_Lung_Dx-A0001.png)
+
+Tal y como se observa en el escáner de este paciente, las primeras imágenes corresponden a cortes inferiores y las últimas a cortes superiores. Tras realizar varias pruebas y análisis, se ha determinado que el porcentaje más óptimo para descartar las imágenes de corte inferior y superior es del **15%**. Esto ayuda a eliminar las imágenes extremas que podrían no ser representativas para el análisis, asegurando que solo las imágenes más relevantes y representativas sean utilizadas en el procesamiento posterior.
+
+

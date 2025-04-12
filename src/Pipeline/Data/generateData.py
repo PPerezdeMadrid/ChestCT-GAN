@@ -10,10 +10,12 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from tqdm import tqdm
-from skimage.metrics import structural_similarity as ssim
 import cv2
+from skimage.metrics import peak_signal_noise_ratio as psnr
 
-
+"""
+PSNR tenga prioridad sobre LPIPS, y que solo si el PSNR supera su umbral, se evalúe LPIPS
+"""
 def ensure_directory_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -45,13 +47,17 @@ def calculate_lpips(model, img1_path, img2_path, device):
         lpips_score = model(img1, img2)
     return lpips_score.item()
 
-def calculate_ssim(image1, image2):
+def calculate_psnr(image1, image2):
     # Convert images to grayscale if they are in color
     image1_gray = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
     image2_gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
 
-    # Calculate SSIM
-    score, _ = ssim(image1_gray, image2_gray, full=True)
+    # Resize images to the same size if they are not
+    if image1_gray.shape != image2_gray.shape:
+        image2_gray = cv2.resize(image2_gray, (image1_gray.shape[1], image1_gray.shape[0]))
+
+    # Calculate PSNR
+    score = psnr(image1_gray, image2_gray)
     return score
 
 def setup_logging():
@@ -63,134 +69,237 @@ def setup_logging():
         level=logging.INFO
     )
 
-def process_dicom_folders(path_NBIA_Data, reference_images_paths, discarded_reference_images_paths, transformed_dir, discarded_dir, threshold_lpips=0.3500, threshold_ssim=0.7, threshold_discard_lpips=0.3500, threshold_discard_ssim=0.7):
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""
+def process_dicom_folders(path_NBIA_Data, reference_images_paths, discarded_reference_images_paths, transformed_dir, discarded_dir, threshold_lpips=0.3500, threshold_psnr=20.0, threshold_discard_lpips=0.3500, threshold_discard_psnr=20.0):
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-
     model = lpips.LPIPS(net='vgg').to(device)
-    
+
     ensure_directory_exists(transformed_dir)
     ensure_directory_exists(discarded_dir)
 
     results = []
-    image_counter = 1  # Counter for naming images as ChestCT_X.png
+    image_counter = 1
 
-    # Read the metadata CSV
-    metadata_path = os.path.join(path_NBIA_Data, 'metadata.csv')  # Path to the CSV file
+    metadata_path = os.path.join(path_NBIA_Data, 'metadata.csv')
     metadata = pd.read_csv(metadata_path)
-    
-    # Filter rows with valid Study Description
+
     valid_study_descriptions = ["Chest", "ThoraxAThoraxRoutine Adult", "Chest 3D IMR", "Chest 3D"]
     metadata = metadata[metadata['Study UID'].isin(valid_study_descriptions)]
-    
+
     logging.info(f"Found {len(metadata)} records with valid Study UID.")
     start_time = time.time()
 
-    # Iterate over metadata rows with a progress bar
-    for _, row in tqdm(metadata.iterrows(), total=metadata.shape[0], desc="Processing folders"):
-        # Get the folder path from Download Timestamp
+    for _, row in metadata.iterrows():
         folder_path = os.path.join(path_NBIA_Data, row['File Location'])
-        
         if not os.path.exists(folder_path):
             logging.info(f"Folder not found: {folder_path}")
             continue
-        
+
         logging.info(f"Processing folder: {folder_path}")
-        
-        # Walk through DICOM images in the folder
+
         for root, _, files in os.walk(folder_path):
             for file in files:
                 if file.lower().endswith('.dcm'):
                     dicom_path = os.path.join(root, file)
-                    png_filename = f"ChestCT_{image_counter}.png"  # Using image_counter to name the files
-                    output_png_path = os.path.join(transformed_dir, png_filename)  # Save in transformed_dir
-                    
-                    # Convert the DICOM image to PNG
+                    png_filename = f"ChestCT_{image_counter}.png"
+                    output_png_path = os.path.join(transformed_dir, png_filename)
+
                     dicom_to_png(dicom_path, output_png_path)
-                    
-                    # Initialize flags to check if the image should be moved
+
                     move_to_transformed = False
                     move_to_discarded = False
-                    
-                    # Compare the DICOM image with each reference image (for transformation)
+                    best_lpips = None
+                    best_psnr = None
+                    best_lpips_discard = None
+                    best_psnr_discard = None
+
                     for reference_image_path in reference_images_paths:
-                        # Calculate LPIPS
                         lpips_value = calculate_lpips(model, reference_image_path, output_png_path, device)
-                        logging.info(f"LPIPS score for {png_filename} with {reference_image_path}: {lpips_value:.4f}")
-                        
-                        # Load images for SSIM calculation
-                        ref_image = cv2.imread(reference_image_path)
-                        test_image = cv2.imread(output_png_path)
 
-                        # Calculate SSIM
-                        ssim_value = calculate_ssim(ref_image, test_image)
-                        logging.info(f"SSIM score for {png_filename} with {reference_image_path}: {ssim_value:.4f}")
-                        
-                        # Check if both LPIPS and SSIM meet the thresholds (for transformed images)
-                        if lpips_value <= threshold_lpips and ssim_value >= threshold_ssim:
-                            move_to_transformed = True
-                            break  # If both LPIPS and SSIM are good, move to transformed directory
-                    
-                    # Compare the DICOM image with each reference image (for discarded images)
+                        if lpips_value <= threshold_lpips:
+                            ref_image = cv2.imread(reference_image_path)
+                            test_image = cv2.imread(output_png_path)
+                            psnr_value = calculate_psnr(ref_image, test_image)
+                            print(f"PSNR (transf) {png_filename} vs {reference_image_path}: {psnr_value:.4f}")
+                            best_lpips = lpips_value
+                            best_psnr = psnr_value
+                            if psnr_value >= threshold_psnr:
+                                move_to_transformed = True
+                                break
+                        else:
+                            best_lpips = lpips_value
+
                     for discarded_reference_image_path in discarded_reference_images_paths:
-                        # Calculate LPIPS for discarded references
                         lpips_value_discarded = calculate_lpips(model, discarded_reference_image_path, output_png_path, device)
-                        logging.info(f"LPIPS score for {png_filename} with discarded reference {discarded_reference_image_path}: {lpips_value_discarded:.4f}")
-                        
-                        # Load images for SSIM calculation (for discarded references)
-                        discarded_ref_image = cv2.imread(discarded_reference_image_path)
-                        test_image = cv2.imread(output_png_path)
 
-                        # Calculate SSIM for discarded references
-                        ssim_value_discarded = calculate_ssim(discarded_ref_image, test_image)
-                        logging.info(f"SSIM score for {png_filename} with discarded reference {discarded_reference_image_path}: {ssim_value_discarded:.4f}")
-                        
-                        # Check if both LPIPS and SSIM meet the thresholds (for discarded images)
-                        if lpips_value_discarded <= threshold_discard_lpips and ssim_value_discarded >= threshold_discard_ssim:
-                            move_to_discarded = True
-                            break  # If both LPIPS and SSIM meet the thresholds for discarded, move to discarded directory
-                    
-                    # Move the image to the appropriate folder based on both LPIPS and SSIM
-                    if move_to_discarded:
-                        final_path = os.path.join(discarded_dir, png_filename)
-                        logging.info(f"Moving {png_filename} to discarded directory.")
-                    elif move_to_transformed:
+                        if lpips_value_discarded <= threshold_discard_lpips:
+                            discarded_ref_image = cv2.imread(discarded_reference_image_path)
+                            test_image = cv2.imread(output_png_path)
+                            psnr_value_discarded = calculate_psnr(discarded_ref_image, test_image)
+                            print(f"PSNR (discard) {png_filename} vs {discarded_reference_image_path}: {psnr_value_discarded:.4f}")
+                            best_lpips_discard = lpips_value_discarded
+                            best_psnr_discard = psnr_value_discarded
+                            if psnr_value_discarded >= threshold_discard_psnr:
+                                move_to_discarded = True
+                                break
+                        else:
+                            best_lpips_discard = lpips_value_discarded
+
+                    if move_to_transformed:
                         final_path = os.path.join(transformed_dir, png_filename)
-                        logging.info(f"Moving {png_filename} to transformed directory.")
+                        logging.info(f"✅ {png_filename} moved to TRANSFORMED")
+                    elif move_to_discarded:
+                        final_path = os.path.join(discarded_dir, png_filename)
+                        logging.info(f"❌ {png_filename} moved to DISCARDED (discard refs)")
                     else:
                         final_path = os.path.join(discarded_dir, png_filename)
-                        logging.info(f"Moving {png_filename} to discarded directory.")
-                    
-                    os.rename(output_png_path, final_path)
-                    
-                    # Store the result
-                    results.append((png_filename, lpips_value, ssim_value, lpips_value_discarded, ssim_value_discarded))
-                    image_counter += 1  # Increment the image counter
-    
-    # Save results to a CSV file
-    with open("lpips_ssim_results.csv", "w") as f:
-        f.write("image_name,lpips_score,ssim_score,discarded_lpips_score,discarded_ssim_score\n")
-        for img_name, lpips_score, ssim_score, discarded_lpips_score, discarded_ssim_score in results:
-            f.write(f"{img_name},{lpips_score:.4f},{ssim_score:.4f},{discarded_lpips_score:.4f},{discarded_ssim_score:.4f}\n")
-    
-    logging.info("Processing completed. Results saved to lpips_ssim_results.csv")
+                        logging.info(f"⚠️ {png_filename} moved to DISCARDED (default)")
 
-    end_time = time.time()  
-    elapsed_time = end_time - start_time  
+                    os.rename(output_png_path, final_path)
+
+                    results.append((png_filename,
+                                    best_lpips if best_lpips is not None else -1,
+                                    best_psnr if best_psnr is not None else -1,
+                                    best_lpips_discard if best_lpips_discard is not None else -1,
+                                    best_psnr_discard if best_psnr_discard is not None else -1))
+                    image_counter += 1
+
+    with open("lpips_psnr_results.csv", "w") as f:
+        f.write("image_name,lpips_score,psnr_score,discarded_lpips_score,discarded_psnr_score\n")
+        for img_name, lpips_score, psnr_score, discarded_lpips_score, discarded_psnr_score in results:
+            f.write(f"{img_name},{lpips_score:.4f},{psnr_score:.4f},{discarded_lpips_score:.4f},{discarded_psnr_score:.4f}\n")
+
+    logging.info("Processing completed. Results saved to lpips_psnr_results.csv")
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    logging.info(f"\033[33mExecution Time: {elapsed_time:.2f} seconds\033[0m")
+    print(f"\033[33mProcessing completed. Execution Time: {elapsed_time:.2f} seconds\033[0m")
+"""
+
+def process_dicom_folders(path_NBIA_Data, reference_images_paths, discarded_reference_images_paths, transformed_dir, discarded_dir, threshold_lpips=0.3500, threshold_psnr=20.0, threshold_discard_lpips=0.3500, threshold_discard_psnr=20.0):
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    model = lpips.LPIPS(net='vgg').to(device)
+
+    ensure_directory_exists(transformed_dir)
+    ensure_directory_exists(discarded_dir)
+
+    results = []
+    image_counter = 1
+
+    metadata_path = os.path.join(path_NBIA_Data, 'metadata.csv')
+    metadata = pd.read_csv(metadata_path)
+
+    valid_study_descriptions = ["Chest", "ThoraxAThoraxRoutine Adult", "Chest 3D IMR", "Chest 3D"]
+    metadata = metadata[metadata['Study UID'].isin(valid_study_descriptions)]
+
+    logging.info(f"Found {len(metadata)} records with valid Study UID.")
+    start_time = time.time()
+
+    for _, row in metadata.iterrows():
+        folder_path = os.path.join(path_NBIA_Data, row['File Location'])
+        if not os.path.exists(folder_path):
+            logging.info(f"Folder not found: {folder_path}")
+            continue
+
+        logging.info(f"Processing folder: {folder_path}")
+
+        for root, _, files in os.walk(folder_path):
+            # Filtrar los archivos DICOM
+            dicom_files = sorted([f for f in files if f.lower().endswith('.dcm')])
+
+            # Excluir los primeros 4 y últimos 4 archivos
+            dicom_files = dicom_files[4:-4]
+
+            for file in dicom_files:
+                dicom_path = os.path.join(root, file)
+                png_filename = f"ChestCT_{image_counter}.png"
+                output_png_path = os.path.join(transformed_dir, png_filename)
+
+                dicom_to_png(dicom_path, output_png_path)
+
+                move_to_transformed = False
+                move_to_discarded = False
+                best_lpips = None
+                best_psnr = None
+                best_lpips_discard = None
+                best_psnr_discard = None
+
+                for reference_image_path in reference_images_paths:
+                    lpips_value = calculate_lpips(model, reference_image_path, output_png_path, device)
+
+                    if lpips_value <= threshold_lpips:
+                        ref_image = cv2.imread(reference_image_path)
+                        test_image = cv2.imread(output_png_path)
+                        psnr_value = calculate_psnr(ref_image, test_image)
+                        print(f"PSNR (transf) {png_filename} vs {reference_image_path}: {psnr_value:.4f}")
+                        best_lpips = lpips_value
+                        best_psnr = psnr_value
+                        if psnr_value >= threshold_psnr:
+                            move_to_transformed = True
+                            break
+                    else:
+                        best_lpips = lpips_value
+
+                for discarded_reference_image_path in discarded_reference_images_paths:
+                    lpips_value_discarded = calculate_lpips(model, discarded_reference_image_path, output_png_path, device)
+
+                    if lpips_value_discarded <= threshold_discard_lpips:
+                        discarded_ref_image = cv2.imread(discarded_reference_image_path)
+                        test_image = cv2.imread(output_png_path)
+                        psnr_value_discarded = calculate_psnr(discarded_ref_image, test_image)
+                        print(f"PSNR (discard) {png_filename} vs {discarded_reference_image_path}: {psnr_value_discarded:.4f}")
+                        best_lpips_discard = lpips_value_discarded
+                        best_psnr_discard = psnr_value_discarded
+                        if psnr_value_discarded >= threshold_discard_psnr:
+                            move_to_discarded = True
+                            break
+                    else:
+                        best_lpips_discard = lpips_value_discarded
+
+                if move_to_transformed:
+                    final_path = os.path.join(transformed_dir, png_filename)
+                    logging.info(f"✅ {png_filename} moved to TRANSFORMED")
+                elif move_to_discarded:
+                    final_path = os.path.join(discarded_dir, png_filename)
+                    logging.info(f"❌ {png_filename} moved to DISCARDED (discard refs)")
+                else:
+                    final_path = os.path.join(discarded_dir, png_filename)
+                    logging.info(f"⚠️ {png_filename} moved to DISCARDED (default)")
+
+                os.rename(output_png_path, final_path)
+
+                results.append((png_filename,
+                                best_lpips if best_lpips is not None else -1,
+                                best_psnr if best_psnr is not None else -1,
+                                best_lpips_discard if best_lpips_discard is not None else -1,
+                                best_psnr_discard if best_psnr_discard is not None else -1))
+                image_counter += 1
+
+    with open("lpips_psnr_results.csv", "w") as f:
+        f.write("image_name,lpips_score,psnr_score,discarded_lpips_score,discarded_psnr_score\n")
+        for img_name, lpips_score, psnr_score, discarded_lpips_score, discarded_psnr_score in results:
+            f.write(f"{img_name},{lpips_score:.4f},{psnr_score:.4f},{discarded_lpips_score:.4f},{discarded_psnr_score:.4f}\n")
+
+    logging.info("Processing completed. Results saved to lpips_psnr_results.csv")
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
     logging.info(f"\033[33mExecution Time: {elapsed_time:.2f} seconds\033[0m")
     print(f"\033[33mProcessing completed. Execution Time: {elapsed_time:.2f} seconds\033[0m")
 
 
 process_dicom_folders(
     path_NBIA_Data='../../../../../ChestCT-NBIA/manifest-1608669183333',  # Path to the folder containing metadata.csv and Lung-PET-CT-Dx
-    reference_images_paths=['Imagen_Ref1.png', 'Imagen_Ref2.png', 'Imagen_Ref3.png', 'Imagen_Ref4.png', 'Imagen_Ref5.png', 'Imagen_Ref6.png', 'Imagen_Ref7.png', 'Imagen_Ref8.png'],
-    discarded_reference_images_paths=['Imagen_Discarded_1.png', 'Imagen_Discarded_2.png', 'Imagen_Discarded_3.png', 'Imagen_Discarded_4.png'],
+    reference_images_paths=['Img_ref/Imagen_Ref1.png', 'Img_ref/Imagen_Ref2.png', 'Img_ref/Imagen_Ref3.png', 'Img_ref/Imagen_Ref4.png', 'Img_ref/Imagen_Ref5.png', 
+                            'Img_ref/Imagen_Ref6.png', 'Img_ref/Imagen_Ref7.png', 'Img_ref/Imagen_Ref8.png', 'Img_ref/Imagen_Ref9.png', 'Img_ref/Imagen_Ref10.png'],
+    discarded_reference_images_paths=['Img_ref/Imagen_Discarded_1.png', 'Img_ref/Imagen_Discarded_2.png', 'Img_ref/Imagen_Discarded_3.png', 'Img_ref/Imagen_Discarded_4.png', 'Img_ref/Imagen_Discarded_5.png'],
     transformed_dir='Data-Transformed/cancer',
     discarded_dir='Discarded/',
     threshold_lpips=0.3500,  
-    threshold_ssim=0.3,  
-    threshold_discard_lpips=0.4000,  
-    threshold_discard_ssim=0.25)
+    threshold_psnr=15.0,  
+    threshold_discard_lpips=0.2500,  
+    threshold_discard_psnr=15.0)
 
 # Ajustar el brillo de las imágenes
 def get_average_brightness(image_path):
