@@ -1,3 +1,7 @@
+Entendido, aquí tienes el `README.md` modificado para reflejar la importancia del PSNR sobre el LPIPS y cómo se evalúan las imágenes:
+
+---
+
 ### Obtención de Datos para la GAN
 
 Este documento describe el proceso de obtención, análisis y organización de datos para el desarrollo de una red generativa adversaria (GAN). Se basa en dos scripts principales: **data.py** (análisis de datos) y **generateData.py** (creación de carpetas para clasificar imágenes aceptadas y descartadas).
@@ -96,44 +100,30 @@ Se analizan los diferentes estudios realizados para determinar qué imágenes so
 
 ---
 
-### Métrica LPIPS y SSMI para Selección de Imágenes
+### Métrica PSNR y LPIPS para Selección de Imágenes
 
-He creado un programa que tome varias imágenes de referencia y les aplique tanto la métrica LISPS que utilizamos en la evaluación de la GAN (para evaluar la similitud perceptual de dos imágenes) como SSMI. El objetivo es seleccionar automáticamente las imágenes generadas más similares a las de referencia buena, descartando aquellas que se asemejen a un conjunto definido de referencias negativas.
+En este proyecto se utilizan dos métricas para evaluar la calidad de las imágenes y su similitud con las imágenes de referencia: **PSNR (Peak Signal-to-Noise Ratio)** y **LPIPS (Learned Perceptual Image Patch Similarity)**. La métrica **PSNR** tiene prioridad sobre **LPIPS** en el proceso de clasificación de imágenes.
 
-Imágenes de Referencia:
-![Imagen de referencia 1](Imagen_Ref1.png)
-![Imagen de referencia 2](Imagen_Ref2.png)
-![Imagen de referencia 3](Imagen_Ref3.png)
-![Imagen de referencia 4](Imagen_Ref4.png)
-![Imagen de referencia 5](Imagen_Ref5.png)
-![Imagen de referencia 6](Imagen_Ref6.png)
-![Imagen de referencia 7](Imagen_Ref7.png)
-![Imagen de referencia 8](Imagen_Ref8.png)
+El flujo de trabajo es el siguiente:
 
-Imágenes de Referencia para descartar:
-![Imagen de referencia descarte 1](Imagen_Discarded_1.png)
-![Imagen de referencia descarte 2](Imagen_Discarded_2.png)
-![Imagen de referencia descarte 3](Imagen_Discarded_3.png)
-![Imagen de referencia descarte 4](Imagen_Discarded_4.png)
+1. **Evaluación con PSNR**  
+   - Se calcula el PSNR entre la imagen generada y la imagen de referencia. Si el **PSNR** de una imagen supera el umbral especificado (ej. **30 dB**), la imagen pasa a la siguiente etapa de evaluación.
 
+2. **Evaluación con LPIPS**  
+   - Si la imagen supera el umbral de PSNR, entonces se calcula su valor de LPIPS. Si el **LPIPS** es inferior a un umbral determinado (ej. **0.3500**), la imagen es considerada como aceptable.
 
-Nota: el programa solo mostrará una barra de progreso hasta que finalice la extracción. 
+**Criterios de Evaluación:**
+- **PSNR**: Se considera una imagen útil si el PSNR es mayor que el umbral especificado. Por ejemplo, un PSNR mayor a **30 dB** indica una imagen de buena calidad.
+- **LPIPS**: Solo se evalúa si el PSNR supera el umbral. Si el LPIPS es **< 0.3500**, la imagen se considera útil.
 
-**Criterio:**  
-Imágenes con **LPIPS < 0.3500** se consideran útiles.
-
+#### Ejemplo:
 - **Imagen Inferior**  
-  `1-01.dcm`: LPIPS = 0.4339  
+  `1-01.dcm`: PSNR = 11.23 dB, LPIPS = 0.4339 → Se descarta debido al PSNR bajo.
+  
 - **Imagen Superior**  
-  `1-13.dcm`: LPIPS = 0.3518  
+  `1-13.dcm`: PSNR = 16.1 dB, LPIPS = 0.3518 → Se mantiene debido al PSNR medio.
 
-Para la métrica SSIM, es más adecuado seleccionar imágenes cuyos valores se encuentren entre 0.5 y 0 cuando el objetivo es filtrar por diferencias estructurales.
-
-Los valores cercanos o superiores a 0.5 indican una similitud moderada con respecto a la imagen de referencia, lo cual puede ser útil si se desea mantener cierto parecido sin perder diversidad.
-
-Por otro lado, valores menores a 0 reflejan que la imagen es estructuralmente muy diferente, y en la práctica pueden estar causados por contrastes extremos, inversión de intensidades, o ruido.
-
-Por tanto, si se busca un dataset más pequeño pero con imágenes más relevantes, es recomendable utilizar un umbral cercano a 0.5. En cambio, si se prioriza tener más volumen, se puede optar por un umbral más bajo (más cercano a 0).
+Este enfoque asegura que las imágenes de mala calidad sean descartadas primero por la métrica PSNR, y solo aquellas que superan el umbral PSNR son evaluadas con LPIPS para una evaluación más precisa.
 
 ---
 
@@ -178,7 +168,7 @@ chest.3d
 chest
 ch.3d ao.cta
 ```
-Nota: El metadata.csv es el que se genera desde la aplicación NBIA, no ha sido modificado en ningún momento.
+Nota: El `metadata.csv` es el que se genera desde la aplicación NBIA, no ha sido modificado en ningún momento.
 
 Solo se procesan los estudios aceptados para reducir ruido y optimizar el entrenamiento del modelo.
 
@@ -186,7 +176,7 @@ Solo se procesan los estudios aceptados para reducir ruido y optimizar el entren
 
 ### **Script `generateData.py`**  
 
-Este script procesa imágenes médicas **DICOM**, las convierte a **PNG**, evalúa su similitud con una imagen de referencia mediante la métrica **LPIPS**, y las clasifica en dos carpetas. Finalmente, recorre la carpeta de las imágenes que serán utilizadas para ajustar el brillo:  
+Este script procesa imágenes médicas **DICOM**, las convierte a **PNG**, evalúa su similitud con una imagen de referencia mediante la métrica **PSNR** y **LPIPS**, y las clasifica en dos carpetas. Finalmente, recorre la carpeta de las imágenes que serán utilizadas para ajustar el brillo:  
 
 - **`Data-Transformed/`** → Si la similitud con la referencia es alta.  
 - **`Data-Discarded/`** → Si la similitud es baja.  
@@ -195,22 +185,22 @@ Para ejecutarlo, es necesario especificar:
 - **`path_NBIA_Data`** → Carpeta con los datos y `metadata.csv`.  
 - **`reference_image_path`** → Imagen con la que se compararán los archivos.  
 - **`transformed_dir`** y **`discarded_dir`** → Directorios de salida.  
-- **`threshold`** → Umbral de similitud LPIPS (ej. `0.360`).  
+- **`psnr_threshold`** → Umbral de PSNR (ej. `15`).  
+- **`lpips_threshold`** → Umbral de LPIPS (ej. `0.350`).  
 
-El script analiza las imágenes, guarda los resultados en `lpips_results.csv` y optimiza los datos para el modelo.
+El script analiza las imágenes, guarda los resultados en `lpips_psnr_results.csv` y optimiza los datos para el modelo.
 
 ---
+
 Este proceso sistemático permite clasificar y organizar imágenes médicas de manera eficiente, asegurando la calidad de los datos utilizados para el entrenamiento de la GAN.
 
 # Resultados
 ![Pérdidas Generador y Discriminador](img_doc/LossGLossD_2Feb2025.png)
 ![Imágenes generadas con los datos de TCIA](img_doc/generate_NBIA_2feb2025.png)
 
-
-
 ### Script: `generateData2.py`
 
-Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la similitud entre las imágenes transformadas y las imágenes de referencia utilizando el PSNR (Peak Signal-to-Noise Ratio). Si el PSNR entre una imagen transformada y una imagen de referencia es mayor que un umbral específico, la imagen se descarta y se mueve a la carpeta de "descartadas". Si no, se guarda en la carpeta de "transformadas". Además, antes de realizar el procesamiento, se descarta un 15% de las imágenes tanto al principio como al final de cada conjunto de archivos DICOM, eliminando imágenes de mala calidad o extremas que podrían interferir con el análisis.
+Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la similitud entre las imágenes transformadas y las imágenes de referencia utilizando el **PSNR**. Si el PSNR entre una imagen transformada y una imagen de referencia es mayor que un umbral específico, la imagen se descarta y se mueve a la carpeta de "descartadas". Si no, se guarda en la carpeta de "transformadas". Además, antes de realizar el procesamiento, se descarta un 15% de las imágenes tanto al principio como al final de cada conjunto de archivos DICOM, eliminando imágenes de mala calidad o extremas que podrían interferir con el análisis.
 
 ### ¿Cuándo usar cada uno?
 
@@ -226,6 +216,4 @@ Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la si
 
 ![Paciente A001](img_doc/DICOM_Lung_Dx-A0001.png)
 
-Tal y como se observa en el escáner de este paciente, las primeras imágenes corresponden a cortes inferiores y las últimas a cortes superiores. Tras realizar varias pruebas y análisis, se ha determinado que el porcentaje más óptimo para descartar las imágenes de corte inferior y superior es del **15%**. Esto ayuda a eliminar las imágenes extremas que podrían no ser representativas para el análisis, asegurando que solo las imágenes más relevantes y representativas sean utilizadas en el procesamiento posterior.
-
-
+Tal y como se observa en el escáner de este paciente, las primeras imágenes corresponden a cortes inferiores y las últimas a cortes superiores. Tras realizar varias pruebas y análisis, se ha determinado que el porcentaje más óptimo para

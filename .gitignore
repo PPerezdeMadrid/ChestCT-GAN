@@ -9,7 +9,9 @@ src/Pipeline/MacSetup.md
 **/model*/
 **/evaluation*/
 **/Data-Discarded*/
-
+**/Data-Transformed-Valid/
+**/Discarded2/
+**/Transformed2/
 # Ignorar rutas específicas dentro del repositorio
 src/Pipeline/model/
 src/Pipeline/images/
