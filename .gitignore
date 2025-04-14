@@ -49,6 +49,8 @@ Thumbs.db
 .venv/
 venv/
 src/.venv/
+**/.venv
+**/venv
 
 # Dependencias de Python
 __pycache__/

@@ -216,4 +216,4 @@ Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la si
 
 ![Paciente A001](img_doc/DICOM_Lung_Dx-A0001.png)
 
-Tal y como se observa en el escáner de este paciente, las primeras imágenes corresponden a cortes inferiores y las últimas a cortes superiores. Tras realizar varias pruebas y análisis, se ha determinado que el porcentaje más óptimo para
+Tal y como se observa en el escáner de este paciente, las primeras imágenes corresponden a cortes inferiores y las últimas a cortes superiores. Tras realizar varias pruebas y análisis, se ha determinado que el porcentaje más óptimo para eliminar los cortes no deseados es 15%. Sin embargo, este porcentaje es orientativo y dependiendo de la calidad y cantidad deseada del dataset se puede cambiar.

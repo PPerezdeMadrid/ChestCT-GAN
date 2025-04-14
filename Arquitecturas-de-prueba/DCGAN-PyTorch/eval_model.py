@@ -2,8 +2,8 @@ import torch, json, os
 import lpips
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 from torchvision import models
+from torch.utils.data import DataLoader
 from torch.nn import functional as F
 from dcgan import Generator as GeneratorDC, Discriminator as DiscriminatorDC
 from dcgan512 import Generator as GeneratorDC512, Discriminator as DiscriminatorDC512
@@ -12,9 +12,9 @@ import numpy as np
 from scipy.linalg import sqrtm
 from utils import get_chestct, get_NBIA
 from skimage.metrics import structural_similarity as ssim
-import matplotlib.pyplot as plt
 from scipy.linalg import sqrtm
-from tqdm import tqdm
+from torch import nn
+
 
 def print_green(text):
     print("\033[92m" + text + "\033[0m")
@@ -136,9 +136,64 @@ def eval_lpips(dataloader, netG, device, imsize):
 
     return lpips_value
 
-def main(dataset="nbia", model_name="model_ChestCT.pth"):
+
+def calculate_fid(real_images, generated_images, imsize):
+     # Cargar el modelo Inception v3 preentrenado
+     inception_model = models.inception_v3(pretrained=True, transform_input=False)
+     inception_model.eval()
+     
+     # Transformaciones para las imágenes
+     transform = transforms.Compose([
+         transforms.Resize((229, 229)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
+         transforms.Grayscale(num_output_channels=3),
+         transforms.ToTensor(),
+         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Típico en Inception v3
+     ])
+     
+     # Si `real_images` es una carpeta, obtener los archivos de imagen dentro de ella
+     if os.path.isdir(real_images):
+        print(f"Loading real images from {real_images}")
+        real_images = [os.path.join(real_images, img) for img in os.listdir(real_images) if img.endswith(('jpg', 'png', 'jpeg'))]
+     
+     if os.path.isdir(generated_images):
+        print(f"Loading generated images from {generated_images}")
+        generated_images = [os.path.join(generated_images, img) for img in os.listdir(generated_images) if img.endswith(('jpg', 'png', 'jpeg'))]
+     
+     # Aplicar transformaciones y obtener características
+     real_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in real_images]
+     generated_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in generated_images]
+     
+     # Convertir las listas de imágenes a tensores
+     real_images = torch.stack(real_images)
+     generated_images = torch.stack(generated_images)
+     
+     with torch.no_grad():
+         real_features = inception_model(real_images).detach().numpy()
+         generated_features = inception_model(generated_images).detach().numpy()
+     
+     # Calcular la media y la covarianza de las características
+     mu_real = np.mean(real_features, axis=0)
+     sigma_real = np.cov(real_features, rowvar=False)
+     mu_generated = np.mean(generated_features, axis=0)
+     sigma_generated = np.cov(generated_features, rowvar=False)
+     
+     # Calcular el FID
+     diff = mu_real - mu_generated
+     covmean = sqrtm(sigma_real.dot(sigma_generated))
+     
+     if np.iscomplexobj(covmean):
+         covmean = covmean.real
+     
+     fid = diff.dot(diff) + np.trace(sigma_real + sigma_generated - 2 * covmean)
+     return fid
+    
+
+def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     print_green("Evaluating model...")
     model_path = "model_prueba/model_dcgan/"
+    config_path = "config.json"
+    with open(config_path, 'r') as json_file:
+        config = json.load(json_file)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -154,25 +209,44 @@ def main(dataset="nbia", model_name="model_ChestCT.pth"):
     else:
         raise ValueError(f"Unknown dataset type: {dataset}")
     
+    real_images = f"{config["datasets"][dataset]}/cancer"
+    generated_images = f"{config["model"]["image_path_dcgan"]}/generated"
+    
+    if discarded:
+        fid_score = calculate_fid(real_images, generated_images, params['imsize'])
+    else:
+        fid_score = 0.0
+
     # Evaluar los modelos
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
-    print(f"Discriminator accuracy: {accuracy_discriminator * 100:.2f}%")
-    print(f"Generator confidence: {accuracy_generator * 100:.2f}%")
     
     # Evaluar SSIM, PSNR y LPIPS
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_score = eval_lpips(dataloader, netG, device, params["imsize"])
     
-    print(f"SSIM: {ssim_score:.4f}")
-    print(f"PSNR: {psnr_score:.4f}")
-    print(f"LPIPS: {lpips_score:.4f}")
+    print(f"{'-' * 30}")
+    print(f"{'Model Evaluation Results':^30}")
+    print(f"{'-' * 30}")
+    print(f"{'Discriminator Accuracy:':<20} {accuracy_discriminator * 100:.2f}%")
+    print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
+    print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
+    print(f"{'PSNR Score:':<20} {psnr_score:.4f}")
+    print(f"{'LPIPS Score':<20} {lpips_score:.4f}")
+    if discarded:
+        print(f"{'FID Score':<20} {fid_score:.4f}")
+    print(f"{'-' * 30}")
+
+
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Evaluate a GAN model")
     parser.add_argument("--dataset", type=str, default="nbia", choices=["nbia", "chestct"], help="Dataset to use for evaluation")
     parser.add_argument("--model_name", type=str, default="model_ChestCT.pth", help="Name of the model checkpoint to load")
+    parser.add_argument("--discarded", action="store_true", help="Show discarded metrics info (IS, FID, Precision & Recall for GANs)")
     args = parser.parse_args()
 
-    main(dataset=args.dataset, model_name=args.model_name)
+    args = parser.parse_args()
+
+    main(dataset=args.dataset, model_name=args.model_name, discarded=args.discarded)

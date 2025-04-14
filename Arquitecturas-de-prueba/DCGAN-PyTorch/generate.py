@@ -10,7 +10,7 @@ with open('config.json', 'r') as json_file:
 
 params = config["params"]
 model_path = "model_prueba/model_dcgan/"
-image_path = config["model"]["image_path_dcgan"]
+image_path = f"{config["model"]["image_path_dcgan"]}/generated"
 real_image_path = f"{config["datasets"]["nbia"]}/cancer"
 
 parser = argparse.ArgumentParser()
