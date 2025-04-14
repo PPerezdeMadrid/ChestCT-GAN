@@ -1,15 +1,3 @@
-
-
-Modelo de clasificación: https://huggingface.co/datasets/hf-vision/chest-xray-pneumonia
-Dataset: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia?resource=download
-
-
-
-
-Gracias por proporcionar la estructura del proyecto. Basándome en ella, aquí tienes una versión más detallada del README para tu proyecto, con la estructura de directorios incluida.
-
----
-
 # Anexo para la generación de imágenes de radiografías con neumonía
 
 Este proyecto utiliza un modelo DCGAN (Deep Convolutional Generative Adversarial Network) para generar imágenes sintéticas de radiografías con neumonía. A continuación se detallan los pasos para ejecutar el entrenamiento y generar imágenes.
@@ -165,4 +153,11 @@ python eval_model.py
 ```
 
 Este comando usará la ruta predeterminada para cargar el modelo y evaluarlo. Si deseas evaluar un modelo diferente, puedes modificar el valor de `model_name` directamente en el código o añadir un parámetro en la ejecución (si lo configuras).
+
+---
+Nota: 
+- Modelo de clasificación: https://huggingface.co/datasets/hf-vision/chest-xray-pneumonia
+- Dataset: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia?resource=download
+
+
 
