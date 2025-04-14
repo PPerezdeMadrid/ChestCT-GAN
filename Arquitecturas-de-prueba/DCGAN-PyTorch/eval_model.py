@@ -1,4 +1,4 @@
-import torch,json,os
+import torch, json, os
 import lpips
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -34,49 +34,12 @@ def load_model(model_path, device, model_type, model_name):
             netD = DiscriminatorDC(params).to(device)
     elif model_type == 'wgan':
         """
-        
         """
     netG.load_state_dict(checkpoint['generator'])
     netD.load_state_dict(checkpoint['discriminator'])
     netG.eval()
     netD.eval()
     return netG, netD, params
-
-"""
-def evaluate_models(netG, netD, dataloader, device, params):
-    correct_discriminator = 0
-    total = 0
-    correct_generator = 0
-
-    with torch.no_grad():
-        for real_data, _ in dataloader:
-            real_data = real_data.to(device)
-            b_size = real_data.size(0)
-            real_label_tensor = torch.full((b_size,), 1, dtype=torch.float, device=device)
-            output_real = netD(real_data).view(-1)
-            correct_discriminator += ((output_real > 0.5).float() == real_label_tensor).sum().item()
-
-            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
-            fake_data = netG(noise)
-            fake_label_tensor = torch.full((b_size,), 0, dtype=torch.float, device=device)
-            output_fake = netD(fake_data.detach()).view(-1)
-            correct_discriminator += ((output_fake < 0.5).float() == fake_label_tensor).sum().item()
-            total += b_size * 2
-
-        accuracy_discriminator = correct_discriminator / total
-
-        # Evaluar el generador
-        for _ in range(100):
-            noise = torch.randn(1, params['nz'], 1, 1, device=device)
-            generated_data = netG(noise)
-            output = netD(generated_data.detach()).view(-1)
-            if output > 0.5:
-                correct_generator += 1
-
-        accuracy_generator = correct_generator / 100
-    
-    return accuracy_discriminator, accuracy_generator"
-"""
 
 def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
@@ -114,15 +77,12 @@ def evaluate_models(netG, netD, dataloader, device, params):
 
     return accuracy_discriminator, generator_confidence
 
-
-
 def calculate_ssim(real_images, fake_images):
     real_images = real_images.squeeze().cpu().numpy()
     fake_images = fake_images.squeeze().cpu().numpy()
     fake_images_resized = np.resize(fake_images, real_images.shape)
     ssim_values = [ssim(real, fake, data_range=2.0) for real, fake in zip(real_images, fake_images_resized)]
     return np.mean(ssim_values)
-
 
 def evaluate_ssim(dataloader, netG, device):
     real_images, fake_images = [], []
@@ -134,11 +94,9 @@ def evaluate_ssim(dataloader, netG, device):
             fake_images.append(netG(noise))
     return calculate_ssim(torch.cat(real_images), torch.cat(fake_images))
 
-
 def calculate_psnr(real, fake):
     mse = F.mse_loss(fake, real)
     return 20 * torch.log10(1.0 / torch.sqrt(mse)).item() if mse > 0 else 100
-
 
 def evaluate_psnr(dataloader, netG, device, params):
     psnr_total, num_batches = 0, 0
@@ -150,7 +108,6 @@ def evaluate_psnr(dataloader, netG, device, params):
             psnr_total += calculate_psnr(real_data / 2 + 0.5, fake_data / 2 + 0.5)
             num_batches += 1
     return psnr_total / num_batches
-
 
 def eval_lpips(dataloader, netG, device, imsize):
 
@@ -178,69 +135,15 @@ def eval_lpips(dataloader, netG, device, imsize):
         lpips_value = lpips_model(real_image, generated_image).item()
 
     return lpips_value
-    
 
-# inception v3 redimensiona  a 229x229 y compara con las imágenes reales, luego nunca obtendremos valores bajos debido a que aumenta el tamaño de las imágenes
-
-""" Código válido para calcular el FID con inception v3
-def calculate_fid(real_images, generated_images, imsize):
-    # Cargar el modelo Inception v3 preentrenado
-    inception_model = models.inception_v3(pretrained=True, transform_input=False)
-    inception_model.eval()
-    
-    # Transformaciones para las imágenes
-    transform = transforms.Compose([
-        transforms.Resize((229, 229)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
-        transforms.Grayscale(num_output_channels=3),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Típico en Inception v3
-    ])
-    
-    # Si `real_images` es una carpeta, obtener los archivos de imagen dentro de ella
-    if os.path.isdir(real_images):
-        real_images = [os.path.join(real_images, img) for img in os.listdir(real_images) if img.endswith(('jpg', 'png', 'jpeg'))]
-    
-    if os.path.isdir(generated_images):
-        generated_images = [os.path.join(generated_images, img) for img in os.listdir(generated_images) if img.endswith(('jpg', 'png', 'jpeg'))]
-    
-    # Aplicar transformaciones y obtener características
-    real_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in real_images]
-    generated_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in generated_images]
-    
-    # Convertir las listas de imágenes a tensores
-    real_images = torch.stack(real_images)
-    generated_images = torch.stack(generated_images)
-    
-    with torch.no_grad():
-        real_features = inception_model(real_images).detach().numpy()
-        generated_features = inception_model(generated_images).detach().numpy()
-    
-    # Calcular la media y la covarianza de las características
-    mu_real = np.mean(real_features, axis=0)
-    sigma_real = np.cov(real_features, rowvar=False)
-    mu_generated = np.mean(generated_features, axis=0)
-    sigma_generated = np.cov(generated_features, rowvar=False)
-    
-    # Calcular el FID
-    diff = mu_real - mu_generated
-    covmean = sqrtm(sigma_real.dot(sigma_generated))
-    
-    if np.iscomplexobj(covmean):
-        covmean = covmean.real
-    
-    fid = diff.dot(diff) + np.trace(sigma_real + sigma_generated - 2 * covmean)
-    return fid"
-"""
-
-def main(dataset="nbia", model_name="model_epoch_1000.pth"):
+def main(dataset="nbia", model_name="model_ChestCT.pth"):
     print_green("Evaluating model...")
-    # model_path = config["model"][f"path_dcgan"]
-    model_path = "model_prueba/model_dcgan_64/"
+    model_path = "model_prueba/model_dcgan/"
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
     # Cargar modelo
-    netG, netD, params = load_model(model_path, device,"dcgan", model_name)
+    netG, netD, params = load_model(model_path, device, "dcgan", model_name)
     print_green(str(params))
     
     # Obtener el dataloader usando get_chestct
@@ -251,24 +154,25 @@ def main(dataset="nbia", model_name="model_epoch_1000.pth"):
     else:
         raise ValueError(f"Unknown dataset type: {dataset}")
     
-
     # Evaluar los modelos
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
+    print(f"Discriminator accuracy: {accuracy_discriminator * 100:.2f}%")
+    print(f"Generator confidence: {accuracy_generator * 100:.2f}%")
+    
+    # Evaluar SSIM, PSNR y LPIPS
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
-    lpips_value = eval_lpips(dataloader, netG, device, params["imsize"])
-    generated_path = config['model']['image_path_dcgan']
-    print(model_name)
-    print(f"{'-' * 30}")
-    print(f"{'Model Evaluation Results':^30}")
-    print(f"{'-' * 30}")
-    print(f"{'Discriminator Accuracy:':<20} {accuracy_discriminator * 100:.2f}%")
-    print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
-    print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
-    print(f"{'PSNR Score:':<20} {psnr_score:.4f}")
-    print(f"{'LPIPS Score':<20} {lpips_value:.4f}")
-    # print(f"{'FID Score':<20} {fid_mean:.4f}")
-    print(f"{'-' * 30}")
+    lpips_score = eval_lpips(dataloader, netG, device, params["imsize"])
+    
+    print(f"SSIM: {ssim_score:.4f}")
+    print(f"PSNR: {psnr_score:.4f}")
+    print(f"LPIPS: {lpips_score:.4f}")
 
 if __name__ == "__main__":
-    main(dataset="nbia", model_name="model_epoch_700_64.pth")
+    import argparse
+    parser = argparse.ArgumentParser(description="Evaluate a GAN model")
+    parser.add_argument("--dataset", type=str, default="nbia", choices=["nbia", "chestct"], help="Dataset to use for evaluation")
+    parser.add_argument("--model_name", type=str, default="model_ChestCT.pth", help="Name of the model checkpoint to load")
+    args = parser.parse_args()
+
+    main(dataset=args.dataset, model_name=args.model_name)
