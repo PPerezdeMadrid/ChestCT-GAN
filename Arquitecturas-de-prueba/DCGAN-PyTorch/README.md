@@ -27,7 +27,7 @@ DCGAN-PyTorch/
 ├── generate.py             # Script para generar imágenes nuevas
 ├── eval_model.py           # Evaluación del modelo entrenado
 ├── graphLogs.py            # Visualización de métricas de entrenamiento
-├── requirements.txt        # Dependencias necesarias
+├── requirements_dcgan.txt        # Dependencias necesarias
 ├── README.md               
 └── ...
 ```
