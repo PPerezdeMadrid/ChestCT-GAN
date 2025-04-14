@@ -13,7 +13,7 @@ from scipy.linalg import sqrtm
 from utils import get_chestct, get_NBIA
 from skimage.metrics import structural_similarity as ssim
 from scipy.linalg import sqrtm
-from torch import nn
+from scipy.stats import entropy
 
 
 def print_green(text):
@@ -188,6 +188,48 @@ def calculate_fid(real_images, generated_images, imsize):
      return fid
     
 
+def calculate_inception_score(generated_images, device, imsize=299):
+    # Load pre-trained Inception v3 model
+    inception_model = models.inception_v3(pretrained=True, transform_input=False).to(device)
+    inception_model.eval()
+
+    # Transformations for generated images
+    transform = transforms.Compose([
+        transforms.Resize((imsize, imsize)),
+        transforms.Grayscale(num_output_channels=3),  # Ensure 3 channels for Inception
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    # Apply transformations and prepare data
+    generated_images = [transform(img) if isinstance(img, Image.Image) else transform(Image.fromarray(img)) for img in generated_images]
+    generated_images = torch.stack(generated_images).to(device)
+
+    # Get predictions from Inception model
+    with torch.no_grad():
+        preds = F.softmax(inception_model(generated_images), dim=1).cpu().numpy()
+
+    # Calculate Inception Score
+    marginal_probs = np.mean(preds, axis=0)
+    kl_divergences = [entropy(pred, marginal_probs) for pred in preds]
+    inception_score = np.exp(np.mean(kl_divergences))
+
+    return inception_score
+
+def eval_inception_score(netG, device, num_samples=1000, imsize=299):
+    generated_images = []
+    latent_dim = 100  # Assuming latent dimension is 100
+    with torch.no_grad():
+        for _ in range(num_samples):
+            z = torch.randn(1, latent_dim, 1, 1, device=device)
+            generated_image = netG(z).squeeze(0).cpu()
+
+            # Convert the tensor to a PIL image
+            generated_image = transforms.ToPILImage()(generated_image)
+            generated_images.append(generated_image)
+
+    return calculate_inception_score(generated_images, device, imsize)
+
 def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     print_green("Evaluating model...")
     model_path = "model_prueba/model_dcgan/"
@@ -212,10 +254,11 @@ def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     real_images = f"{config["datasets"][dataset]}/cancer"
     generated_images = f"{config["model"]["image_path_dcgan"]}/generated"
     
+    
     if discarded:
         fid_score = calculate_fid(real_images, generated_images, params['imsize'])
-    else:
-        fid_score = 0.0
+        inception_score = eval_inception_score(netG, device)
+
 
     # Evaluar los modelos
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
@@ -235,7 +278,9 @@ def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     print(f"{'LPIPS Score':<20} {lpips_score:.4f}")
     if discarded:
         print(f"{'FID Score':<20} {fid_score:.4f}")
+        print(f"{'Inception Score ':<20} {inception_score:.4f}")
     print(f"{'-' * 30}")
+
 
 
 
