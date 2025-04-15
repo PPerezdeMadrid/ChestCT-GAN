@@ -3,6 +3,7 @@ import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
 from dcgan import Generator
+from dcgan512 import Generator
 from PIL import Image
 
 with open('config.json', 'r') as json_file:
@@ -26,8 +27,12 @@ print(device, " will be used.\n")
 state_dict = torch.load(args.load_path, map_location=device)
 params = state_dict['params']
 
-netG = Generator(params).to(device)
-netG.load_state_dict(state_dict['generator'])
+if params['imsize'] == 64:
+    netG = Generator(params).to(device)
+    netG.load_state_dict(state_dict['generator'])
+elif params['imsize'] == 512:
+    netG = Generator(params).to(device)
+    netG.load_state_dict(state_dict['generator'])
 print(netG)
 print(args.num_output)
 

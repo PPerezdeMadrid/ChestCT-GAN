@@ -1,12 +1,12 @@
 {
     "params": {
-        "bsize": 128,
-        "imsize": 64, 
+        "bsize": 32,
+        "imsize": 512, 
         "nc": 1,
         "nz": 100,
         "ngf": 64,
         "ndf": 128,
-        "nepochs": 2000,
+        "nepochs": 1000,
         "lr": 0.0001,
         "beta1": 0.5,
         "beta2": 0.999,

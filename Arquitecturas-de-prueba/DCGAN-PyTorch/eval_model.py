@@ -144,7 +144,7 @@ def calculate_fid(real_images, generated_images, imsize):
      
      # Transformaciones para las imágenes
      transform = transforms.Compose([
-         transforms.Resize((229, 229)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
+         transforms.Resize((299, 299)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
          transforms.Grayscale(num_output_channels=3),
          transforms.ToTensor(),
          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Típico en Inception v3
@@ -232,7 +232,8 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299):
 
 def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     print_green("Evaluating model...")
-    model_path = "model_prueba/model_dcgan/"
+    # model_path = "model_prueba/model_dcgan/"
+    model_path = "model_prueba/model_dcgan_15abr_2000/"
     config_path = "config.json"
     with open(config_path, 'r') as json_file:
         config = json.load(json_file)
