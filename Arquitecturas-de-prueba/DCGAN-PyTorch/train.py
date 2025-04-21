@@ -4,6 +4,7 @@ import matplotlib.animation as animation
 import torch.optim as optim
 import torchvision.utils as vutils
 from dcgan512 import Generator as Generator512, Discriminator as Discriminator512, weights_init
+from dcgan256 import Generator as Generator256, Discriminator as Discriminator256
 from dcgan import Generator, Discriminator, weights_init
 # from wgan import Generator as WGANGenerator, Discriminator as WGANDiscriminator, weights_init as wgan_weights_init
 from utils import get_chestct, log_training_info, get_NBIA
@@ -30,10 +31,15 @@ def initialize_model(model_type, params, device):
             netG.apply(weights_init)
             netD = Discriminator512(params).to(device)
             netD.apply(weights_init)
-        else:
+        elif params['imsize'] == 64:
             netG = Generator(params).to(device)
             netG.apply(weights_init)
             netD = Discriminator(params).to(device)
+            netD.apply(weights_init)
+        elif params['imsize'] == 256:
+            netG = Generator256(params).to(device)
+            netG.apply(weights_init)
+            netD = Discriminator256(params).to(device)
             netD.apply(weights_init)
     elif model_type == 'wgan':
         """

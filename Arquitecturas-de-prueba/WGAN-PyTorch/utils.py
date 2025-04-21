@@ -1,15 +1,18 @@
 import torch, csv
 import torchvision.transforms as transforms
 from torchvision import datasets
-import os
+import json
 
 # Ruta a los datasets
-path="../../../ChestCTKaggle/Data/"
+with open('config.json', 'r') as json_file:
+    config = json.load(json_file)
+
+path = config["datasets"]["chestKaggle"]
 train_path = path+"train" 
 valid_path = path+"valid"  
 test_path = path+"test"  
 
-def get_chestct(params):
+def get_chestct():
     transform = transforms.Compose([
         transforms.Grayscale(),  # Convertir a escala de grises
         # transforms.Resize((128, 128)),

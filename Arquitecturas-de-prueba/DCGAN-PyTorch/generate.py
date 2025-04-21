@@ -3,7 +3,8 @@ import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
 from dcgan import Generator
-from dcgan512 import Generator
+from dcgan512 import Generator as Generator512
+from dcgan256 import Generator as Generator256
 from PIL import Image
 
 with open('config.json', 'r') as json_file:
@@ -11,7 +12,7 @@ with open('config.json', 'r') as json_file:
 
 params = config["params"]
 model_path = "model_prueba/model_dcgan/"
-image_path = f"{config["model"]["image_path_dcgan"]}/generated"
+image_path = f"{config["model"]["image_path_dcgan"]}/generated_{params["imsize"]}"
 real_image_path = f"{config["datasets"]["nbia"]}/cancer"
 
 parser = argparse.ArgumentParser()
@@ -31,7 +32,10 @@ if params['imsize'] == 64:
     netG = Generator(params).to(device)
     netG.load_state_dict(state_dict['generator'])
 elif params['imsize'] == 512:
-    netG = Generator(params).to(device)
+    netG = Generator512(params).to(device)
+    netG.load_state_dict(state_dict['generator'])
+elif params['imsize'] == 256:
+    netG = Generator256(params).to(device)
     netG.load_state_dict(state_dict['generator'])
 print(netG)
 print(args.num_output)
