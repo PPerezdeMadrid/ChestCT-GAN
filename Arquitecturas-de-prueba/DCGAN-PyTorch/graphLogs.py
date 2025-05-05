@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
-
+"""
+Note: This is only for DCGAN.
+"""
 def parse_args():
     parser = argparse.ArgumentParser(description="Visualización de las pérdidas del Discriminador y Generador.")
     parser.add_argument('--log_file', type=str, required=True, help="Archivo CSV con los logs de entrenamiento.")
@@ -16,6 +18,11 @@ def load_data(log_file):
         file_path = config["model"]["evaluation_dcgan"] + "/" + log_file
 
     df = pd.read_csv(file_path)
+
+    df = df.rename(columns={
+        "D_Loss": "Loss_D",
+        "G_Loss": "Loss_G"
+    })
 
     df["Epoch"] = pd.to_numeric(df["Epoch"], errors="coerce")
     df["Loss_D"] = pd.to_numeric(df["Loss_D"], errors="coerce")

@@ -1,20 +1,14 @@
-Entendido, aquí tienes el `README.md` modificado para reflejar la importancia del PSNR sobre el LPIPS y cómo se evalúan las imágenes:
-
----
-
-### Obtención de Datos para la GAN
+# Obtención de Datos para la GAN
 
 Este documento describe el proceso de obtención, análisis y organización de datos para el desarrollo de una red generativa adversaria (GAN). Se basa en dos scripts principales: **data.py** (análisis de datos) y **generateData.py** (creación de carpetas para clasificar imágenes aceptadas y descartadas).
 
----
-
-### Datos
+## Datos
 
 Los datos utilizados provienen de **The Cancer Imaging Archive (TCIA)**, específicamente del conjunto de imágenes de tomografías en formato DICOM denominado **Lung-PET-CT-Dx**.
 
 ---
 
-### Probar el Código de data.py
+## Probar el Código de data.py
 
 En caso de que no funcione el archivo `NBIA_download.py` puede descargarse los archivos de la siguiente forma:
 
@@ -198,7 +192,7 @@ Este proceso sistemático permite clasificar y organizar imágenes médicas de m
 ![Pérdidas Generador y Discriminador](img_doc/LossGLossD_2Feb2025.png)
 ![Imágenes generadas con los datos de TCIA](img_doc/generate_NBIA_2feb2025.png)
 
-### Script: `generateData2.py`
+### Script: `generateDataQuality.py`
 
 Este script procesa imágenes DICOM, las convierte a formato PNG y calcula la similitud entre las imágenes transformadas y las imágenes de referencia utilizando el **PSNR**. Si el PSNR entre una imagen transformada y una imagen de referencia es mayor que un umbral específico, la imagen se descarta y se mueve a la carpeta de "descartadas". Si no, se guarda en la carpeta de "transformadas". Además, antes de realizar el procesamiento, se descarta un 15% de las imágenes tanto al principio como al final de cada conjunto de archivos DICOM, eliminando imágenes de mala calidad o extremas que podrían interferir con el análisis.
 

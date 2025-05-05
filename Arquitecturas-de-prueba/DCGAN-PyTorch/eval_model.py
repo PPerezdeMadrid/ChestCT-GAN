@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from torch.nn import functional as F
 from dcgan import Generator as GeneratorDC, Discriminator as DiscriminatorDC
 from dcgan512 import Generator as GeneratorDC512, Discriminator as DiscriminatorDC512
+from dcgan256 import Generator as GeneratorDC256, Discriminator as DiscriminatorDC256
 from PIL import Image
 import numpy as np
 from scipy.linalg import sqrtm
@@ -29,6 +30,12 @@ def load_model(model_path, device, model_type, model_name):
         if params['imsize'] == 512:
             netG = GeneratorDC512(params).to(device)
             netD = DiscriminatorDC512(params).to(device)
+        elif params['imsize'] == 256:
+            netG = GeneratorDC256(params).to(device)
+            netD = DiscriminatorDC256(params).to(device)
+        elif params['imsize'] == 64:
+            netG = GeneratorDC(params).to(device)
+            netD = DiscriminatorDC(params).to(device)
         else:
             netG = GeneratorDC(params).to(device)
             netD = DiscriminatorDC(params).to(device)
@@ -233,7 +240,7 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299):
 def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
     print_green("Evaluating model...")
     # model_path = "model_prueba/model_dcgan/"
-    model_path = "model_prueba/model_dcgan_15abr_2000/"
+    model_path = "model_prueba/model_dcgan_256/"
     config_path = "config.json"
     with open(config_path, 'r') as json_file:
         config = json.load(json_file)
