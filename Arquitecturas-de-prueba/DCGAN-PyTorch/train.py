@@ -20,8 +20,8 @@ def setup_device():
     else:
         return torch.device("cpu")
 
-def load_config():
-    with open('config.json', 'r') as json_file:
+def load_config(config_file):
+    with open(config_file, 'r') as json_file:
         return json.load(json_file)
 
 def initialize_model(model_type, params, device):
@@ -266,13 +266,14 @@ def main():
     }
     parser = argparse.ArgumentParser(description='Train a DCGAN or WGAN model.')
     parser.add_argument('--model', choices=['dcgan', 'wgan'], default='dcgan', help='Choose between "dcgan" and "wgan" models to train.')
-    parser.add_argument('--dataset', choices=DATASET_CHOICES.keys(), default='nbia', help='Choose the dataset: "chestct" or "nbia".')
+    parser.add_argument('--dataset', choices=DATASET_CHOICES.keys(), default='nbia', help='Choose the dataset: "chestct" or "nbia".') # Choose ChestCT to compare architectures
+    parser.add_argument('--configFile', type=str, default='config.json', help='Path to JSON config file.')
     args = parser.parse_args()
     print(f"\033[92mUsing the dataset {args.dataset}\033[0m")
 
     device = setup_device()
     print(f"\033[92mUsing the device {device}\033[0m")
-    config = load_config()
+    config = load_config(args.configFile)
     params = config["params"]
     
     # dataloader = get_chestct(params['imsize'])
@@ -312,7 +313,7 @@ def main():
         plot_training_losses(G_losses, D_losses, params['nepochs'])
 
     elif args.model == 'wgan':
-        print("\033[92mWGAN model\033[0m")
+        print("\033[92mWGAN model not available (This for testing)\033[0m")
         """
         model_path = config["model"]["path_wgan"]
         # No need for BCELoss in WGAN
@@ -333,4 +334,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

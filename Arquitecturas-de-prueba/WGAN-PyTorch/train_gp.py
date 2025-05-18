@@ -28,7 +28,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "mps" if torch.
 print(device, " will be used.\n")
 
 # Get the data
-dataloader = get_chestct(params)
+dataloader = get_chestct()
 
 # Show some training images
 sample_batch = next(iter(dataloader))
@@ -115,7 +115,8 @@ for epoch in range(params['nepochs']):
         ############################
         # (2) Update G network
         ###########################
-        if i % params.get("critic_iters", 5) == 0:
+        # if i % params.get("critic_iters", 5) == 0: # Update G every 5 iterations
+        if i % params['critic_iters'] == 0:
             netG.zero_grad()
             fake_data = netG(noise)
             output = netD(fake_data)

@@ -20,8 +20,11 @@ from scipy.stats import entropy
 def print_green(text):
     print("\033[92m" + text + "\033[0m")
 
-with open('config.json', 'r') as json_file:
-    config = json.load(json_file)
+def load_config(config_file='config.json'):
+    with open(config_file, 'r') as json_file:
+        config = json.load(json_file)
+    return config
+
 
 def load_model(model_path, device, model_type, model_name):
     checkpoint = torch.load(f'{model_path}/{model_name}', map_location=device)
@@ -237,13 +240,12 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299):
 
     return calculate_inception_score(generated_images, device, imsize)
 
-def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False):
+def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, config="config.json"):
     print_green("Evaluating model...")
     # model_path = "model_prueba/model_dcgan/"
-    model_path = "model_prueba/model_dcgan_256/"
+    model_path = "model_prueba/model_dcgan/"
     config_path = "config.json"
-    with open(config_path, 'r') as json_file:
-        config = json.load(json_file)
+    config = load_config(config_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -298,8 +300,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, default="nbia", choices=["nbia", "chestct"], help="Dataset to use for evaluation")
     parser.add_argument("--model_name", type=str, default="model_ChestCT.pth", help="Name of the model checkpoint to load")
     parser.add_argument("--discarded", action="store_true", help="Show discarded metrics info (IS, FID, Precision & Recall for GANs)")
+    parser.add_argument("--configFile", type=str, default="config.json", help="Path to the config file")
     args = parser.parse_args()
 
-    args = parser.parse_args()
-
-    main(dataset=args.dataset, model_name=args.model_name, discarded=args.discarded)
+    main(dataset=args.dataset, model_name=args.model_name, discarded=args.discarded, config=args.configFile)
