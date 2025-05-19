@@ -5,7 +5,8 @@ src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
 # Ignorar todas las carpetas que comiencen con:
-**/images*/
+Arquitecturas-de-prueba/**/images*/
+src/Pipeline/**/images*/
 **/model*/
 **/evaluation*/
 **/Data-Discarded*/
