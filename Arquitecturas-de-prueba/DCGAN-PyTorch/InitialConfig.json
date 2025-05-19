@@ -1,0 +1,27 @@
+{ "params": {
+        "bsize": 128,              
+        "imsize": 64,
+        "nc": 1,                 
+        "nz": 100,                
+        "ngf": 64,               
+        "ndf": 64,               
+        "nepochs": 1000,          
+        "lr": 0.0002,            
+        "beta1": 0.9,             
+        "beta2": 0.999,
+        "save_epoch": 100
+    },
+    "model": {
+        "path_dcgan": "model_prueba/model_dcgan",
+        "path_wgan": "model_prueba/model_wgan",
+        "image_path_dcgan": "images_prueba/images_dcgan",
+        "image_path_wgan": "images_prueba/images_wgan",
+        "evaluation_dcgan": "evaluation_prueba/evaluation_dcgan",
+        "evaluation_wgan": "evaluation_prueba/evaluation_wgan"
+    },
+    "datasets":{
+        "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
+        "nbia": "../../src/Pipeline/Data/Data-Transformed"
+    }
+}
+

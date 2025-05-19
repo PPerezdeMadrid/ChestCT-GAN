@@ -7,7 +7,9 @@ from dcgan512 import Generator as Generator512
 from dcgan256 import Generator as Generator256
 from PIL import Image
 
-with open('config.json', 'r') as json_file:
+# config_path = 'config.json'
+config_path = '1stHiperparams.json'
+with open(config_path, 'r') as json_file:
     config = json.load(json_file)
 
 params = config["params"]

@@ -140,6 +140,81 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
 
     return G_losses, D_losses, img_list
 
+def train_dcgan_baseline(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
+    """Training function for DCGAN without label smoothing or conditional D update"""
+    G_losses, D_losses, img_list = [], [], []
+    iters = 0
+
+    for epoch in range(params['nepochs']):
+        start_time = time.time()
+
+        for i, data in enumerate(dataloader, 0):
+            real_data = data[0].to(device)
+            b_size = real_data.size(0)
+
+            # (1) Update Discriminator (D)
+            netD.zero_grad()
+
+            # Etiquetas fijas
+            label_real = torch.full((b_size,), 1.0, dtype=torch.float, device=device)
+            label_fake = torch.full((b_size,), 0.0, dtype=torch.float, device=device)
+
+            # Real batch
+            output_real = netD(real_data).view(-1)
+            errD_real = criterion(output_real, label_real)
+            errD_real.backward()
+            D_x = output_real.mean().item()
+
+            # Fake batch
+            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+            output_fake = netD(fake_data.detach()).view(-1)
+            errD_fake = criterion(output_fake, label_fake)
+            errD_fake.backward()
+            D_G_z1 = output_fake.mean().item()
+
+            errD = errD_real + errD_fake
+            optimizerD.step()  # ← Siempre actualizamos el discriminador
+
+            # (2) Update Generator (G)
+            netG.zero_grad()
+            label_real.fill_(1.0)  # El generador intenta que D crea que las falsas son reales
+            output_fake_G = netD(fake_data).view(-1)
+            errG = criterion(output_fake_G, label_real)
+            errG.backward()
+            D_G_z2 = output_fake_G.mean().item()
+            optimizerG.step()
+
+            # Logging
+            if i % 50 == 0:
+                log_training_info('dcgan', epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
+
+            G_losses.append(errG.item())
+            D_losses.append(errD.item())
+            iters += 1
+
+        epoch_time = time.time() - start_time
+        print(f"Epoch [{epoch + 1}/{params['nepochs']}] completada en {epoch_time:.2f} segundos.")
+
+        # Guardar modelo después de cada época
+        save_epoch(  
+            epoch=epoch + 1,    
+            model_path=model_path,
+            netG=netG,
+            netD=netD,
+            optimizerG=optimizerG,
+            optimizerD=optimizerD,
+            params=params
+        )
+
+        if (iters % 100 == 0) or (epoch == params['nepochs'] - 1 and i == len(dataloader) - 1):
+            with torch.no_grad():
+                fake_data_fixed = netG(fixed_noise).detach().cpu()
+            img_list.append(vutils.make_grid(fake_data_fixed, padding=2, normalize=True))
+
+    return G_losses, D_losses, img_list
+
+
 def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path):
     # Stores generated images as training progresses
     img_list = []

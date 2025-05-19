@@ -130,6 +130,7 @@ for epoch in range(params['nepochs']):
         if i % 50 == 0:
             log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, 
                               real_validity.mean().item(), fake_validity.mean().item(), output.mean().item())
+            
 
         if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
             with torch.no_grad():

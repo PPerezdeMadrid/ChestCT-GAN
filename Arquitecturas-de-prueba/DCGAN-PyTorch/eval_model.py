@@ -94,13 +94,13 @@ def calculate_ssim(real_images, fake_images):
     ssim_values = [ssim(real, fake, data_range=2.0) for real, fake in zip(real_images, fake_images_resized)]
     return np.mean(ssim_values)
 
-def evaluate_ssim(dataloader, netG, device):
+def evaluate_ssim(dataloader, netG, device, params):
     real_images, fake_images = [], []
     with torch.no_grad():
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             real_images.append(real_data)
-            noise = torch.randn(real_data.size(0), 100, 1, 1, device=device)
+            noise = torch.randn(real_data.size(0), params['nz'], 1, 1, device=device)
             fake_images.append(netG(noise))
     return calculate_ssim(torch.cat(real_images), torch.cat(fake_images))
 
@@ -119,11 +119,12 @@ def evaluate_psnr(dataloader, netG, device, params):
             num_batches += 1
     return psnr_total / num_batches
 
-def eval_lpips(dataloader, netG, device, imsize):
+def eval_lpips(dataloader, netG, device, params, configFile):
+    config = load_config(configFile)
 
     lpips_model = lpips.LPIPS(net='vgg').to(device)
     transform = transforms.Compose([
-        transforms.Resize((imsize, imsize)),
+        transforms.Resize((params["imsize"], params["imsize"])),
         transforms.ToTensor()
     ])
 
@@ -135,9 +136,8 @@ def eval_lpips(dataloader, netG, device, imsize):
     # Obtener una imagen real del dataset
     real_image, _ = next(iter(real_dataloader))  
     real_image = real_image.to(device)
-
-    latent_dim = 100  
-    z = torch.randn(1, latent_dim, 1, 1, device=device)  
+ 
+    z = torch.randn(1, params["nz"], 1, 1, device=device)  
     generated_image = netG(z) 
 
     # Calcular LPIPS
@@ -147,7 +147,7 @@ def eval_lpips(dataloader, netG, device, imsize):
     return lpips_value
 
 
-def calculate_fid(real_images, generated_images, imsize):
+def calculate_fid(real_images, generated_images):
      # Cargar el modelo Inception v3 preentrenado
      inception_model = models.inception_v3(pretrained=True, transform_input=False)
      inception_model.eval()
@@ -240,12 +240,11 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299):
 
     return calculate_inception_score(generated_images, device, imsize)
 
-def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, config="config.json"):
+def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, configFile="config.json"):
     print_green("Evaluating model...")
     # model_path = "model_prueba/model_dcgan/"
     model_path = "model_prueba/model_dcgan/"
-    config_path = "config.json"
-    config = load_config(config_path)
+    config = load_config(configFile)
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
@@ -274,9 +273,9 @@ def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, config
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     
     # Evaluar SSIM, PSNR y LPIPS
-    ssim_score = evaluate_ssim(dataloader, netG, device)
+    ssim_score = evaluate_ssim(dataloader, netG, device, params)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
-    lpips_score = eval_lpips(dataloader, netG, device, params["imsize"])
+    lpips_score = eval_lpips(dataloader, netG, device, params, configFile)
     
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
@@ -303,4 +302,4 @@ if __name__ == "__main__":
     parser.add_argument("--configFile", type=str, default="config.json", help="Path to the config file")
     args = parser.parse_args()
 
-    main(dataset=args.dataset, model_name=args.model_name, discarded=args.discarded, config=args.configFile)
+    main(dataset=args.dataset, model_name=args.model_name, discarded=args.discarded, configFile=args.configFile)

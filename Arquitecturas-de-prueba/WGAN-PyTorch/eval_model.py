@@ -98,7 +98,7 @@ def evaluate_ssim(dataloader, netG, device):
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             real_images.append(real_data)
-            noise = torch.randn(real_data.size(0), 100, 1, 1, device=device)
+            noise = torch.randn(real_data.size(0), 128, 1, 1, device=device)
             fake_images.append(netG(noise))
     return calculate_ssim(torch.cat(real_images), torch.cat(fake_images))
 
@@ -134,7 +134,7 @@ def eval_lpips(dataloader, netG, device, imsize):
     real_image, _ = next(iter(real_dataloader))  
     real_image = real_image.to(device)
 
-    latent_dim = 100  
+    latent_dim = 128  
     z = torch.randn(1, latent_dim, 1, 1, device=device)  
     generated_image = netG(z) 
 

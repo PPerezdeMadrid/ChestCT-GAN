@@ -1,0 +1,91 @@
+import torch, json, os
+import torchvision.utils as vutils
+import numpy as np
+import matplotlib.pyplot as plt
+from dcgan import Generator
+from dcgan512 import Generator as Generator512
+from dcgan256 import Generator as Generator256
+
+# Cargar config
+with open('config.json', 'r') as json_file:
+    config = json.load(json_file)
+
+params_cfg = config["params"]
+model_path = "model_prueba/model_dcgan_256/"
+image_path = f"{config['model']['image_path_dcgan']}/generated_compare"
+os.makedirs(image_path, exist_ok=True)
+
+# Lista de modelos a comparar
+# models_to_compare = [
+#     "model_epoch_150.pth",
+#     "model_epoch_300.pth",
+#     "model_epoch_450.pth",
+#     "model_epoch_600.pth",
+#     "model_epoch_750.pth",
+#     "model_epoch_900.pth"
+# ]
+
+# models_to_compare = [
+#     "model_epoch_900.pth",
+#     "model_epoch_1050.pth",
+#     "model_epoch_1200.pth",
+#     "model_epoch_1350.pth",
+#     "model_epoch_1500.pth",
+#     "model_epoch_1650.pth"
+# ]
+
+# models_to_compare = [
+#     "model_epoch_1500.pth",
+#     "model_epoch_1650.pth",
+#     "model_epoch_1800.pth",
+#     "model_epoch_1950.pth",
+#     "model_epoch_2100.pth",
+#     "model_epoch_2250.pth"
+# ]
+
+models_to_compare = [
+    "model_epoch_900.pth",
+    "model_epoch_1050.pth",
+    "model_epoch_1350.pth",
+    "model_epoch_1800.pth",
+    "model_epoch_2250.pth",
+    "model_epoch_2400.pth"
+]
+
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+print(f"Using device: {device}\n")
+
+fig, axes = plt.subplots(3, len(models_to_compare), figsize=(3 * len(models_to_compare), 9))
+fig.suptitle("3 Generated Images per Model", fontsize=18)
+
+for col, model_file in enumerate(models_to_compare):
+    print(f"Loading: {model_file}")
+    state_dict = torch.load(os.path.join(model_path, model_file), map_location=device)
+    params = state_dict['params']
+
+    if params['imsize'] == 64:
+        netG = Generator(params).to(device)
+    elif params['imsize'] == 512:
+        netG = Generator512(params).to(device)
+    elif params['imsize'] == 256:
+        netG = Generator256(params).to(device)
+    
+    netG.load_state_dict(state_dict['generator'])
+    netG.eval()
+
+    noise = torch.randn(3, params['nz'], 1, 1, device=device)
+    with torch.no_grad():
+        fake_images = netG(noise).detach().cpu()
+        fake_images = (fake_images - fake_images.min()) / (fake_images.max() - fake_images.min())
+
+    for row in range(3):
+        img_np = fake_images[row].squeeze().numpy()
+        axes[row, col].imshow(img_np, cmap='gray')
+        axes[row, col].axis('off')
+        if row == 0:
+            axes[row, col].set_title(model_file.replace("model_epoch_", "Epoch ").replace(".pth", ""), fontsize=10)
+
+plt.tight_layout()
+plt.subplots_adjust(top=0.90)
+plt.savefig(os.path.join(image_path, "compare_epochs_grid.png"))
+plt.show()

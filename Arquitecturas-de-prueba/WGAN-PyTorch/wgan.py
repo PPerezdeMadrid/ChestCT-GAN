@@ -48,17 +48,17 @@ class Discriminator(nn.Module):
             nn.Conv2d(params['nc'], params['ndf'], 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(params['ndf'], params['ndf'] * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(params['ndf'] * 2),
             nn.LeakyReLU(0.2, inplace=True),
+
             nn.Conv2d(params['ndf'] * 2, params['ndf'] * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(params['ndf'] * 4),
             nn.LeakyReLU(0.2, inplace=True),
+
             nn.Conv2d(params['ndf'] * 4, params['ndf'] * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(params['ndf'] * 8),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(params['ndf'] * 8, 1, 4, 1, 0, bias=False),
-            # Nota: no se usa Sigmoid aquí porque se calculará la pérdida de Wasserstein
+
+            nn.Conv2d(params['ndf'] * 8, 1, 4, 1, 0, bias=False)
+            # No sigmoid, no batchnorm
         )
 
     def forward(self, input):
-        return self.main(input)
+        return self.main(input).view(-1)
