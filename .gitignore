@@ -6,7 +6,7 @@ src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
 
 # Ignore all folders starting with:
-Arquitecturas-de-prueba/**/images*/** */
+Arquitecturas-de-prueba/**/images*/**
 src/Pipeline/**/images*/*
 X-Ray-pneumonia/DCGAN-PyTorch/images*/**
 
