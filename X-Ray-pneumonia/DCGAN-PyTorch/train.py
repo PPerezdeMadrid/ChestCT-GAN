@@ -247,7 +247,7 @@ def main(model_type, params):
         optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
-        # Entrenar DCGAN
+        # Train DCGAN
         G_losses, D_losses, img_list, log_csv_path = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
         finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         plot_path = plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)

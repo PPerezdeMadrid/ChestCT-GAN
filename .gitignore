@@ -1,10 +1,11 @@
-# Imágenes generadas a partir del primer STEP del pipeline de MLOPS
+# Images generated from the first STEP of the MLOPS pipeline
 src/Pipeline/Data/Data-Transformed
 src/Pipeline/Data/Data-Discarded
 src/Pipeline/lpips_results.csv
 src/Pipeline/.metaflow/
 src/Pipeline/MacSetup.md
-# Ignorar todas las carpetas que comiencen con:
+
+# Ignore all folders starting with:
 Arquitecturas-de-prueba/**/images*/
 src/Pipeline/**/images*/
 **/model*/
@@ -13,7 +14,8 @@ src/Pipeline/**/images*/
 **/Data-Transformed-Valid/
 **/Discarded2/
 **/Transformed2/
-# Ignorar rutas específicas dentro del repositorio
+
+# Ignore specific paths within the repository
 src/Pipeline/model/
 src/Pipeline/images/
 src/Pipeline/evaluation/
@@ -24,14 +26,19 @@ X-Ray-Images/Data_train
 src/Pipeline/Data/Data-Transformed
 src/Pipeline/Data/Data-Discarded
 
+# CSV of results
+Arquitecturas-de-prueba/DCGAN-PyTorch/*.csv
+Arquitecturas-de-prueba/WGAN-PyTorch/*.csv
+Arquitecturas-de-prueba/Vanilla-GAN-PyTorch-PyTorch/*.csv
 
-# No subir modelos 
+
+# Ignore model and checkpoint files
 *.pth
 
-# No subir PDFs
+# Ignore PDFs
 *.pdf
 
-# Archivos y carpetas de editores de código
+# Code editor files and folders
 .idea/
 .vscode/
 *.suo
@@ -40,54 +47,54 @@ src/Pipeline/Data/Data-Discarded
 *.sln
 *.sw?
 
-# Archivos del sistema operativo
+# Operating system files
 .DS_Store
 src/.DS_Store
 */.DS_Store
 Thumbs.db
 
-# Entorno virtual de Python
+# Python virtual environment
 .venv/
 venv/
 src/.venv/
 **/.venv
 **/venv
 
-# Dependencias de Python
+# Python Dependencies
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Logs y bases de datos temporales de Python
+# Python Logs and Temporary Databases
 *.log
 *.sqlite3
 
-# Configuración y archivos de caché
+# Configuration and cache files
 *.env
 .envrc
 *.bak
 *.tmp
 
-# Dependencias de Node.js
+# Node.js Dependencies
 node_modules/
 npm-debug.log*
 yarn-error.log
 
-# Archivos de compilación
+# ======= 
 dist/
 build/
 out/
 
-# Git y archivos de control de versiones
+
 .git/
 .gitignore
 
-# Archivos de Node.js para empaquetado y configuración
+
 package-lock.json
 yarn.lock
 
-# Archivos grandes y de medios no deseados
+
 *.gif
 *.mp4
 *.avi

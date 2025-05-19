@@ -79,7 +79,6 @@ class Discriminator(nn.Module):
 
     def forward(self, input):
         x = self.main(input)
-        print(f"Dimensiones después de la última capa: {x.shape}")
         return x
 
 

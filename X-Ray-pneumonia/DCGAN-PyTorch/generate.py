@@ -10,7 +10,6 @@ from torchvision.datasets import ImageFolder
 from dcgan import Generator
 from datetime import datetime
 
-# Cargar configuración
 with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
@@ -32,20 +31,16 @@ print(device, " will be used.\n")
 state_dict = torch.load(args.load_path, map_location=device)
 params = state_dict['params']
 
-# Cargar el generador
 netG = Generator(params).to(device)
 netG.load_state_dict(state_dict['generator'])
 netG.eval()
 
-# Generar imágenes sintéticas
 noise = torch.randn(int(args.num_output), params['nz'], 1, 1, device=device)
 with torch.no_grad():
     generated_img = netG(noise).detach().cpu()
 
-# Normalizar imágenes generadas
 generated_img = (generated_img - generated_img.min()) / (generated_img.max() - generated_img.min())
 
-# Cargar imágenes reales
 transform = transforms.Compose([
     transforms.Grayscale(),
     transforms.Resize((params["imsize"], params["imsize"])),
@@ -56,31 +51,26 @@ real_dataset = ImageFolder(real_images_path, transform=transform)
 real_loader = torch.utils.data.DataLoader(real_dataset, batch_size=int(args.num_output), shuffle=True)
 real_img, _ = next(iter(real_loader))
 
-# Normalizar imágenes reales
 real_img = (real_img - real_img.min()) / (real_img.max() - real_img.min())
 
-# Crear figura de comparación
-fig, axes = plt.subplots(2, 5, figsize=(10, 5))  # 2 filas (gen/real) y 5 columnas
+# Create a grid of images
+fig, axes = plt.subplots(2, 5, figsize=(10, 5))  # 2 rows, 5 columns
 
-# Mostrar imágenes generadas (fila superior)
 for i in range(5):
     axes[0, i].imshow(generated_img[i].squeeze(), cmap='gray')
     axes[0, i].set_title("Generated", fontsize=10)
     axes[0, i].axis("off")
 
-# Mostrar imágenes reales (fila inferior)
 for i in range(5):
     axes[1, i].imshow(real_img[i].squeeze(), cmap='gray')
     axes[1, i].set_title("Real", fontsize=10)
     axes[1, i].axis("off")
 
-# Ajustar espaciado
 plt.subplots_adjust(hspace=0.4)
 
 current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 plt.suptitle(f"X-Ray real vs generated - {current_date}", fontsize=15)
 
-# Guardar la figura
 if not os.path.exists(image_path):
     os.makedirs(image_path)
 save_path = os.path.join(image_path, f"XRAY_real_vs_generated_{current_date}.png")

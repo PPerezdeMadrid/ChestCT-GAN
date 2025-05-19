@@ -1,102 +1,123 @@
-# Anexo para la generación de imágenes de radiografías con neumonía
+# Appendix: Generating Chest X-ray Images with Pneumonia
 
-Este proyecto utiliza un modelo DCGAN (Deep Convolutional Generative Adversarial Network) para generar imágenes sintéticas de radiografías con neumonía. A continuación se detallan los pasos para ejecutar el entrenamiento y generar imágenes.
+This project uses a **DCGAN (Deep Convolutional Generative Adversarial Network)** model to generate synthetic chest X-ray images showing pneumonia. Below are the steps to train the model and generate images.
 
-## Estructura del Proyecto
+## Project Structure
 
 ```bash
 DCGAN-PyTorch/
 ├── README.md                
-├── config.json              # Archivo de configuración (rutas, parámetros)
-├── dcgan512.py              # Implementación del modelo DCGAN (resolución 512x512)
-├── dcgan.py                 # Modelo base de DCGAN (64x64)
-├── eval_model.py            # Script para evaluar el modelo
-├── generate.py              # Script para generar imágenes
-├── graphLogs.py             # Funciones para graficar los logs
-├── images_prueba/           # Carpeta para imágenes de prueba generadas
-├── model_prueba/            # Carpeta para modelos entrenados
-├── requirements_xray.txt   # Requisitos para el proyecto (instalación)
-├── train.py                 # Script para entrenar el modelo
-├── main.py                  # Script principal para ejecutar el entrenamiento
-├── X-Ray_TC_dcgan.gif       # Animación generada del entrenamiento
-└── utils.py                 # Funciones de utilidad
+├── config.json              # Configuration file (paths, parameters)
+├── dcgan512.py              # DCGAN implementation (512x512 resolution)
+├── dcgan.py                 # Base DCGAN model (64x64 resolution)
+├── eval_model.py            # Script to evaluate the model
+├── generate.py              # Script to generate images
+├── graphLogs.py             # Functions to plot training logs
+├── images_prueba/           # Folder for generated test images
+├── model_prueba/            # Folder for saved models
+├── requirements_xray.txt    # Project dependencies (installation)
+├── train.py                 # Script to train the model
+├── main.py                  # Main script to launch training
+├── X-Ray_TC_dcgan.gif       # Animation of training progress
+└── utils.py                 # Utility functions
 ```
 
-## Requisitos previos
+## Prerequisites
 
-1. Tener Python 3.6+ instalado.
-2. Instalar las dependencias del proyecto. Ejecuta el siguiente comando para instalar todas las librerías necesarias:
+1. Python 3.6+ must be installed.
+2. Install the required dependencies. Run the following command:
 
 ```bash
 pip install -r requirements_xray.txt
 ```
 
-## Pasos para ejecutar el entrenamiento
+## Steps to Train the Model
 
-1. **Descargar los datos de Kaggle**  
-   Si no tienes los datos descargados, descomenta las siguientes líneas en `main.py` para descargarlos:
+1. **Download Data from Kaggle**
+   If the dataset has not been downloaded yet, uncomment the following lines in `main.py`:
 
    ```python
-   # Descargar los datos
+   # Download and prepare the data
    # data_path = download_xray_data()
-   # prepare_data(data_path, "../Data_train")
+   # prepare_data(data_path,"../Data_train")
    ```
 
-   Esto descargará automáticamente el conjunto de datos de radiografías de Kaggle y lo preparará para el entrenamiento.
+   This will automatically download the chest X-ray dataset from Kaggle and prepare it for training.
 
-2. **Ejecutar el entrenamiento**  
-   Una vez que los datos estén listos, puedes ejecutar el entrenamiento del modelo utilizando el siguiente comando:
+2. **Run the Training Process**
+   Once the data is ready, you can train the model using the command:
 
    ```bash
    python main.py
    ```
 
-   El modelo comenzará a entrenar, y los resultados se guardarán en las carpetas definidas en `config.json`.
+   The model will start training, and results will be saved in the directories defined in `config.json`.
 
-## Archivos y directorios importantes
+## Key Files and Directories
 
-- **Modelos guardados**: Los modelos entrenados se guardarán en la carpeta `model_prueba/`.
-- **Imágenes generadas**: Las imágenes generadas durante el entrenamiento se guardarán en la carpeta `images_prueba/`.
-- **Evaluación**: Los resultados de la evaluación se guardarán en la carpeta `evaluation/`.
-- **Logs y gráficos**: Los logs del entrenamiento y gráficos se guardarán y se pueden visualizar usando las funciones en `graphLogs.py`.
+* **Saved models**: Trained models will be stored in the `model_prueba/` folder.
+* **Generated images**: Images generated during training will be stored in the `images_prueba/` folder.
+* **Evaluation**: Model evaluation results will be saved in the `evaluation/` folder.
+* **Logs and plots**: Training logs and plots can be visualized using the functions in `graphLogs.py`.
 
+## Configuration
 
-## Configuración
+The configuration file `config.json` defines key parameters such as data paths, model architecture, and training options. Be sure to review and modify it according to your needs.
 
-La configuración del proyecto se define en el archivo `config.json`. En este archivo podrás ajustar las rutas de los datos, las configuraciones del modelo y otros parámetros importantes. Asegúrate de revisar y modificar este archivo según tus necesidades.
+## Generate 512x512 Images
 
-## Generar imágenes de 512x512
+If you want to generate 512x512 images instead of the default resolution, follow these steps:
 
-Si deseas generar imágenes de resolución 512x512 en lugar de la resolución predeterminada, sigue estos pasos:
-
-1. **Modificar la resolución en `config.json`**  
-   Abre el archivo `config.json` y cambia el valor de `imsize` a `512`. Además, se recomienda ajustar el tamaño del batch (bsize) a `32` para obtener un mejor rendimiento con esta resolución. El cambio debería verse así:
+1. **Update Resolution in `config.json`**
+   Open `config.json` and set `"imsize"` to `512`. It’s also recommended to set the batch size (`bsize`) to `32` for better performance. The relevant section should look like this:
 
    ```json
    {
-    "params": {
-        "bsize": 32,
-        "imsize": 512, 
-     }
-    }
+      "params": {
+         "bsize": 128,
+         "imsize": 64, 
+         "nc": 1,
+         "nz": 100,
+         "ngf": 128,
+         "ndf": 128,
+         "nepochs": 1000,
+         "lr": 0.0001,
+         "beta1": 0.5,
+         "beta2": 0.999,
+         "save_epoch": 100
+      },
+      "model": {
+         "path_dcgan": "model_prueba/model_dcgan",
+         "path_wgan": "model_prueba/model_wgan",
+         "image_path_dcgan": "images_prueba/images_dcgan",
+         "image_path_wgan": "images_prueba/images_wgan",
+         "evaluation_dcgan": "evaluation_prueba/evaluation_dcgan",
+         "evaluation_wgan": "evaluation_prueba/evaluation_wgan"
+      },
+      "datasets":{
+         "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
+         "nbia": "../../src/Pipeline/Data/Data-Transformed",
+         "xray": "../Data_train/"
+      }
+   }
    ```
 
-2. **Modificar el script de entrenamiento**  
-   En el archivo `train.py`, cambia la siguiente línea de importación:
+2. **Switch the Training Script**
+   In `train.py`, modify the import statement:
 
-   De:
+   From:
 
    ```python
    from dcgan import Generator, Discriminator, weights_init
    ```
 
-   A:
+   To:
 
    ```python
    from dcgan512 import Generator, Discriminator, weights_init
    ```
 
-   Esto asegurará que se utilice la versión del modelo diseñada para generar imágenes de 512x512.
+   This ensures the training uses the version of the model built for 512x512 image generation.
 
 ---
 
@@ -104,60 +125,60 @@ Si deseas generar imágenes de resolución 512x512 en lugar de la resolución pr
 
 ### `generate.py`
 
-Este script se utiliza para generar imágenes a partir de un modelo previamente entrenado.
+This script generates synthetic images from a pre-trained model.
 
-#### Parámetros:
-- **`-load_path`**:  
-  Ruta del checkpoint (modelo entrenado) que se va a cargar. El valor predeterminado está configurado como `f'{model_path}/{model_pth}'`, que busca el modelo en la ubicación definida por `model_path` y `model_pth`.  
-  - **Tipo**: string  
-  - **Descripción**: Especifica la ruta del modelo que se cargará para la generación de imágenes.
+#### Parameters:
 
-- **`-num_output`**:  
-  Número de imágenes generadas. Por defecto, este parámetro está establecido en 5, lo que significa que se generarán 5 imágenes.  
-  - **Tipo**: entero  
-  - **Descripción**: Especifica cuántas imágenes generar al ejecutar el script.
+* **`-load_path`**:
+  Path to the checkpoint (pre-trained model) to load. By default, this is set to `f'{model_path}/{model_pth}'`, which uses the values defined in the config file.
 
-#### Uso:
-El script usa el parámetro `-load_path` para cargar un modelo previamente entrenado desde la ruta especificada y genera la cantidad de imágenes indicada con el parámetro `-num_output`.
+  * **Type**: string
+  * **Description**: Specifies the model file to be loaded for image generation.
 
-Ejemplo de ejecución:
+* **`-num_output`**:
+  Number of images to generate. The default is 5.
+
+  * **Type**: integer
+  * **Description**: Defines how many images to generate.
+
+#### Example Usage:
 
 ```bash
-python generate.py -load_path 'ruta/a/modelo.pth' -num_output 5
+python generate.py -load_path 'path/to/model.pth' -num_output 5
 ```
 
 ---
 
 ### `eval_model.py`
 
-Este script se utiliza para evaluar el rendimiento de un modelo entrenado.
+This script is used to evaluate the performance of a trained model.
 
-#### Parámetros:
-- **`model_name`**:  
-  Nombre del archivo del modelo que se va a evaluar. Por defecto, este parámetro está configurado como `"model_epoch_400.pth"`, lo que significa que se evaluará el modelo guardado con ese nombre si no se proporciona otro valor.  
-  - **Tipo**: string  
-  - **Descripción**: Especifica el archivo del modelo que se cargará para realizar la evaluación.
+#### Parameters:
 
-- **`model_path`**:  
-  Ruta donde se encuentra el modelo que se va a evaluar. Este valor se construye concatenando la ruta definida en el archivo de configuración (`config["model"]["path_dcgan"]`) con el nombre del modelo (`model_name`). Por defecto, `model_name` es `"model_epoch_400.pth"`.  
-  - **Tipo**: string  
-  - **Descripción**: Especifica la ubicación completa del modelo a evaluar.
+* **`model_name`**:
+  The name of the model file to evaluate. Default is `"model_epoch_400.pth"`.
 
-#### Uso:
-El script carga el modelo desde la ruta `model_path` y evalúa su rendimiento en el conjunto de datos de prueba.
+  * **Type**: string
+  * **Description**: The specific model file to evaluate.
 
-Ejemplo de ejecución:
+* **`model_path`**:
+  The path where the model is stored. This is built from the value in the config file: `config["model"]["path_dcgan"] + model_name`.
+
+  * **Type**: string
+  * **Description**: Full path to the model to evaluate.
+
+#### Example Usage:
 
 ```bash
 python eval_model.py
 ```
 
-Este comando usará la ruta predeterminada para cargar el modelo y evaluarlo. Si deseas evaluar un modelo diferente, puedes modificar el valor de `model_name` directamente en el código o añadir un parámetro en la ejecución (si lo configuras).
+This command will evaluate the model using the default path. If you want to evaluate a different model, modify `model_name` in the code or add an argument to the script.
 
 ---
-Nota: 
-- Modelo de clasificación: https://huggingface.co/datasets/hf-vision/chest-xray-pneumonia
-- Dataset: https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia?resource=download
 
+### Notes
 
+* Classifier model that can be improved: [https://huggingface.co/datasets/hf-vision/chest-xray-pneumonia](https://huggingface.co/datasets/hf-vision/chest-xray-pneumonia)
+* Dataset: [https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia?resource=download](https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia?resource=download)
 

@@ -8,10 +8,10 @@ import kagglehub
 from PIL import Image
 import matplotlib.pyplot as plt
 
-
-# Ruta a los datasets
+"""
+As this code has been used for testing purposes, some variables may be harcoded.
+"""
 def load_config():
-    # with open('GAN_PyTorch/config.json', 'r') as json_file:
     with open('config.json', 'r') as json_file:
         return json.load(json_file)
 
@@ -34,7 +34,7 @@ def get_xray(img_size=64, bsize=64, data_path=None):
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    # Filtrar imágenes cuyo nombre contenga 'virus'
+    # Filter images whose name contains 'virus'
     def virus_filter(filepath):
         return 'virus' in os.path.basename(filepath).lower() and filepath.lower().endswith(('.png', '.jpg', '.jpeg'))
 
@@ -51,12 +51,12 @@ def get_xray(img_size=64, bsize=64, data_path=None):
     images, _ = next(iter(dataloader))
     print(f"===> Tamaño de las imágenes transformadas: {images.shape}")
 
-    # Mostrar 6 imágenes de ejemplo
+    # Show 6 example images
     fig, axes = plt.subplots(2, 3, figsize=(12, 8))
     axes = axes.flatten()
     for i in range(6):
-        img = images[i].squeeze().cpu().numpy()  # Convertir a numpy
-        img = (img * 0.5) + 0.5  # Desnormalizar
+        img = images[i].squeeze().cpu().numpy()  
+        img = (img * 0.5) + 0.5  # Denormalize
         axes[i].imshow(img, cmap='gray')
         axes[i].axis('off')
 
@@ -68,30 +68,28 @@ def get_xray(img_size=64, bsize=64, data_path=None):
 
 def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2):
     """
-    Imprime los valores de la iteración actual y guarda la información en un archivo CSV.
+    Prints the values ​​for the current iteration and saves the information to a CSV file.
 
     Parameters:
-    - epoch: número de la época actual.
-    - total_epochs: número total de épocas.
-    - i: iteración actual.
-    - total_iterations: número total de iteraciones.
-    - errD: valor de la pérdida del discriminador.
-    - errG: valor de la pérdida del generador.
-    - D_x: salida del discriminador en datos reales.
-    - D_G_z1: salida del discriminador en datos generados (primera vez).
-    - D_G_z2: salida del discriminador en datos generados (segunda vez).
-    - log_file: nombre del archivo CSV para guardar los datos.
+    - epoch: Current epoch number.
+    - total_epochs: Total number of epochs.
+    - i: Current iteration.
+    - total_iterations: Total number of iterations.
+    - errD: Discriminator loss value.
+    - errG: Generator loss value.
+    - D_x: Discriminator output on real data.
+    - D_G_z1: Discriminator output on generated data (first time).
+    - D_G_z2: Discriminator output on generated data (second time).
+    - log_file: Name of the CSV file to save the data to.
     """
 
-    fecha = datetime.now().strftime('%Y-%m-%d')
+    date = datetime.now().strftime('%Y-%m-%d')
     eval_dir = f"evaluation/evaluation_{model}"
     if not os.path.exists(eval_dir):
         os.makedirs(eval_dir)
-    name_csv = f'training_log_{model}_{fecha}_64.csv' # Cambiar!!
+    name_csv = f'training_log_{model}_{date}.csv' 
     save_path = os.path.join(eval_dir, name_csv)
     
-
-    # Imprimir en consola
     print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f' % (
         epoch, total_epochs, i, total_iterations,
         errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
@@ -108,7 +106,6 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
         D_G_z2
     ]
     
-    # Modo de escritura dependiendo de la primera iteración (para que sobreescriba)
     mode = 'w' if i == 0 and epoch == 0 else 'a'
     
     with open(save_path, mode, newline='') as csvfile:
@@ -116,20 +113,19 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
         
         if mode == 'w':
             csv_writer.writerow(['Epoch', 'Total Epochs', 'Iteration', 'Total Iterations', 'Loss_D', 'Loss_G', 'D(x)', 'D(G(z))_Real', 'D(G(z))_Fake'])
-        
-        # Escribir los datos de esta iteración
+
         csv_writer.writerow(log_data)
     return save_path
 
 
 def prepare_data(source_folder, output_folder):
     """
-    Prepara los datos copiando las imágenes de las carpetas NORMAL y PNEUMONIA 
-    de train, validate y test en una sola carpeta.
+    Prepare the data by copying the images from the NORMAL and PNEUMONIA folders
+    of train, validate, and test into a single folder.
 
     Args:
-    - source_folder (str): Ruta hasta la carpeta chest_xray.
-    - output_folder (str): Ruta de la carpeta destino donde se organizarán las imágenes.
+    - source_folder (str): Path to the chest_xray folder.
+    - output_folder (str): Path to the destination folder where the images will be organized.
     """
     
     source_folder_pneumonia_train = os.path.join(source_folder, 'train', 'PNEUMONIA')
@@ -151,22 +147,22 @@ def prepare_data(source_folder, output_folder):
 
             if os.path.isfile(source_path):
                 shutil.copy(source_path, dest_path)
-                print(f"Imagen copiada: {dest_path}")
+                print(f"Image copied: {dest_path}")
 
-    print("Copiando imágenes de la clase PNEUMONIA...")
+    print("copying images from the PNEUMONIA class...")
     copy_images(source_folder_pneumonia_train, pneumonia_folder)
     copy_images(source_folder_pneumonia_validate, pneumonia_folder)
     copy_images(source_folder_pneumonia_test, pneumonia_folder)
 
-    print("Proceso completo.")
+    print("Complete process.")
     return f"{output_folder}/PNEUMONIA"
 
 
 
 def get_unique_image_sizes(directory):
-    """Recoge todas las imágenes en una carpeta y devuelve los tamaños únicos."""
+    """Collects all images in a folder and returns unique sizes."""
     if not os.path.isdir(directory):
-        print(f"Error: El directorio '{directory}' no existe.")
+        print(f"Error: The directory '{directory}' does not exist")
         return set()
     
     image_sizes = set()
@@ -179,18 +175,18 @@ def get_unique_image_sizes(directory):
                 with Image.open(filepath) as img:
                     image_sizes.add(img.size)  # (ancho, alto)
             except Exception as e:
-                print(f"Error al abrir {filename}: {e}")
+                print(f"Error opening{filename}: {e}")
 
-    print(f"===> Tamaños únicos de imágenes en '{directory}': {image_sizes}")
+    print(f"===> Unique image sizes in'{directory}': {image_sizes}")
     return image_sizes
 
-# Ruta hasta chest_xray
+# Path to the source folder containing the chest_xray dataset
 # source_folder = '../../../../Dataset_XRAY/chest_xray'
 
-# Ruta de destino para Data_train
+# Path to the output folder where the images will be organized
 # output_folder = '../Data_train/'
 
-# Llamar a la función para preparar los datos
+# Call the function to prepare the data
 # prepare_data(source_folder, output_folder)
 
 # get_unique_image_sizes('../Data_train/PNEUMONIA')
