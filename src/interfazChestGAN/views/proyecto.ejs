@@ -41,23 +41,7 @@
       </div>
       <hr>
 
-     <!-- Arquitectura Start -->
-     <section id="service" class="service">
-      <div class="titlepage">
-         <h2>Arquitectura del proyecto</h2>
-         <p style="margin-left: 20%; margin-right: 20%;">Este proyecto combina tres componentes clave: un modelo GAN para generar imágenes médicas sintéticas, un pipeline de MLOps para entrenar y mejorar continuamente el modelo, y una interfaz gráfica que permite a médicos y expertos evaluar la calidad de las imágenes generadas y proporcionar retroalimentación para su mejora.</p>
-         <img src="images/arquitectura.png" alt="Arquitectura" style="padding: 10% 10%;">
-      </div>
-     </section>
-     <!-- Arquitectura End -->
-
-     <hr>
-      <div style="text-align: center; margin: 20px 0;">
-         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
-      </div>
-      <hr>
-      
-     <!-- Tecnología Start -->
+           <!-- Tecnología Start -->
      <section id="service" class="service">
             <div class="container">
                <div class="row">
@@ -86,9 +70,9 @@
                          <div class="service_box_tech green_colo">
                              <i><img src="images/metaflowicon.png" alt="Imagen MLOps"/></i>
                              <div>
-                                 <h4>MLOps - AWS con Metaflow</h4>
-                                 <p>El enfoque de MLOps (Machine Learning Operations) busca integrar y automatizar el ciclo de vida completo de los modelos de machine learning. Utilizando AWS y Metaflow, garantizamos una infraestructura escalable y eficiente para entrenar, validar y poner en producción los modelos. Metaflow proporciona herramientas para gestionar experimentos de ML de manera reproducible y escalable, mientras que AWS ofrece una plataforma robusta para ejecutar y desplegar modelos en la nube.</p>
-                             </div>
+                                 <h4>MLOps - Metaflow</h4>
+                                 <p>El enfoque de MLOps (Machine Learning Operations) busca integrar y automatizar el ciclo de vida completo de los modelos de machine learning. Utilizando Minikube y Kubernetes junto con un servidor local, garantizamos una infraestructura flexible y controlada para entrenar, validar y poner en producción los modelos. Kubernetes proporciona herramientas para gestionar y orquestar los recursos de forma escalable y reproducible, mientras que el servidor local ofrece un entorno seguro y personalizado para el despliegue y ejecución de los modelos.</p>
+                              </div>
                          </div>
                          <div class="service_box_tech orange_colo">
                              <i><img src="images/nodeicon.png" alt="Imagen Aplicación Web"/></i>
@@ -106,6 +90,74 @@
       </section>
   
      <!-- Tecnología Start-->
+
+     <hr>
+      <div style="text-align: center; margin: 0px 5%;">
+         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+      </div>
+      <hr>
+
+     <!-- Arquitectura Start -->
+     <section id="service" class="service">
+      <div class="titlepage">
+         <h2>Arquitectura del proyecto</h2>
+         <p style="margin-left: 20%; margin-right: 20%;">Este proyecto combina tres componentes clave: un modelo GAN para generar imágenes médicas sintéticas, un pipeline de MLOps para entrenar y mejorar continuamente el modelo, y una interfaz gráfica que permite a médicos y expertos evaluar la calidad de las imágenes generadas y proporcionar retroalimentación para su mejora.</p>
+         <img src="images/arquitectura.png" alt="Arquitectura" style="padding: 3% 10%;">
+      </div>
+     </section>
+     <!-- Arquitectura End -->
+
+     <hr>
+      <div style="text-align: center; margin: 0px 5%;">
+         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+      </div>
+      <hr>
+
+     <!-- Arquitectura Pipeline Start -->
+      <section id="service" class="service">
+      <div class="titlepage">
+         <h2>Pipeline del proyecto</h2>
+         <p style="margin-left: 20%; margin-right: 20%; text-align: justify;">
+            En Metaflow, un pipeline o "flow" consta de varios "steps" (pasos), cada uno realizando una tarea específica y pasando datos al siguiente. Este pipeline tiene 7 pasos principales:
+            <br><br>
+            <strong>1. Start:</strong> Selección y preprocesamiento del dataset, transformando y filtrando imágenes para asegurar calidad y relevancia.
+            <br>
+            <strong>2. Train_model:</strong> Entrenamiento del modelo DCGAN con imágenes preprocesadas, configurando hiperparámetros y guardando resultados y modelos entrenados.
+            <br>
+            <strong>3. Eval_model:</strong> Evaluación del modelo con métricas personalizables para medir su rendimiento.
+            <br>
+            <strong>4. Generate_imgs:</strong> Generación de imágenes sintéticas si el modelo cumple un umbral de calidad, o ajuste y optimización de hiperparámetros en caso contrario.
+            <br>
+            <strong>5. Generate_report:</strong> Creación de un informe en PDF con métricas, gráficos y resultados relevantes del entrenamiento.
+            <br>
+            <strong>6. Upload_files_cloud:</strong> Subida segura de archivos a un almacenamiento en la nube con permisos restringidos.
+            <br>
+            <strong>7. End:</strong> Notificación al servidor web de la finalización del pipeline.
+         </p>
+         <img src="images/arqpipeline.png" alt="Arquitectura lógica del pipeline" style="padding: 3% 10%;">
+      </div>
+      </section>
+      <!-- Arquitectura Pipeline end -->
+
+      <!-- Resultados start -->
+      <section id="model" class="service">
+         <div class="titlepage">
+            <h2>Datos y evolución del modelo</h2>
+            <p style="margin-left: 20%; margin-right: 20%; text-align: justify;">
+               Los datos utilizados para entrenar el modelo provienen de TCIA (The Cancer Imaging Archive), una base de datos pública y de alta calidad con imágenes médicas de cáncer disponibles para investigación.
+               <br><br>
+               Se compararon tres arquitecturas diferentes: Vanilla GAN, WGAN y DCGAN. Debido a recursos computacionales limitados, se optó por la DCGAN, que ofrecía el mejor equilibrio entre rendimiento y eficiencia.
+               <br><br>
+               Sobre esta base, se trabajó en mejorar los hiperparámetros de la DCGAN para optimizar la calidad y realismo de las imágenes generadas.
+               <br><br>
+               Este proceso iterativo permitió que el modelo evolucionara y se adaptara mejor a los datos, obteniendo resultados cada vez más precisos y útiles para aplicaciones médicas e investigación.
+            </p>
+            <img src="images/resultadosModelo.png" alt="Resultados del modelo" style="width: 60%;padding: 3% 10%;;">
+         </div>
+      </section>
+      <!-- Resultados end -->
+
+
    
 
 <%- include('footer') %>
