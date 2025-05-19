@@ -120,8 +120,8 @@ app.use(function(err, req, res, next) {
   res.render('error');  // Asumiendo que tienes una vista llamada "error.ejs"
 });
 
-// Listening on port 80
-const PORT = 80;
+// Listening on port 8080
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
