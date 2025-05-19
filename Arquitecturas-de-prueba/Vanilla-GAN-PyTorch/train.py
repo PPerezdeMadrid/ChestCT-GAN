@@ -9,7 +9,6 @@ from gan import Generator, Discriminator
 import torch.nn as nn
 from tqdm import tqdm  
 
-# Cargar configuración desde config.json
 with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
@@ -17,7 +16,6 @@ params = config["params"]
 model_path = config["model"]["path"]
 images_path = config["model"]["image_path"]
 
-# Usar GPU si está disponible
 if torch.backends.mps.is_available():
     DEVICE = torch.device("mps")
 elif torch.xpu.is_available():
@@ -44,7 +42,6 @@ n_critic = 1
 if not os.path.exists(images_path):
     os.makedirs(images_path)
 
-# Barra de progreso para las épocas
 for epoch in tqdm(range(max_epoch), desc="Epochs", dynamic_ncols=True):
     for idx, (images, _) in enumerate(data_loader):
         x = images.to(DEVICE)
@@ -84,7 +81,6 @@ for epoch in tqdm(range(max_epoch), desc="Epochs", dynamic_ncols=True):
         
         step += 1
 
-# Guardar el modelo
 torch.save({
     'epoch': max_epoch,
     'n_noise': n_noise,
@@ -95,9 +91,9 @@ torch.save({
     'params': params
 }, f'../../../model_gan_{params["nepochs"]}')
 
-# Generar imagen final
+
 G.eval()
-fig, axs = subplots(3, 3, figsize=(9, 9))  # Crear una cuadrícula 3x3
+fig, axs = subplots(3, 3, figsize=(9, 9))  # Create a 3x3 grid of subplots
 for i in range(3):
     for j in range(3):
         z = torch.randn(1, n_noise).to(DEVICE)

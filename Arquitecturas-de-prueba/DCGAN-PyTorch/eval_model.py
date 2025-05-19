@@ -54,36 +54,36 @@ def load_model(model_path, device, model_type, model_name):
 def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
     total = 0
-    generator_confidence = 0  # Suma de las salidas del discriminador sobre imágenes generadas
+    generator_confidence = 0  
     
     with torch.no_grad():
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             b_size = real_data.size(0)
             
-            # Evaluar el discriminador con imágenes reales
-            real_labels = torch.ones(b_size, device=device)  # 1 para reales
+            # evaluate the discriminator with real images
+            real_labels = torch.ones(b_size, device=device)  # 1 for real
             output_real = netD(real_data).view(-1)
             correct_discriminator += (output_real.round() == real_labels).sum().item()
             
-            # Evaluar el discriminador con imágenes falsas
+            # Evaluate the discriminator with fake images
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
-            fake_labels = torch.zeros(b_size, device=device)  # 0 para falsas
+            fake_labels = torch.zeros(b_size, device=device)  # 0 for fake
             output_fake = netD(fake_data.detach()).view(-1)
             correct_discriminator += (output_fake.round() == fake_labels).sum().item()
             
-            total += b_size * 2  # Total de ejemplos evaluados
+            total += b_size * 2  # total images (real + fake)
 
-        accuracy_discriminator = correct_discriminator / total  # Precisión del discriminador
+        accuracy_discriminator = correct_discriminator / total  # Discriminator accuracy
 
-        # Evaluación del generador con 1000 ejemplos en lugar de 100
+        # Evaluate generator confidence
         num_samples = 1000
         noise = torch.randn(num_samples, params['nz'], 1, 1, device=device)
         generated_data = netG(noise)
-        output = netD(generated_data).view(-1)  # Predicciones del discriminador
+        output = netD(generated_data).view(-1)  # Discriminator output for generated images
         
-        generator_confidence = output.mean().item()  # Promedio de confianza del discriminador en imágenes generadas
+        generator_confidence = output.mean().item()  # Mean confidence of the generator
 
     return accuracy_discriminator, generator_confidence
 
@@ -128,19 +128,19 @@ def eval_lpips(dataloader, netG, device, params, configFile):
         transforms.ToTensor()
     ])
 
-    # Cargar dataset de imágenes reales
+    # load real images from the dataset
     # real_dataset = datasets.ImageFolder(root=f"{config['datasets']['chestKaggle']}/valid", transform=transform)
     real_dataset = datasets.ImageFolder(root=f"{config['datasets']['nbia']}", transform=transform)
     real_dataloader = DataLoader(real_dataset, batch_size=1, shuffle=True)
 
-    # Obtener una imagen real del dataset
+    # get a real image from the dataset
     real_image, _ = next(iter(real_dataloader))  
     real_image = real_image.to(device)
  
     z = torch.randn(1, params["nz"], 1, 1, device=device)  
     generated_image = netG(z) 
 
-    # Calcular LPIPS
+    # Calculate LPIPS
     with torch.no_grad():
         lpips_value = lpips_model(real_image, generated_image).item()
 
@@ -148,11 +148,10 @@ def eval_lpips(dataloader, netG, device, params, configFile):
 
 
 def calculate_fid(real_images, generated_images):
-     # Cargar el modelo Inception v3 preentrenado
+     # load pre-trained Inception v3 model
      inception_model = models.inception_v3(pretrained=True, transform_input=False)
      inception_model.eval()
      
-     # Transformaciones para las imágenes
      transform = transforms.Compose([
          transforms.Resize((299, 299)), # Inception v3 solo trabaja con img de 299x299 y RGB (3 canales)
          transforms.Grayscale(num_output_channels=3),
@@ -160,7 +159,7 @@ def calculate_fid(real_images, generated_images):
          transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Típico en Inception v3
      ])
      
-     # Si `real_images` es una carpeta, obtener los archivos de imagen dentro de ella
+     # If the input is a directory, load all images from the directory
      if os.path.isdir(real_images):
         print(f"Loading real images from {real_images}")
         real_images = [os.path.join(real_images, img) for img in os.listdir(real_images) if img.endswith(('jpg', 'png', 'jpeg'))]
@@ -169,11 +168,9 @@ def calculate_fid(real_images, generated_images):
         print(f"Loading generated images from {generated_images}")
         generated_images = [os.path.join(generated_images, img) for img in os.listdir(generated_images) if img.endswith(('jpg', 'png', 'jpeg'))]
      
-     # Aplicar transformaciones y obtener características
      real_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in real_images]
      generated_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in generated_images]
      
-     # Convertir las listas de imágenes a tensores
      real_images = torch.stack(real_images)
      generated_images = torch.stack(generated_images)
      
@@ -181,13 +178,13 @@ def calculate_fid(real_images, generated_images):
          real_features = inception_model(real_images).detach().numpy()
          generated_features = inception_model(generated_images).detach().numpy()
      
-     # Calcular la media y la covarianza de las características
+     # Calculate mean and covariance of the features
      mu_real = np.mean(real_features, axis=0)
      sigma_real = np.cov(real_features, rowvar=False)
      mu_generated = np.mean(generated_features, axis=0)
      sigma_generated = np.cov(generated_features, rowvar=False)
      
-     # Calcular el FID
+     # Calculate FID
      diff = mu_real - mu_generated
      covmean = sqrtm(sigma_real.dot(sigma_generated))
      
@@ -203,7 +200,6 @@ def calculate_inception_score(generated_images, device, imsize=299):
     inception_model = models.inception_v3(pretrained=True, transform_input=False).to(device)
     inception_model.eval()
 
-    # Transformations for generated images
     transform = transforms.Compose([
         transforms.Resize((imsize, imsize)),
         transforms.Grayscale(num_output_channels=3),  # Ensure 3 channels for Inception
@@ -211,11 +207,9 @@ def calculate_inception_score(generated_images, device, imsize=299):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    # Apply transformations and prepare data
     generated_images = [transform(img) if isinstance(img, Image.Image) else transform(Image.fromarray(img)) for img in generated_images]
     generated_images = torch.stack(generated_images).to(device)
 
-    # Get predictions from Inception model
     with torch.no_grad():
         preds = F.softmax(inception_model(generated_images), dim=1).cpu().numpy()
 
@@ -226,9 +220,9 @@ def calculate_inception_score(generated_images, device, imsize=299):
 
     return inception_score
 
-def eval_inception_score(netG, device, num_samples=1000, imsize=299):
+def eval_inception_score(netG, device, num_samples=1000, imsize=299, params=None):
     generated_images = []
-    latent_dim = 100  # Assuming latent dimension is 100
+    latent_dim = params["nz"]  
     with torch.no_grad():
         for _ in range(num_samples):
             z = torch.randn(1, latent_dim, 1, 1, device=device)
@@ -242,17 +236,16 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299):
 
 def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, configFile="config.json"):
     print_green("Evaluating model...")
-    # model_path = "model_prueba/model_dcgan/"
-    model_path = "model_prueba/model_dcgan/"
     config = load_config(configFile)
+    model_path = config["model"]["path_dcgan"]
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
-    # Cargar modelo
+    # Load the model
     netG, netD, params = load_model(model_path, device, "dcgan", model_name)
     print_green(str(params))
     
-    # Obtener el dataloader usando get_chestct
+    # Get the dataloader
     if dataset == "chestct":
         dataloader = get_chestct(params["imsize"], bsize=params["bsize"])
     elif dataset == "nbia":
@@ -266,13 +259,13 @@ def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, config
     
     if discarded:
         fid_score = calculate_fid(real_images, generated_images, params['imsize'])
-        inception_score = eval_inception_score(netG, device)
+        inception_score = eval_inception_score(netG, device, params=params)
 
 
-    # Evaluar los modelos
+    # Evaluate the models
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     
-    # Evaluar SSIM, PSNR y LPIPS
+    # Evaluate SSIM, PSNR and LPIPS
     ssim_score = evaluate_ssim(dataloader, netG, device, params)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_score = eval_lpips(dataloader, netG, device, params, configFile)

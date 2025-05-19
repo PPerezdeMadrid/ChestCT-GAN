@@ -1,10 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
-
-import torch
-import torch.nn as nn
 
 def weights_init(w):
     """
@@ -61,4 +56,4 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, input):
-        return self.main(input).view(-1)
+        return self.main(input)

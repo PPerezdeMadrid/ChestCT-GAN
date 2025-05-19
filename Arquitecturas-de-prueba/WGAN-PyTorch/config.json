@@ -10,7 +10,7 @@
         "lr": 0.0002,
         "beta1": 0.9,
         "save_epoch": 100,
-        "critic_iters": 7
+        "critic_iters": 2
     },
     "model": {
         "path": "model/model_wgan",

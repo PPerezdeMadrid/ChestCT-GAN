@@ -1,107 +1,150 @@
 # DCGAN
 
-Este proyecto implementa una **DCGAN (Deep Convolutional Generative Adversarial Network)** en PyTorch para generar imágenes sintéticas a partir de conjuntos de datos médicos, en particular tomografías computarizadas (CT) del tórax.
+This project implements a **DCGAN (Deep Convolutional Generative Adversarial Network)** in PyTorch to generate synthetic images from medical datasets, specifically chest computed tomography (CT) scans.
 
-## 📌 ¿Qué es una DCGAN?
+## 📌 What is a DCGAN?
 
-Una **DCGAN** es una variante de las redes generativas adversarias (GANs) que utiliza capas convolucionales profundas. Las GANs están compuestas por dos redes que compiten entre sí:
+A **DCGAN** is a variant of generative adversarial networks (GANs) that uses deep convolutional layers. GANs consist of two networks competing against each other:
 
-- **Generador (Generator):** genera imágenes falsas que imitan las reales.
-- **Discriminador (Discriminator):** intenta distinguir entre imágenes reales y falsas.
+- **Generator:** generates fake images that mimic real ones.
+- **Discriminator:** tries to distinguish between real and fake images.
 
-Durante el entrenamiento, ambos modelos mejoran simultáneamente: el generador aprende a engañar al discriminador, y el discriminador se vuelve mejor diferenciando. En el caso de una DCGAN, se utilizan arquitecturas convolucionales profundas para capturar mejor las características visuales de las imágenes.
+During training, both models improve simultaneously: the generator learns to fool the discriminator, and the discriminator becomes better at differentiating. In the case of a DCGAN, deep convolutional architectures are used to better capture the visual features of images.
 
-Este enfoque se ha vuelto especialmente útil en medicina, donde la **falta de grandes volúmenes de datos etiquetados** limita el entrenamiento de modelos robustos. Al generar imágenes sintéticas realistas, se puede enriquecer el dataset y mejorar los algoritmos de diagnóstico.
+This approach has become especially useful in medicine, where the **lack of large volumes of labeled data** limits the training of robust models. By generating realistic synthetic images, datasets can be enriched and diagnostic algorithms improved.
 
 ---
 
-## 🗂 Estructura del Proyecto
+## 🗂 Project Structure
 
 ```
 DCGAN-PyTorch/
-├── ChestTC_dcgan_*.gif     # GIF del entrenamiento cada ciertos epochs
-├── config.json             # Configuración base para entrenamiento
-├── dcgan.py                # Arquitectura principal del modelo DCGAN
-├── dcgan512.py             # Variante para imágenes de 512x512
-├── train.py                # Script para entrenar el modelo
-├── generate.py             # Script para generar imágenes nuevas
-├── eval_model.py           # Evaluación del modelo entrenado
-├── graphLogs.py            # Visualización de métricas de entrenamiento
-├── requirements_dcgan.txt        # Dependencias necesarias
-├── README.md               
-└── ...
+├── ChestTC_dcgan_*.gif           # Training GIF every certain epochs (only generated when trained)
+├── config.json                   # Base configuration for training
+├── dcgan.py                     # Main DCGAN model architecture
+├── dcgan512.py                  # Variant for 512x512 images
+├── train.py                     # Script to train the model
+├── generate.py                  # Script to generate new images
+├── eval_model.py                # Evaluation of the trained model
+├── graphLogs.py                 # Visualization of training metrics
+├── requirements_dcgan.txt       # Required dependencies
+├── README.md                    
+├── 1stHiperparams.json          # First hyperparameters file 
+├── 2ndHiperparams.json          # Second hyperparameters file
+├── 3rdHiperparams.json          # Third hyperparameters file
+├── FinalConfig.json             # Final configuration
+└── InitialConfig.json           # Initial configuration
 ```
 
 ---
 
-## 🚀 Uso del Proyecto
 
-### Entrenamiento de un modelo
+## 🚀 Train the model
+
+The `train.py` script is used to train  a **DCGAN**  model on medical image datasets.
+
+
+```bash
+python train.py -h
+```
+
+Output:
+
+```
+usage: train.py [-h] [--model {dcgan,wgan}] [--dataset {chestct,nbia}] [--configFile CONFIGFILE]
+
+Train a DCGAN or WGAN model.
+
+options:
+  -h, --help            show this help message and exit
+  --model {dcgan,wgan}  Choose between "dcgan" and "wgan" models to train.
+  --dataset {chestct,nbia}
+                        Choose the dataset: "chestct" or "nbia".
+  --configFile CONFIGFILE
+                        Path to JSON config file.
+```
+
+### Description
+
+* `--model`: Selects the GAN architecture to train. Options are:
+
+  * `dcgan`: Deep Convolutional GAN
+  * `wgan`: Wasserstein GAN (It is not implemented in this case)
+
+* `--dataset`: Specifies the dataset to use for training. Available options:
+
+  * `chestct`: Chest CT scan dataset
+  * `nbia`: NBIA dataset (if available)
+
+* `--configFile`: Optional argument to provide a custom path to a JSON configuration file that contains hyperparameters and training settings. If omitted, the script uses the default `config.json`.
+
+### Example command to train a DCGAN on the chest CT dataset:
 
 ```bash
 python train.py --model dcgan --dataset chestct
 ```
 
-Parámetros disponibles:
-- `--model`: puede ser `dcgan` o `wgan` (si implementado).
-- `--dataset`: opciones disponibles: `chestct` o `nbia`.
-
-El script tomará la configuración del archivo `config.json`, dependiendo del modelo que elijas modificar.
-
-### Generación de imágenes nuevas
+## 🚀 Generating New Images
 
 ```bash
-python generate.py -load_path checkpoints/modelo_final.pth -num_output 10
+python generate.py -load_path checkpoints/final_model.pth -num_output 10
+````
+
+Parameters:
+
+* `-load_path`: Path to the trained model checkpoint to load.
+* `-num_output`: Number of images to generate.
+* `-compare`: If enabled, shows a comparison between generated and real images.
+
 ```
 
-Parámetros:
-- `-load_path`: ruta al modelo entrenado (checkpoint).
-- `-num_output`: número de imágenes a generar.
-- `-compare`: si se activa, compara imágenes reales con las generadas.
+## 📊 Evaluation and Visualization
 
+### Model Evaluation
 
-
-## 📊 Evaluación y Visualización
-
-### Evaluación del Modelo
-
-Puedes evaluar un modelo utilizando el script `eval_model.py`. Este script permite evaluar la calidad de un modelo GAN utilizando diversas métricas, como la precisión del discriminador y generador, SSIM, PSNR y LPIPS. 
-
-### Uso:
+You can evaluate a model using the `eval_model.py` script. This script assesses the quality of a GAN model using various metrics such as discriminator and generator accuracy, SSIM, PSNR, and LPIPS.
 
 ```bash
 python eval_model.py --dataset <dataset> --model_name <model_name>
+````
+
+### Arguments:
+
+* `--dataset`: Dataset to use for evaluation. Options include:
+
+  * `nbia` (default)
+  * `chestct`
+* `--model_name`: Name of the model checkpoint to evaluate. Example: `model_ChestCT.pth`
+* `--discarded`: If set, shows discarded metrics info (IS, FID, Precision & Recall for GANs)
+* `--configFile`: Path to a custom configuration JSON file
+
+The evaluation results include discriminator accuracy, generator confidence, and image quality metrics such as SSIM, PSNR, and LPIPS.
+
 ```
 
-### Argumentos:
-- `--dataset`: El conjunto de datos a utilizar para la evaluación. Puede ser uno de los siguientes:
-  - `nbia` (por defecto)
-  - `chestct`
-- `--model_name`: El nombre del modelo o checkpoint que quieres evaluar. Ejemplo: `model_ChestCT.pth`.
+### Training Logs Visualization
 
-Los resultados de la evaluación incluyen la precisión del discriminador, la confianza del generador y las métricas SSIM, PSNR y LPIPS.
+You can visualize training logs using the `graphLogs.py` script. This script generates a graph from the training logs, allowing you to observe the model’s performance over time.
 
-
-
-### Visualización de Logs de Entrenamiento
-
-Puedes visualizar los logs de entrenamiento con el script `graphLogs.py`. Este script genera un gráfico a partir de los logs de entrenamiento, permitiéndote observar el rendimiento del modelo a lo largo del tiempo.
-
-#### Uso:
+#### Usage:
 
 ```bash
 python graphLogs.py --log_file <log_file.csv>
+````
+
+### Arguments:
+
+* `--log_file`: The CSV file containing the training logs. Example: `training_log_dcgan_2025-03-23.csv`.
+
+The generated graph includes discriminator loss, generator loss, and other performance metrics.
+
+---
+
+### Training Logs
+
+Training results can be found in the file `training_log_dcgan_12Feb.csv`, which contains details about the training progress such as loss and accuracy metrics over epochs.
+
+This file can be used as input for `graphLogs.py` to create visualizations of the training outcomes.
+
 ```
-
-### Argumentos:
-- `--log_file`: El archivo CSV con los logs de entrenamiento. Ejemplo: `training_log_dcgan_2025-03-23.csv`.
-
-El gráfico generado incluye la pérdida del discriminador, la pérdida del generador y otras métricas de rendimiento.
-
-
-### Logs de Entrenamiento
-
-Los resultados de entrenamiento se pueden encontrar en el archivo `training_log_dcgan_12Feb.csv`, el cual contiene detalles sobre el progreso del entrenamiento, como las métricas de pérdida y precisión a lo largo de las épocas.
-
-Este archivo puede ser usado como entrada para `graphLogs.py` para obtener visualizaciones de los resultados del entrenamiento.
 

@@ -5,10 +5,15 @@ import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import time  # Importamos la librería para medir el tiempo
-
+import time  
 from utils import get_chestct, log_training_info
 from wgan import weights_init, Generator, Discriminator
+"""
+This is the implementation of the WGAN-GP model for generating images.
+This implementation is out of the scope of this Final Project.
+However, it has been included for completeness.
+"""
+
 
 # Set random seed for reproducibility
 seed = 369

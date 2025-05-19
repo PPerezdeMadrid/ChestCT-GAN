@@ -1,79 +1,63 @@
-# Implementación de WGAN-GP
+# WGAN – Wasserstein GAN with Weight Clipping (PyTorch)
 
-Este apartado contiene la implementación de una Red Generativa Antagónica de Wasserstein con Penalización por Gradiente (WGAN-GP) para la generación de imágenes. El modelo puede entrenarse utilizando penalización por gradiente o recorte de pesos. El código incluye varios scripts para entrenar, generar y evaluar imágenes, así como para gestionar las configuraciones y los registros de entrenamiento.
+This folder contains an implementation of a **Wasserstein GAN (WGAN)** with weight clipping using PyTorch. The WGAN improves upon standard GANs by using a new loss function based on the Earth-Mover (Wasserstein-1) distance, which results in better training stability and gradient behavior.
 
-## Requisitos
+---
 
-Asegúrate de tener instalados los siguientes paquetes de Python:
+## 📁 Project Structure
 
-- `torch`
-- `torchvision`
-- `numpy`
-- `matplotlib`
-- `pandas`
-- `scikit-image`
+```
 
-Puedes instalarlos utilizando `pip`:
+WGAN/
+├── train_wc.py              # Train WGAN with weight clipping
+├── generate.py              # Generate images using a trained WGAN model
+├── eval_model.py            # Evaluate the trained WGAN using quality metrics
+├── config.json              # Training configuration parameters
+├── requirements_wgan.txt    # Python dependencies for WGAN
+├── wgan.py                  # WGAN model architecture
+├── utils.py                 # Utility functions
+├── graphLogs.py             # Plot training logs
+├── training_log_wgan.csv    # Log file from a training run (generated in the training)              
+├── ChestTC.gif              # GIF generated in the training
+└── README.md
+
+```
+
+---
+
+## 🔍 What is a WGAN?
+
+A **Wasserstein GAN** replaces the traditional GAN loss with the Wasserstein distance, offering:
+
+- Better gradients for the generator during training
+- Increased stability
+- No mode collapse (in most cases)
+
+Instead of using a discriminator that outputs probabilities, the **critic** in a WGAN outputs raw scores. Weight clipping is used to enforce the Lipschitz constraint required by the Wasserstein formulation.
+
+---
+
+## 🚀 Getting Started
+
+Install the required Python packages:
 
 ```bash
-pip install torch torchvision numpy matplotlib pandas scikit-image
+pip install -r requirements_wgan.txt
 ```
 
-## Estructura del Proyecto
+---
 
-```plaintext
-├── config.json                # Configuración de hiperparámetros y rutas
-├── training_log_wgan.csv      # Registros de entrenamiento
-├── generate.py                # Generación de imágenes
-├── eval_model.py              # Evaluación del modelo
-├── graphLogs.py               # Graficar registros de entrenamiento
-├── model.py                   # Definición del modelo WGAN-GP
-└── utils.py                   # Funciones utilitarias
-```
+## 🏋️‍♂️ Training the Model
 
-## Descripción de los Scripts
-
-### `generate.py`
-
-Este script se usa para generar imágenes a partir de un modelo entrenado. Permite cargar un modelo preentrenado, especificar la cantidad de imágenes a generar y, opcionalmente, comparar las imágenes generadas con las reales.
-
-**Uso:**
+Train the WGAN with weight clipping using:
 
 ```bash
-python generate.py -load_path <ruta_checkpoint> -num_output 64 -compare
+python train_wc.py
 ```
 
-- `-load_path`: Ruta al checkpoint del modelo entrenado (por defecto: `./model/model.pth`)
-- `-num_output`: Número de imágenes generadas (por defecto: 64)
-- `-compare`: Opción para mostrar una comparación entre las imágenes generadas y las reales.
+The script reads training parameters from `config.json`, including learning rate, batch size, clipping values, and number of critic updates per generator step.
 
-### `eval_model.py`
-
-Este script evalúa el rendimiento del modelo utilizando varias métricas como la precisión del discriminador, la precisión del generador, SSIM, PSNR y LPIPS.
-
-**Uso:**
-
-```bash
-python eval_model.py --dataset chestct --model_name model_ChestCT.pth
-```
-
-- `--dataset`: Elige entre los datasets `"nbia"` o `"chestct"` para la evaluación.
-- `--model_name`: Nombre del checkpoint del modelo a cargar.
-
-Las métricas de evaluación incluyen:
-- **Precisión del discriminador**
-- **Precisión del generador**
-- **SSIM** (Índice de Similaridad Estructural)
-- **PSNR** (Relación de Señal a Ruido Pico)
-- **LPIPS** (Similitud Perceptual de Parche de Imagen Aprendida)
-
-### `graphLogs.py`
-
-Este script permite graficar los registros de entrenamiento guardados en `training_log_wgan.csv`, visualizando métricas como la pérdida del generador y la pérdida del discriminador a lo largo de las épocas.
-
-### `config.json`
-
-Este archivo contiene la configuración del modelo, incluidos los hiperparámetros, las rutas para guardar los modelos e imágenes generadas, y las rutas de los datasets de entrada.
+### Sample `config.json`:
 
 ```json
 {
@@ -85,10 +69,10 @@ Este archivo contiene la configuración del modelo, incluidos los hiperparámetr
         "ngf": 64,
         "ndf": 64,
         "nepochs": 1000,
-        "lr": 0.0001,
-        "beta1": 0.5,
+        "lr": 0.0002,
+        "beta1": 0.9,
         "save_epoch": 100,
-        "critic_iters": 5
+        "critic_iters": 2
     },
     "model": {
         "path": "model/model_wgan",
@@ -101,31 +85,55 @@ Este archivo contiene la configuración del modelo, incluidos los hiperparámetr
 }
 ```
 
-- **params**: Define los hiperparámetros del modelo (por ejemplo, `latent_dim`, `batch_size`, `num_epochs`, `learning_rate`).
-- **model**: Establece las rutas para guardar el modelo y las imágenes generadas.
-- **datasets**: Establece las rutas de los conjuntos de datos.
+---
 
-### `training_log_wgan.csv`
+## 🎨 Generating Images
 
-Este archivo CSV guarda los registros de cada época durante el entrenamiento. Incluye métricas como la pérdida del discriminador, la pérdida del generador y la distancia Wasserstein. Puedes usar `graphLogs.py` para visualizar estas métricas.
-
-### Opciones de Entrenamiento del Modelo
-
-Puedes entrenar el modelo utilizando Penalización por Gradiente o Recorte de Pesos.
-
-- **`train_gp.py`**: Entrena el modelo WGAN-GP con penalización por gradiente.
-- **`train_wp.py`**: Entrena el modelo WGAN con recorte de pesos (menos efectivo según el artículo original de WGAN).
-
-### Justificación de la Elección de `train_gp` sobre `train_wp`
-
-El uso de **penalización por gradiente** en WGAN-GP es más efectivo que el **recorte de pesos** en la mejora de la estabilidad durante el entrenamiento, como se argumenta en el artículo original de WGAN-GP (Arjovsky et al., 2017). En el artículo, se señala que el recorte de pesos puede inducir una distorsión en la función de optimización, lo que provoca que la convergencia sea más lenta y, en algunos casos, inestable. Por otro lado, la **penalización por gradiente** mejora la estabilidad del entrenamiento al suavizar el gradiente y evitar los problemas derivados de la saturación del discriminador.
-
-El uso de **WGAN-GP** ha demostrado ser más eficiente en la generación de imágenes de alta calidad y en la mejora de las métricas de evaluación, como se observa en las comparaciones de los resultados experimentales. Por lo tanto, es recomendable usar `train_gp.py` para entrenar el modelo, ya que ofrece una mejor convergencia y estabilidad en comparación con `train_wp.py`.
-
-### Comando de Ejemplo para Entrenar con Penalización por Gradiente
+Use the `generate.py` script to produce new images:
 
 ```bash
-python train_gp.py
+python generate.py --load_path checkpoints/wgan_final.pth --num_output 10
 ```
 
-Esto entrenará el modelo utilizando los hiperparámetros especificados en `config.json` y guardará los checkpoints durante el proceso.
+### Arguments:
+
+* `--load_path`: Path to the model checkpoint.
+* `--num_output`: Number of images to generate.
+* `--compare`: *(Optional)* Display a comparison between real and generated images.
+
+---
+
+## 📊 Evaluating the Model
+
+Evaluate the model’s performance with:
+
+```bash
+python eval_model.py --dataset chestct --model_name wgan_final.pth
+```
+
+### Available metrics:
+
+* **Discriminator Accuracy**
+* **Generator Confidence**
+* **SSIM (Structural Similarity Index)**
+* **PSNR (Peak Signal-to-Noise Ratio)**
+* **LPIPS (Learned Perceptual Image Patch Similarity)**
+
+If you add the `--discarded` flag, it will also display evaluation metrics on discarded or difficult samples.
+
+---
+
+
+## 📌 Notes
+
+* This implementation uses **weight clipping** (`clip_value`) to enforce the 1-Lipschitz constraint, as proposed in the original WGAN paper.
+* Although **WGAN-GP** (with gradient penalty) is known to improve training stability and convergence, **this project focuses exclusively on the clipped WGAN** as part of its academic scope.
+* The file `train_gp.py` contains a prototype implementation of WGAN-GP for future experiments, but it is not part of the core submission.
+
+
+---
+
+## 📚 References
+
+* Arjovsky, M., Chintala, S., & Bottou, L. (2017). *Wasserstein GAN*. [arXiv:1701.07875](https://arxiv.org/abs/1701.07875)
+

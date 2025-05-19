@@ -44,36 +44,35 @@ def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
     total = 0
     correct_generator = 0
-    discriminator_threshold = 0.5  # Umbral para el discriminador
+    discriminator_threshold = 0.5  # Umbral for the discriminator
 
     with torch.no_grad():
-        # Evaluar el discriminador
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             b_size = real_data.size(0)
 
-            # Evaluar el discriminador en datos reales
+            # Evaluate the discriminator on real data
             real_label_tensor = torch.full((b_size,), 1, dtype=torch.float, device=device)
             output_real = netD(real_data).view(-1)
             correct_discriminator += ((output_real > discriminator_threshold).float() == real_label_tensor).sum().item()
 
-            # Generar datos falsos
+            # Generate fake data
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
 
-            # Evaluar el discriminador en datos generados
+            # Evaluate the discriminator on fake data
             fake_label_tensor = torch.full((b_size,), 0, dtype=torch.float, device=device)
             output_fake = netD(fake_data.detach()).view(-1)
             correct_discriminator += ((output_fake < discriminator_threshold).float() == fake_label_tensor).sum().item()
 
-            total += b_size * 2  # Para datos reales y generados
+            total += b_size * 2  
 
-        # Calcular precisión del discriminador
+        # Calculate the accuracy of the discriminator
         accuracy_discriminator = correct_discriminator / total
 
-        # Evaluar la precisión del generador con más muestras (aumentar a más de 100)
-        num_test_samples = 500  # Usar más muestras para mejorar la precisión
-        for _ in range(num_test_samples):  # Generar más datos de prueba
+        # Evaluate the generator
+        num_test_samples = 500 
+        for _ in range(num_test_samples):  
             noise = torch.randn(1, params['nz'], 1, 1, device=device)
             generated_data = netG(noise)
             output = netD(generated_data.detach()).view(-1)
@@ -117,28 +116,27 @@ def evaluate_psnr(dataloader, netG, device, params):
             num_batches += 1
     return psnr_total / num_batches
 
-def eval_lpips(dataloader, netG, device, imsize):
+def eval_lpips(netG, device, params):
 
     lpips_model = lpips.LPIPS(net='vgg').to(device)
     transform = transforms.Compose([
-        transforms.Resize((imsize, imsize)),
+        transforms.Resize((params["imsize"], params["imsize"])),
         transforms.ToTensor()
     ])
 
-    # Cargar dataset de imágenes reales
-    # adenocarcinoma_left.lower.lobe_T2_N0_M0_Ib"
+    # Load the real dataset
     real_dataset = datasets.ImageFolder(root=f"{config['datasets']['chestKaggle']}valid/", transform=transform)
     real_dataloader = DataLoader(real_dataset, batch_size=1, shuffle=True)
 
-    # Obtener una imagen real del dataset
+    # Get a batch of real images
     real_image, _ = next(iter(real_dataloader))  
     real_image = real_image.to(device)
 
-    latent_dim = 128  
+    latent_dim = params["nz"]  
     z = torch.randn(1, latent_dim, 1, 1, device=device)  
     generated_image = netG(z) 
 
-    # Calcular LPIPS
+    # Calculate LPIPS
     with torch.no_grad():
         lpips_value = lpips_model(real_image, generated_image).item()
 
@@ -146,20 +144,19 @@ def eval_lpips(dataloader, netG, device, imsize):
 
 
 
-def main(dataset="chestct", model_name="model_ChestCT.pth"):
+def main(dataset="chestct", model_name="model_ChestCT.pth", config_path = "config.json"):
     print_green("Evaluating model...")
-    model_path = "model/model_wgan/"
-    config_path = "config.json"
     with open(config_path, 'r') as json_file:
         config = json.load(json_file)
+    model_path = config["model"]["path"]
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     
-    # Cargar modelo
+    # Load the model
     netG, netD, params = load_model(model_path, device, "wgan", model_name)
     print_green(str(params))
     
-    # Obtener el dataloader usando get_chestct
+    # Get the dataloader
     if dataset == "chestct":
         dataloader = get_chestct()
     else:
@@ -167,13 +164,13 @@ def main(dataset="chestct", model_name="model_ChestCT.pth"):
 
 
 
-    # Evaluar los modelos
+    # Evaluate the model
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     
-    # Evaluar SSIM, PSNR y LPIPS
+    # Evaluate SSIM, PSNR and LPIPS
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
-    lpips_score = eval_lpips(dataloader, netG, device, params["imsize"])
+    lpips_score = eval_lpips(netG, device, params=params)
     
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")

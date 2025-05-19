@@ -1,5 +1,4 @@
 import os, json, torch, random, time  
-import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
 import numpy as np
@@ -62,36 +61,41 @@ if not os.path.exists(model_path):
 print("Starting Training Loop...")
 print("-" * 25)
 
-total_start_time = time.time()  # [ADDED] Start global timer
+total_start_time = time.time()  
 
 for epoch in range(params['nepochs']):
-    epoch_start_time = time.time()  # [ADDED] Start epoch timer
+    epoch_start_time = time.time()  
     
     for i, data in enumerate(dataloader, 0):
         real_data = data[0].to(device)
         b_size = real_data.size(0)
 
-        netD.zero_grad()
-        output = netD(real_data).view(-1)
-        errD_real = -torch.mean(output)
-        errD_real.backward()
-        D_x = output.mean().item()
+         # Update critic
+        for _ in range(params['critic_iters']):
+            netD.zero_grad()
+            output = netD(real_data).view(-1)
+            errD_real = -torch.mean(output)
+            errD_real.backward()
+            D_x = output.mean().item()
 
-        noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
-        fake_data = netG(noise)
+            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
 
-        output = netD(fake_data.detach()).view(-1)
-        errD_fake = torch.mean(output)
-        errD_fake.backward()
-        D_G_z1 = output.mean().item()
+            output = netD(fake_data.detach()).view(-1)
+            errD_fake = torch.mean(output)
+            errD_fake.backward()
+            D_G_z1 = output.mean().item()
 
-        errD = errD_real + errD_fake
-        optimizerD.step()
+            errD = errD_real + errD_fake
+            optimizerD.step()
 
-        for p in netD.parameters():
-            p.data.clamp_(-0.01, 0.01)
+            for p in netD.parameters():
+                p.data.clamp_(-0.01, 0.01)
 
+        # Update the generator once per iter
         netG.zero_grad()
+        noise = torch.randn(b_size, params['nz'], 1, 1, device=device)  
+        fake_data = netG(noise)
         output = netD(fake_data).view(-1)
         errG = -torch.mean(output)
         errG.backward()
@@ -124,7 +128,7 @@ for epoch in range(params['nepochs']):
             'params': params
         }, f'{model_path}/model_epoch_{epoch}.pth')
 
-# [ADDED] Print total training time
+
 total_time = time.time() - total_start_time
 print(f"\nTraining completed in {total_time:.2f} seconds (~{total_time/60:.2f} minutes).\n")
 

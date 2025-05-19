@@ -9,13 +9,12 @@ with open('config.json', 'r') as json_file:
     config = json.load(json_file)
 
 params = config["params"]
-model_path = "model/model_wgan/"
+model_path = config["model"]["path"]
 image_path = f"{config["model"]["image_path"]}/generated_{params["imsize"]}"
 real_image_path = f"{config["datasets"]["chestKaggle"]}/valid/adenocarcinoma_left.lower.lobe_T2_N0_M0_Ib"
 
 parser = argparse.ArgumentParser()
-# model_name = "model_ChestCT.pth"
-model_name = "model_epoch_600.pth"
+model_name = "model_ChestCT.pth"
 parser.add_argument('-load_path', default=f'{model_path}/{model_name}', help='Checkpoint to load path from')
 parser.add_argument('-num_output', default=64, help='Number of generated outputs')
 parser.add_argument('-compare', action='store_true', help='Show comparison between generated and real images')
@@ -58,20 +57,20 @@ plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
 plt.show()
 
 # --------------------------
-# COMPARACIÓN CON REALES
+# COMPARE IMAGES
 # --------------------------
 if args.compare:
     fig, axes = plt.subplots(2, 4, figsize=(12, 6))
     fig.suptitle("Generated vs Real Images", fontsize=16)
 
-    # Mostrar 4 imágenes generadas
+    # Show 4 generated images
     for i in range(4):
         gen_img = generated_img[i].squeeze().numpy()
         axes[0, i].imshow(gen_img, cmap='gray')
         axes[0, i].axis('off')
         axes[0, i].set_title(f'Generated {i+1}')
 
-    # Mostrar 4 imágenes reales desde la carpeta
+    # Show 4 real images
     real_images = sorted([f for f in os.listdir(real_image_path) if f.endswith('.png')])[:4]
     for i, filename in enumerate(real_images):
         real_img = Image.open(os.path.join(real_image_path, filename)).convert('L')
