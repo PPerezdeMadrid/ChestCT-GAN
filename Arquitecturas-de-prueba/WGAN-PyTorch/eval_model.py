@@ -206,8 +206,6 @@ def main(dataset="chestct", model_name="model_ChestCT.pth", config_path = "confi
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
     print(f"{'-' * 30}")
-    print(f"{'Discriminator Accuracy:':<20} {accuracy_discriminator * 100:.2f}%")
-    print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
     print(f"{'Wasserstein Distance:':<20} {wasserstein_distance:.4f}")
     print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
     print(f"{'PSNR Score:':<20} {psnr_score:.4f}")
