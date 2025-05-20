@@ -39,7 +39,10 @@ def load_model(model_path, device, model_type, model_name):
     netD.eval()
     return netG, netD, params
 
-
+"""
+WGANs do not classify images as real or fake. Instead, they measure the distance between the distributions of real and generated images.
+That is why it is not valueable to calculate the accuracy of the generator and discriminator.
+"""
 def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
     total = 0
@@ -71,7 +74,7 @@ def evaluate_models(netG, netD, dataloader, device, params):
         accuracy_discriminator = correct_discriminator / total
 
         # Evaluate the generator
-        num_test_samples = 500 
+        num_test_samples = 150 
         for _ in range(num_test_samples):  
             noise = torch.randn(1, params['nz'], 1, 1, device=device)
             generated_data = netG(noise)
@@ -83,6 +86,33 @@ def evaluate_models(netG, netD, dataloader, device, params):
 
     return accuracy_discriminator, accuracy_generator
 
+def evaluate_warsteinn_distance(netG, netD, dataloader, device, params):
+    netD.eval()
+    netG.eval()
+    
+    real_scores = []
+    fake_scores = []
+
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+            b_size = real_data.size(0)
+
+            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+
+            score_real = netD(real_data).view(-1)
+            score_fake = netD(fake_data).view(-1)
+
+            real_scores.append(score_real.mean().item())
+            fake_scores.append(score_fake.mean().item())
+
+    # Compute approximate Wasserstein distance
+    mean_real = sum(real_scores) / len(real_scores)
+    mean_fake = sum(fake_scores) / len(fake_scores)
+    wasserstein_distance = mean_real - mean_fake
+
+    return wasserstein_distance
 
 def calculate_ssim(real_images, fake_images):
     real_images = real_images.squeeze().cpu().numpy()
@@ -91,13 +121,13 @@ def calculate_ssim(real_images, fake_images):
     ssim_values = [ssim(real, fake, data_range=2.0) for real, fake in zip(real_images, fake_images_resized)]
     return np.mean(ssim_values)
 
-def evaluate_ssim(dataloader, netG, device):
+def evaluate_ssim(dataloader, netG, device, params):
     real_images, fake_images = [], []
     with torch.no_grad():
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             real_images.append(real_data)
-            noise = torch.randn(real_data.size(0), 128, 1, 1, device=device)
+            noise = torch.randn(real_data.size(0), params["nz"], 1, 1, device=device)
             fake_images.append(netG(noise))
     return calculate_ssim(torch.cat(real_images), torch.cat(fake_images))
 
@@ -168,15 +198,17 @@ def main(dataset="chestct", model_name="model_ChestCT.pth", config_path = "confi
     accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
     
     # Evaluate SSIM, PSNR and LPIPS
-    ssim_score = evaluate_ssim(dataloader, netG, device)
+    ssim_score = evaluate_ssim(dataloader, netG, device, params)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     lpips_score = eval_lpips(netG, device, params=params)
+    wasserstein_distance = evaluate_warsteinn_distance(netG, netD, dataloader, device, params)
     
     print(f"{'-' * 30}")
     print(f"{'Model Evaluation Results':^30}")
     print(f"{'-' * 30}")
     print(f"{'Discriminator Accuracy:':<20} {accuracy_discriminator * 100:.2f}%")
     print(f"{'Generator Accuracy:':<20} {accuracy_generator * 100:.2f}%")
+    print(f"{'Wasserstein Distance:':<20} {wasserstein_distance:.4f}")
     print(f"{'SSIM Score:':<20} {ssim_score:.4f}")
     print(f"{'PSNR Score:':<20} {psnr_score:.4f}")
     print(f"{'LPIPS Score':<20} {lpips_score:.4f}")

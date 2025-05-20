@@ -169,7 +169,9 @@ def calculate_fid(real_images, generated_images):
         generated_images = [os.path.join(generated_images, img) for img in os.listdir(generated_images) if img.endswith(('jpg', 'png', 'jpeg'))]
      
      real_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in real_images]
+     print(f"Real images: {len(real_images)}")
      generated_images = [transform(Image.open(img)) if isinstance(img, str) else transform(img) for img in generated_images]
+     print(f"Generated images: {len(generated_images)}")
      
      real_images = torch.stack(real_images)
      generated_images = torch.stack(generated_images)
@@ -254,11 +256,11 @@ def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, config
         raise ValueError(f"Unknown dataset type: {dataset}")
     
     real_images = f"{config["datasets"][dataset]}/cancer"
-    generated_images = f"{config["model"]["image_path_dcgan"]}/generated"
+    generated_images = f"{config["model"]["image_path_dcgan"]}/generated_{params["imsize"]}"
     
     
     if discarded:
-        fid_score = calculate_fid(real_images, generated_images, params['imsize'])
+        fid_score = calculate_fid(real_images, generated_images)
         inception_score = eval_inception_score(netG, device, params=params)
 
 

@@ -36,6 +36,10 @@ class Generator(nn.Module):
     def forward(self, input):
         return self.main(input)
 
+"""
+The Critic (Discriminator) is a neural network that takes an image as input and outputs a single scalar value
+In this project is called Discriminator, as we compare it with other GAN architectures.
+"""
 class Discriminator(nn.Module):
     def __init__(self, params):
         super(Discriminator, self).__init__()
