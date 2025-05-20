@@ -235,9 +235,9 @@ def eval_inception_score(netG, device, num_samples=1000, imsize=299, params=None
     return calculate_inception_score(generated_images, device, imsize)
 
 def main(dataset="nbia", model_name="model_ChestCT.pth", discarded=False, configFile="config.json"):
-    print_green("Evaluating model...")
     config = load_config(configFile)
     model_path = config["model"]["path_dcgan"]
+    print_green(f'Evaluating model {model_path}/{model_name}...')
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(device, " will be used.\n")
     

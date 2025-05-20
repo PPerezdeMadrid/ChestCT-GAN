@@ -8,7 +8,7 @@ from dcgan256 import Generator as Generator256
 from PIL import Image
 
 # config_path = 'config.json'
-config_path = 'FinalConfig.json'
+config_path = '3rdHiperparams.json'
 with open(config_path, 'r') as json_file:
     config = json.load(json_file)
 
@@ -18,7 +18,8 @@ image_path = f"{config["model"]["image_path_dcgan"]}/generated_{params["imsize"]
 real_image_path = f"{config["datasets"]["nbia"]}/cancer"
 
 parser = argparse.ArgumentParser()
-model_name = "model_ChestCT.pth"
+# model_name = "model_ChestCT.pth"
+model_name = "model_epoch_900.pth"
 parser.add_argument('-load_path', default=f'{model_path}/{model_name}', help='Checkpoint to load path from')
 parser.add_argument('-num_output', default=64, help='Number of generated outputs')
 parser.add_argument('-compare', action='store_true', help='Show comparison between generated and real images')

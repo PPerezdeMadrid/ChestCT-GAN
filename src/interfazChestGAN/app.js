@@ -5,7 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var createError = require('http-errors');
-
+require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/login');
@@ -20,15 +20,29 @@ var adminUsersRouter = require('./routes/adminUsers')
 var blogRouter = require('./routes/blog')
 var entradaRouter = require('./routes/entrada')
 
-
 var app = express();
 
 // Configurar las sesiones
+/** 
 app.use(session({
-  secret: 'CLAVE',  // Usa una clave secreta para cifrar la sesión
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true
 }));
+*/
+
+
+const SQLiteStore = require('connect-sqlite3')(session);
+app.use(session({
+  store: new SQLiteStore({ db: 'sessions.db', dir: path.join(__dirname, 'modules') }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 2 // 2 horas
+  }
+}));
+
 
 const createDatabase = require('./modules/database');
 createDatabase();

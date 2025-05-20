@@ -14,7 +14,7 @@ image_path = f"{config["model"]["image_path"]}/generated_{params["imsize"]}"
 real_image_path = f"{config["datasets"]["chestKaggle"]}/valid/adenocarcinoma_left.lower.lobe_T2_N0_M0_Ib"
 
 parser = argparse.ArgumentParser()
-model_name = "model_ChestCT.pth"
+model_name = "model_epoch_500.pth"
 parser.add_argument('-load_path', default=f'{model_path}/{model_name}', help='Checkpoint to load path from')
 parser.add_argument('-num_output', default=64, help='Number of generated outputs')
 parser.add_argument('-compare', action='store_true', help='Show comparison between generated and real images')

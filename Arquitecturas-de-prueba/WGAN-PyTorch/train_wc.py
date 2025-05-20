@@ -47,8 +47,17 @@ netD = Discriminator(params).to(device)
 netD.apply(weights_init)
 print(netD)
 
-optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
-optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
+"""
+We do NOT use Adam as an optimizer for the discriminator in WGAN.
+Instead, we use RMSProp with a learning rate of 0.00005.
+In the original WGAN paper, the authors recommend using RMSProp for the discriminator:
+* “We use RMSProp instead of Adam. We found that Adam sometimes caused the weights to explode with weight clipping, while RMSProp was more stable.”
+"""
+# optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
+# optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
+
+optimizerD = optim.RMSprop(netD.parameters(), lr=params['lr'])
+optimizerG = optim.RMSprop(netG.parameters(), lr=params['lr'])
 
 img_list = []
 G_losses = []

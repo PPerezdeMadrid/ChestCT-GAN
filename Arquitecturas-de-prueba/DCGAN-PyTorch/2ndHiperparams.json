@@ -12,9 +12,9 @@
         "save_epoch": 150
     },
     "model": {
-        "path_dcgan": "model_prueba/model_dcgan",
+        "path_dcgan": "model_prueba/model_dcgan_2ndHiperparams",
         "path_wgan": "model_prueba/model_wgan",
-        "image_path_dcgan": "images_prueba/images_dcgan",
+        "image_path_dcgan": "images_prueba/images_dcgan_2ndHiperparams",
         "image_path_wgan": "images_prueba/images_wgan",
         "evaluation_dcgan": "evaluation_prueba/evaluation_dcgan",
         "evaluation_wgan": "evaluation_prueba/evaluation_wgan"

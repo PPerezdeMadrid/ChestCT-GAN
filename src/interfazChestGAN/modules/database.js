@@ -59,7 +59,7 @@ function createDatabase() {
       });
 
       db.run(`
-        CREATE TABLE eval_tomografias (
+        CREATE TABLE IF NOT EXISTS eval_tomografias (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username VARCHAR(255) NOT NULL, 
             is_real INTEGER CHECK (is_real IN (0,1)), 
