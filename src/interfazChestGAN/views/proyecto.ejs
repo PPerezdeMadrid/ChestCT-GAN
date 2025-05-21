@@ -139,8 +139,14 @@
       </section>
       <!-- Arquitectura Pipeline end -->
 
+      <hr>
+      <div style="text-align: center; margin: 0px 5%;">
+         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+      </div>
+      <hr>
+
       <!-- Resultados start -->
-      <section id="model" class="service">
+      <section id="model" class="service" style="background-color: white;">
          <div class="titlepage">
             <h2>Datos y evolución del modelo</h2>
             <p style="margin-left: 20%; margin-right: 20%; text-align: justify;">
@@ -152,10 +158,64 @@
                <br><br>
                Este proceso iterativo permitió que el modelo evolucionara y se adaptara mejor a los datos, obteniendo resultados cada vez más precisos y útiles para aplicaciones médicas e investigación.
             </p>
-            <img src="images/resultadosModelo.png" alt="Resultados del modelo" style="width: 60%;padding: 3% 10%;;">
+            <img src="images/resultadosModelo.png" alt="Resultados del modelo" style="width: 60%;padding: 3% 10%;">
+
+            <p style="margin-left: 20%; margin-right: 20%; text-align: justify; margin-top: 2%;">
+               Además de la evaluación visual, se analizaron métricas objetivas para cuantificar el rendimiento del modelo. Estas métricas incluyen medidas de similitud estructural, pérdida adversarial y estabilidad del entrenamiento.
+               <br><br>
+               La imagen siguiente recoge una comparativa clara de estas métricas entre la configuración inicial y la final:
+            </p>
+            <img src="images/EvalComparacion.png" alt="Evaluación cuantitativa del modelo" style="width: 60%; padding: 3% 10%;">
          </div>
       </section>
       <!-- Resultados end -->
+
+      <hr>
+      <div style="text-align: center; margin: 0px 5%;">
+         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+      </div>
+      <hr>
+
+      <!-- Comparación Hiperparámetros start -->
+      <section id="hyperparams" class="service" style="background-color: white;">
+         <div class="titlepage">
+            <h2>Evolución del modelo: configuración inicial vs final</h2>
+            <p style="margin-left: 20%; margin-right: 20%; text-align: justify;">
+               Durante el desarrollo del modelo DCGAN, se llevaron a cabo múltiples pruebas para optimizar su rendimiento. Inicialmente, se utilizó una configuración base estándar, con parámetros por defecto.
+               <br><br>
+               Sin embargo, tras varias iteraciones, se ajustaron hiperparámetros clave como la tasa de aprendizaje, el tamaño del batch, vector latente, ... Estos cambios permitieron mejorar la calidad visual de las imágenes generadas, haciendo que se parecieran más a las imágenes reales de tomografías.
+               <br><br>
+               La siguiente imagen muestra una comparación directa entre los resultados obtenidos con la configuración inicial y la configuración final optimizada.
+            </p>
+            <img src="images/HiperparamComparacion.png" alt="Comparación de configuraciones del modelo" style="width: 60%; padding: 3% 10%;">
+         </div>
+      </section>
+      <!-- Comparación Hiperparámetros end -->
+
+      <hr>
+      <div style="text-align: center; margin: 0px 5%;">
+         <img src="/images/iconoPulmones.png" alt="Icono pulmones" style="width: 50px; height: auto;">
+      </div>
+      <hr>
+
+      <!-- Radiografías GAN start -->
+      <section id="xray" class="service" style="background-color: white;">
+         <div class="titlepage">
+            <h2>Generador de radiografías con neumonía</h2>
+            <p style="margin-left: 20%; margin-right: 20%; text-align: justify;">
+               Además del modelo basado en tomografías, se desarrolló una versión adaptada de la arquitectura DCGAN para generar imágenes sintéticas de radiografías de tórax con neumonía.
+               <br><br>
+               La neumonía es una afección pulmonar comúnmente diagnosticada mediante radiografías, donde los pulmones afectados muestran infiltrados pulmonares que aparecen como zonas blancas en la imagen.
+               <br><br>
+               El modelo fue entrenado con el conjunto de datos <em>"chest-xray-pneumonia"</em> (Mooney, 2018), utilizando únicamente imágenes de neumonía viral. El objetivo fue evaluar la viabilidad de aplicar GANs a otro tipo de imagen médica bidimensional. 
+               <br><br>
+               A continuación se muestra una animación del proceso de entrenamiento del modelo DCGAN aplicado a radiografías:
+            </p>
+            <img src="images/XRAY-dcgan.gif" alt="Evolución del entrenamiento con radiografías" style="width: 60%; padding: 0% 10%;">
+         </div>
+      </section>
+      <!-- Radiografías GAN end -->
+
 
 <%- include('footer') %>
 

@@ -7,6 +7,10 @@ import pandas as pd
 from datetime import datetime
 import cv2  
 
+"""
+This script generate a reduced dataset of DICOM images from the NBIA database.
+"""
+
 def ensure_directory_exists(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)

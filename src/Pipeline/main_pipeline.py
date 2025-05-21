@@ -1,4 +1,4 @@
-from metaflow import FlowSpec, step, Parameter
+from metaflow import FlowSpec, step, Parameter, card
 import json, datetime, requests
 from Data.generateData import process_dicom_folders
 from GAN_PyTorch import train_pipeline, eval_model_pipeline, generate_pipeline, report_pipeline, optimize_pipeline
@@ -28,6 +28,7 @@ class ChestGAN(FlowSpec):
     
 
     @step
+    @card
     def start(self):
         """ Selección de Imágenes para el modelo """
         # Si has elegido el dataset "nbia"
@@ -48,6 +49,7 @@ class ChestGAN(FlowSpec):
 
     # @kubernetes(cpu=4, memory=16)
     @step
+    @card
     def train_model(self):
         """ Entrenar el modelo """
 
@@ -63,6 +65,7 @@ class ChestGAN(FlowSpec):
         # model/model_{model}/model_ChestCT.pth
 
     @step
+    @card
     # @kubernetes(cpu=2, memory=16)
     def eval_model(self):
         """ Evaluar el modelo """
@@ -78,6 +81,7 @@ class ChestGAN(FlowSpec):
 
     # @kubernetes(cpu=2, memory=8)
     @step
+    @card
     def generate_imgs(self):
         """ Generar Imágenes Sintéticas """
         if self.model_score>7:
@@ -93,6 +97,7 @@ class ChestGAN(FlowSpec):
         self.next(self.generate_report)
 
     @step
+    @card
     # @kubernetes(cpu=1, memory=4)
     def generate_report(self):
         """ Generar un informe mensual """
@@ -117,6 +122,7 @@ class ChestGAN(FlowSpec):
         self.next(self.upload_files_cloud)
 
     @step 
+    @card
     def upload_files_cloud(self):
         config = load_config()
         bucket_name = 'tfg-chestgan-bucket'
@@ -141,6 +147,7 @@ class ChestGAN(FlowSpec):
         self.next(self.end)
 
     @step
+    @card
     def end(self):
         """Fin del pipeline."""
         # Notificar al frontend
@@ -157,8 +164,3 @@ if __name__ == "__main__":
     ChestGAN()
 
 
-    """
-Nota: añadir @cards En Metaflow, la etiqueta @card se usa para generar visualizaciones y reportes en la interfaz de Metaflow UI.
- Permite adjuntar información en formato Markdown, HTML o JSON a un paso específico del flujo (Step), facilitando la inspección de r
- esultados, métricas o gráficos directamente en la UI.
-"""

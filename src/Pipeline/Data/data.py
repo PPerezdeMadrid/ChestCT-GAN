@@ -2,17 +2,19 @@ import os
 import pydicom
 import matplotlib.pyplot as plt
 
-# pip install --break-system-packages -r requirements.txt
+"""
+This script is used to explore the dataset of DICOM images.
+"""
 
 def get_dicom_files(base_dir):
     """
-    Recorre la estructura de directorios y devuelve una lista con las rutas de los archivos DICOM (.dcm).
-    
+    Traverses the directory structure and returns a list of DICOM file paths (.dcm).
+
     Args:
-        base_dir (str): Ruta a la carpeta raíz donde se encuentran las imágenes.
+    base_dir (str): Path to the root folder where the images are located.
 
     Returns:
-        list: Lista de rutas de archivos DICOM encontrados.
+    list: List of DICOM file paths found.
     """
     dicom_files = []
 
@@ -27,14 +29,14 @@ def get_dicom_files(base_dir):
 
 def show_dicom_images(dicom_files, num_images=9):
     """
-    Muestra imágenes DICOM de la lista dada, organizadas en una cuadrícula de 3x3.
+    Displays DICOM images from the given list, arranged in a 3x3 grid.
 
     Args:
-        dicom_files (list): Lista de rutas de archivos DICOM.
-        num_images (int): Número de imágenes a mostrar (por defecto 9).
+    dicom_files (list): List of DICOM file paths.
+    num_images (int): Number of images to display (default 9).
     """
     if not dicom_files:
-        print("No se encontraron archivos DICOM.")
+        print("No DICOM files found.")
         return
     
     num_images = min(num_images, len(dicom_files))
@@ -48,7 +50,7 @@ def show_dicom_images(dicom_files, num_images=9):
 
         plt.subplot(3, 3, i + 1)
         plt.imshow(image, cmap='gray')
-        plt.title(f"Imagen {i+1}")
+        plt.title(f"Image {i+1}")
         plt.axis('off')
 
     plt.tight_layout()
@@ -56,17 +58,17 @@ def show_dicom_images(dicom_files, num_images=9):
 
 def show_subject_images(base_dir, subfolder):
     """
-    Muestra todas las imágenes DICOM de una subcarpeta específica dentro de un directorio base.
+    Displays all DICOM images in a specific subfolder within a base directory.
 
     Args:
-        base_dir (str): Ruta a la carpeta raíz donde se encuentran las imágenes.
-        subfolder (str): Nombre del subdirectorio específico (por ejemplo, el nombre del sujeto o estudio).
+    base_dir (str): Path to the root folder where the images are located.
+    subfolder (str): Name of the specific subdirectory (e.g., the name of the subject or study).
     """
     dicom_files = []
 
-    # Recorre la estructura de directorios y busca archivos DICOM en la subcarpeta especificada
+    # Traverses the directory structure and looks for DICOM files in the specified subfolder
     for root, dirs, files in os.walk(base_dir):
-        if subfolder in root:  # Filtra por la subcarpeta especificada
+        if subfolder in root: 
             for file in files:
                 if file.endswith(".dcm"):
                     dicom_files.append(os.path.join(root, file))
@@ -77,35 +79,35 @@ def show_subject_images(base_dir, subfolder):
 
     print(f"Se encontraron {len(dicom_files)} archivos DICOM en {subfolder}.")
 
-    # Muestra las imágenes DICOM
-    plt.figure(figsize=(15, 15))  # Ajusta el tamaño de la figura según sea necesario
+    # Displays DICOM images
+    plt.figure(figsize=(15, 15)) 
 
     for i, dicom_path in enumerate(dicom_files):
         dicom_data = pydicom.dcmread(dicom_path)
         image = dicom_data.pixel_array
 
-        plt.subplot(5, 5, i + 1)  # Ajusta las filas y columnas de la cuadrícula según el número de imágenes
+        plt.subplot(5, 5, i + 1)  
         plt.imshow(image, cmap='gray')
         plt.title(f"Imagen {i+1}")
         plt.axis('off')
 
-        if (i + 1) % 25 == 0:  # Muestra 25 imágenes por página
+        if (i + 1) % 25 == 0:  
             plt.tight_layout()
             plt.show()
-            plt.figure(figsize=(15, 15))  # Nueva figura para las siguientes imágenes
+            plt.figure(figsize=(15, 15))  
 
     plt.tight_layout()
     plt.show()
 
 def get_dicom_files_recursively(folder_path):
     """
-    Busca recursivamente archivos DICOM en una carpeta dada y sus subcarpetas.
+    Recursively searches for DICOM files in a given folder and its subfolders.
 
     Args:
-        folder_path (str): Ruta de la carpeta a escanear.
+    folder_path (str): Path of the folder to scan.
 
     Returns:
-        list: Lista de rutas de archivos DICOM encontrados.
+    list: List of paths of DICOM files found.
     """
     dicom_files = []
     for root, _, files in os.walk(folder_path):
@@ -117,115 +119,109 @@ def get_dicom_files_recursively(folder_path):
 
 def show_subject_images(base_dir, subject_folder):
     """
-    Muestra todas las imágenes DICOM dentro de las subcarpetas de un sujeto específico,
-    incluyendo la ruta absoluta en la imagen.
+    Displays all DICOM images within the subfolders of a specific subject,
+    including the absolute path to the image.
 
     Args:
-        base_dir (str): Ruta a la carpeta raíz donde se encuentran las imágenes.
-        subject_folder (str): Nombre del subdirectorio del sujeto (por ejemplo, 'Lung_Dx-A0003').
+    base_dir (str): Path to the root folder where the images are located.
+    subject_folder (str): Name of the subject subdirectory (e.g., 'Lung_Dx-A0003').
     """
     subject_path = os.path.join(base_dir, subject_folder)
 
     if not os.path.isdir(subject_path):
-        print(f"La carpeta del sujeto {subject_folder} no existe en {base_dir}")
+        print(f"Subject {subject_folder}'s folder do not exist in {base_dir}")
         return
 
-    print(f"Procesando imágenes en: {subject_path}")
+    print(f"Processing images in: {subject_path}")
     
     dicom_files = get_dicom_files_recursively(subject_path)
 
     if not dicom_files:
-        print(f"No se encontraron archivos DICOM en {subject_folder}.")
+        print(f"No DICOM files were found in {subject_folder}.")
         return
 
-    print(f"Se encontraron {len(dicom_files)} archivos DICOM en {subject_folder}.")
+    print(f"{len(dicom_files)} DICOM files were found in {subject_folder}.")
 
     for dicom_path in dicom_files:
         try:
             ds = pydicom.dcmread(dicom_path)
             plt.imshow(ds.pixel_array, cmap='gray')
-            plt.title(os.path.abspath(dicom_path), fontsize=8)  # Mostrar el path en la imagen
+            plt.title(os.path.abspath(dicom_path), fontsize=8)  
             plt.axis('off')
             plt.show()
 
         except Exception as e:
-            print(f"Error leyendo {dicom_path}: {e}")
+            print(f"Error reading {dicom_path}: {e}")
 
 def show_subject_subfolder_images(base_dir, subject_folder, subfolder):
     """
-    Muestra imágenes DICOM de una subcarpeta específica dentro de la carpeta de un sujeto.
+    Displays DICOM images from a specific subfolder within a subject folder.
 
     Args:
-        base_dir (str): Ruta a la carpeta raíz donde se encuentran las imágenes.
-        subject_folder (str): Nombre del subdirectorio del sujeto (por ejemplo, 'Lung_Dx-A0003').
-        subfolder (str): Nombre de la subcarpeta específica dentro del sujeto.
+    base_dir (str): Path to the root folder where the images are located.
+    subject_folder (str): Name of the subject subdirectory (e.g., 'Lung_Dx-A0003').
+    subfolder (str): Name of the specific subfolder within the subject.
     """
     subject_path = os.path.join(base_dir, subject_folder)
     subfolder_path = os.path.join(subject_path, subfolder)
 
     if not os.path.isdir(subfolder_path):
-        print(f"La subcarpeta {subfolder} no existe en {subject_folder}.")
+        print(f"The subfolder {subfolder} does not exist in {subject_folder}.")
         return
 
-    print(f"Procesando imágenes en: {subfolder_path}")
+    print(f"Processing images in: {subfolder_path}")
 
     dicom_files = get_dicom_files_recursively(subfolder_path)
 
     if not dicom_files:
-        print(f"No se encontraron archivos DICOM en la subcarpeta {subfolder}.")
+        print(f"No DICOM files were found in the subfolder {subfolder}.")
         return
 
-    print(f"Se encontraron {len(dicom_files)} archivos DICOM en la subcarpeta {subfolder}.")
+    print(f"{len(dicom_files)} DICOM files were found in the subfolder {subfolder}.")
 
-    # Imprimir nombres de los archivos DICOM
+    # Print the names of the DICOM files
     for dicom_file in dicom_files:
-        print(f"Archivo encontrado: {os.path.basename(dicom_file)}")
+        print(f"Found file: {os.path.basename(dicom_file)}")
 
-    # Mostrar imágenes DICOM
-    for i in range(0, len(dicom_files), 25):  # Muestra 25 imágenes por figura
-        plt.figure(figsize=(15, 15))  # Nueva figura
+    # Display DICOM images
+    for i in range(0, len(dicom_files), 25):  # Show 25 images per figure
+        plt.figure(figsize=(15, 15))  # New figure
 
         for j, dicom_path in enumerate(dicom_files[i:i + 25]):
             try:
                 ds = pydicom.dcmread(dicom_path)
-                plt.subplot(5, 5, j + 1)  # Asegurar un índice válido
+                plt.subplot(5, 5, j + 1)  # Ensure a valid index
                 plt.imshow(ds.pixel_array, cmap='gray')
                 
-                # Usar el nombre del archivo como título de la imagen
+                # Use the filename as the image title
                 filename = os.path.basename(dicom_path)
                 plt.title(filename, fontsize=8)
                 plt.axis('off')
             except Exception as e:
-                print(f"Error leyendo {dicom_path}: {e}")
+                print(f"Error reading {dicom_path}: {e}")
         
         plt.tight_layout()
         plt.show()
 
-# Configuración de la ruta base y el sujeto
-base_dir = "../../../../ChestCT-NBIA/manifest-1608669183333/Lung-PET-CT-Dx"
-subject_folder = "Lung_Dx-A0004"
+# Configuration of base path and subject
+# base_dir = "../../../../ChestCT-NBIA/manifest-1608669183333/Lung-PET-CT-Dx"
+# subject_folder = "Lung_Dx-A0004"
 
-subfolder = "06-10-2006-NA-ThoraxAThoraxRoutine Adult-96697"
+# subfolder = "06-10-2006-NA-ThoraxAThoraxRoutine Adult-96697"
 
-# Llamada a la función para mostrar imágenes de la subcarpeta especificada
-show_subject_subfolder_images(base_dir, subject_folder, subfolder)
+# Call the function to display images from the specified subfolder
+# show_subject_subfolder_images(base_dir, subject_folder, subfolder)
 
-# Llamada a la función para mostrar imágenes del sujeto
+# Call the function to display images from the subject
 # show_subject_images(base_dir, subject_folder)
 
-
-# Mostrar las primeras 10 rutas de archivos DICOM
-# print("Primeras 10 rutas:")
+# Show the first 10 DICOM file paths
+# print("First 10 paths:")
 # for path in dicom_files[:10]:
     # print(path)
 
-# Mostrar las primeras 9 imágenes DICOM
+# Show the first 9 DICOM images
 # show_dicom_images(dicom_files)
 
-# Mostrar imágenes de un sujeto en concreto
-# show_subject_images(base_dir,subject_folder)
-
-
-
-
-
+# Show images from a specific subject
+# show_subject_images(base_dir, subject_folder)

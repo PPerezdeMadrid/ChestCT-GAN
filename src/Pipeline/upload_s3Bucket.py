@@ -3,6 +3,9 @@ import os
 import json
 from botocore.exceptions import NoCredentialsError
 
+"""
+This script uploads files to an S3 bucket.
+"""
 
 s3_client = boto3.client('s3')
 

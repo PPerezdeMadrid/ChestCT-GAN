@@ -97,7 +97,8 @@ package-lock.json
 yarn.lock
 
 
-*.gif
+**/ChestCT*.gif
+**/ChestTC*.gif
 *.mp4
 *.avi
 *.zip

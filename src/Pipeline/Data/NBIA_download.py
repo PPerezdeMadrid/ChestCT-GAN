@@ -7,12 +7,12 @@ with NBIAClient() as client:
    
     os.makedirs(dir_name, exist_ok=True)
 
-    # Obtén la lista de series en la colección
+    # Get the list of series in the collection
     series_list = client.getSeries(Collection=collection_name)
     
-    # Descarga cada serie en la colección
+    # Download each series in the collection
     for series in series_list:
         client.downloadSeries(series['SeriesInstanceUID'], dir_name)
-        print("Descargado", series['SeriesInstanceUID'])
+        print("Downloaded", series['SeriesInstanceUID'])
 
-    print(f'Colección {collection_name} descargada en: {dir_name}')
+    print(f'Collection {collection_name} downloaded to: {dir_name}')

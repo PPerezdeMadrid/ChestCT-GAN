@@ -40,4 +40,55 @@ Este documento describe las medidas de seguridad implementadas para permitir que
 3️⃣ **Si hay un problema con las credenciales, el proceso se detiene** y muestra un aviso.  
 4️⃣ **Si todo está correcto, los archivos se suben a S3 en la carpeta especificada.**  
 
+---
+
+### **📌 README - AWS Security for S3 Upload from a VM**
+
+#### **🔹 1. Introduction**  
+This document describes the security measures implemented to allow a local virtual machine (VM) to securely upload files to an **Amazon S3** bucket, preventing exposed credentials and ensuring restricted access to resources.
+
+---
+
+### **🔹 2. Implemented Security Measures**  
+
+#### ✅ **1. Use of IAM with Least Privilege**  
+- An **AWS IAM** user has been created with the **minimum** permissions necessary to upload files to the bucket.  
+- The `AmazonS3FullAccess` policy was attached, limiting access to write-only in S3.  
+- Unnecessary permissions (like `s3:DeleteObject` or `s3:GetObject`) are avoided.
+
+#### ✅ **2. Use of Secure Credentials with AWS CLI**  
+- **No credentials are stored in the source code.**  
+- Credentials were configured on the VM using **AWS CLI**:  
+  ```bash
+  aws configure
+````
+
+The following information was entered:
+
+* `AWS Access Key ID`
+* `AWS Secret Access Key`
+* `Default region name`
+* `Default output format` (JSON recommended)
+
+#### ✅ **3. Credentials Validation in Code**
+
+* Before attempting to upload files, the code **validates whether the credentials are correct**.
+* `s3_client.list_buckets()` is used to check access and prevent failed attempts.
+
+#### ✅ **4. Handling Security Errors**
+
+* If no credentials are found, the code returns a warning message instead of attempting to upload files.
+* Specific errors like `NoCredentialsError` are caught to avoid insecure error messages.
+
+---
+
+### **🔹 3. Secure File Upload Flow**
+
+1️⃣ **The VM uses credentials stored locally in `~/.aws/credentials`** (never in the code).
+2️⃣ **The Python script validates credentials before uploading files** to S3.
+3️⃣ **If there is a problem with the credentials, the process stops** and displays a warning.
+4️⃣ **If all is correct, files are uploaded to S3 in the specified folder.**
+
+---
+
 
