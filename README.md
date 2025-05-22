@@ -29,7 +29,7 @@ Este proyecto busca generar imágenes médicas sintéticas para ayudar en el ent
 ## Instalación y Uso
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu_usuario/tu_repositorio.git
+   git clone https://github.com/PPerezdeMadrid/ChestCT-GAN
    ```
 2. Instala las dependencias necesarias:
    ```bash
@@ -109,7 +109,7 @@ This project aims to generate synthetic medical images to support the training o
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your_username/your_repository.git
+   git clone https://github.com/PPerezdeMadrid/ChestCT-GAN
    ```
 
 2. Install the required dependencies:
