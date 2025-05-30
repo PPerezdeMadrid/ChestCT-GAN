@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var createError = require('http-errors');
 require('dotenv').config();
+const sqlite3 = require('sqlite3').verbose();
 
 var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/login');
@@ -99,6 +100,14 @@ app.get('/logout', (req, res) => {
 });
 
 app.post("/notify", (req, res) => {
+  const db = new sqlite3.Database('./database.db', (err) => {
+  if (err) {
+    console.error('Error al conectar con la base de datos:', err.message);
+  } else {
+    console.log('Conexión exitosa a la base de datos.');
+  }
+});
+
   const { mensaje } = req.body;
 
   if (!mensaje) {
