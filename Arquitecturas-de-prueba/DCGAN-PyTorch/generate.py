@@ -7,8 +7,7 @@ from dcgan512 import Generator as Generator512
 from dcgan256 import Generator as Generator256
 from PIL import Image
 
-# config_path = 'config.json'
-config_path = 'FinalConfig2.json'
+config_path = 'config.json'
 with open(config_path, 'r') as json_file:
     config = json.load(json_file)
 

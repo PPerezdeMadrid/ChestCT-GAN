@@ -112,10 +112,18 @@ app.post("/notify", (req, res) => {
       console.error("Error al insertar la notificación:", err.message);
       return res.status(500).json({ error: "Error al guardar en la base de datos" });
     }
+
     console.log(`✅ Notificación guardada con ID ${this.lastID}`);
-    // res.status(200).json({ status: "ok", message: message });
+
+    // ✅ Responder al cliente correctamente
+    res.status(200).json({
+      status: "ok",
+      message: "Notificación guardada correctamente",
+      id: this.lastID
+    });
   });
 });
+
 
 
 
