@@ -100,13 +100,13 @@ app.get('/logout', (req, res) => {
 });
 
 app.post("/notify", (req, res) => {
-  const db = new sqlite3.Database('./database.db', (err) => {
-  if (err) {
-    console.error('Error al conectar con la base de datos:', err.message);
-  } else {
-    console.log('Conexión exitosa a la base de datos.');
-  }
-});
+  const db_2 = new sqlite3.Database('./database.db', (err) => {
+    if (err) {
+      console.error('Error al conectar con la base de datos:', err.message);
+    } else {
+      console.log('Conexión exitosa a la base de datos.');
+    }
+  });
 
   const { mensaje } = req.body;
 
@@ -116,7 +116,7 @@ app.post("/notify", (req, res) => {
 
   // Guardar en la base de datos
   const query = `INSERT INTO notificaciones_mlops (mensaje) VALUES (?)`;
-  db.run(query, [mensaje], function (err) {
+  db_2.run(query, [mensaje], function (err) {
     if (err) {
       console.error("Error al insertar la notificación:", err.message);
       return res.status(500).json({ error: "Error al guardar en la base de datos" });
