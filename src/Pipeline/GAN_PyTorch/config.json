@@ -4,13 +4,13 @@
         "imsize": 64, 
         "nc": 1,
         "nz": 100,
-        "ngf": 128,
+        "ngf": 64,
         "ndf": 128,
         "nepochs": 1000,
         "lr": 0.0001,
         "beta1": 0.5,
         "beta2": 0.999,
-        "save_epoch": 200
+        "save_epoch": 100
     },
     "model": {
         "path_dcgan": "model/model_dcgan",
@@ -22,7 +22,7 @@
     },
     "datasets":{
         "chestKaggle": "../../../../TFG/ChestCTKaggle/Data/",
-        "nbia": "Data/manifest-160866918333"
+        "nbia": "../../../../ChestCT-NBIA/manifest-1608669183333"
     }
 }
 

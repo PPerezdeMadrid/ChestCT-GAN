@@ -1,4 +1,4 @@
-import os,json,torch,random,time
+import os,json,torch,random,time, logging
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import torch.optim as optim
@@ -34,63 +34,68 @@ def initialize_model(model_type, params, device):
         netD.apply(wgan_weights_init)
     return netG, netD
 
-def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path):
+def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path, date):
     G_losses, D_losses, img_list = [], [], []
-    real_label, fake_label = 0.99, 0.1
     iters = 0
+    name_csv = f'training_log_dcgan_{date}.csv'
+
     for epoch in range(params['nepochs']):
         start_time = time.time()
+        
         for i, data in enumerate(dataloader, 0):
             real_data = data[0].to(device)
             b_size = real_data.size(0)
 
-            # (1) Update D network
+            # (1) Update Discriminator (D)
             netD.zero_grad()
-            label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-            output = netD(real_data).view(-1)
-            errD_real = criterion(output, label)
+
+            # Label smoothing
+            real_label = 0.85 + torch.rand(1).item() * 0.15  # Between 0.85 and 1.0
+            fake_label = 0.0 + torch.rand(1).item() * 0.15  # Between 0.0 and 0.15
+
+            # Real batch
+            label_real = torch.full((b_size,), real_label, dtype=torch.float, device=device)
+            output_real = netD(real_data).view(-1)
+            errD_real = criterion(output_real, label_real)
             errD_real.backward()
-            D_x = output.mean().item()
+            D_x = output_real.mean().item()
 
-            # Train with fake batch
+            # Fake batch
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
-            label.fill_(fake_label)
-            output = netD(fake_data.detach()).view(-1)
-            errD_fake = criterion(output, label)
+            label_fake = torch.full((b_size,), fake_label, dtype=torch.float, device=device)
+            output_fake = netD(fake_data.detach()).view(-1)
+            errD_fake = criterion(output_fake, label_fake)
             errD_fake.backward()
-            D_G_z1 = output.mean().item()
+            D_G_z1 = output_fake.mean().item()
 
             errD = errD_real + errD_fake
-            optimizerD.step()
 
-            # (2) Update G network
+            # Avoid overfitting by limiting the number of updates to D
+            if errD.item() > 0.1:
+                optimizerD.step()
+
+            # (2) Update Generator (G)
             netG.zero_grad()
-            label.fill_(real_label)
-            output = netD(fake_data).view(-1)
-            errG = criterion(output, label)
+            label_real.fill_(real_label)  # Generator tries to make D believe that the fake data is real
+            output_fake_G = netD(fake_data).view(-1)
+            errG = criterion(output_fake_G, label_real)
             errG.backward()
-            D_G_z2 = output.mean().item()
+            D_G_z2 = output_fake_G.mean().item()
             optimizerG.step()
 
-            # Log training info
+            # Logging
             if i % 50 == 0:
-                log_csv_path = log_training_info('dcgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2)
+                log_training_info('dcgan', epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2, name_csv)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
 
-            if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
-                with torch.no_grad():
-                    fake_data = netG(fixed_noise).detach().cpu()
-                img_list.append(vutils.make_grid(fake_data, padding=2, normalize=True))
-
             iters += 1
 
         epoch_time = time.time() - start_time
-        print(f"Epoch [{epoch + 1}] completed in {epoch_time:.2f} seconds.")
+        logging.info(f"Epoch [{epoch + 1}/{params['nepochs']}] completada en {epoch_time:.2f} segundos.")
 
-        # Save each epoch
         save_epoch(  
             epoch=epoch + 1,    
             model_path=model_path,
@@ -101,78 +106,91 @@ def train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterio
             params=params
         )
 
-    return G_losses, D_losses, img_list,log_csv_path 
+        if (iters % 100 == 0) or (epoch == params['nepochs']-1 and i == len(dataloader)-1):
+                with torch.no_grad():
+                    fake_data_fixed = netG(fixed_noise).detach().cpu()
+                img_list.append(vutils.make_grid(fake_data_fixed, padding=2, normalize=True))
 
-def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path):
-    # Stores generated images as training progresses
+    return G_losses, D_losses, img_list, name_csv
+
+def train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path, date):
     img_list = []
-    # Stores generator losses during training
     G_losses = []
-    # Stores discriminator losses during training
     D_losses = []
-    
-    real_label, fake_label = 1, 0
     iters = 0
+
+    total_start_time = time.time()
+    name_csv = f'training_log_wgan_{date}.csv'
+
+    print("Starting WGAN Training Loop...\n" + "-"*30)
+
     for epoch in range(params['nepochs']):
-        start_time = time.time()
+        epoch_start_time = time.time()
+
         for i, data in enumerate(dataloader, 0):
             real_data = data[0].to(device)
             b_size = real_data.size(0)
 
-            # (1) Update D network
-            netD.zero_grad()
-            label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-            output = netD(real_data).view(-1)
-            errD_real = -output.mean()
+            # Update critic
+            for _ in range(params['critic_iters']):
+                netD.zero_grad()
 
+                # Real
+                output_real = netD(real_data).view(-1)
+                errD_real = -torch.mean(output_real)
+                errD_real.backward()
+                D_x = output_real.mean().item()
+
+                # Fake
+                noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+                fake_data = netG(noise)
+                output_fake = netD(fake_data.detach()).view(-1)
+                errD_fake = torch.mean(output_fake)
+                errD_fake.backward()
+                D_G_z1 = output_fake.mean().item()
+
+                # Total loss and step
+                errD = errD_real + errD_fake
+                optimizerD.step()
+
+                # Clipping weights
+                for p in netD.parameters():
+                    p.data.clamp_(-0.01, 0.01)
+
+            # Update generator
+            netG.zero_grad()
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
-            label.fill_(fake_label)
-            output = netD(fake_data.detach()).view(-1)
-            errD_fake = output.mean()
-
-            errD = errD_real + errD_fake
-            errD.backward()
-            D_x = output.mean().item()
-            optimizerD.step()
-
-            # (2) Update G network
-            netG.zero_grad()
             output = netD(fake_data).view(-1)
-            errG = -output.mean()
+            errG = -torch.mean(output)
             errG.backward()
             D_G_z2 = output.mean().item()
             optimizerG.step()
 
-            # Log training info
+            # Logging
             if i % 50 == 0:
-                log_csv_path = log_training_info('wgan',epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, 0, D_G_z2)
+                log_training_info(epoch, params['nepochs'], i, len(dataloader), errD, errG, D_x, D_G_z1, D_G_z2, name_csv)
 
             G_losses.append(errG.item())
             D_losses.append(errD.item())
 
-            if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
+            if (iters % 100 == 0) or ((epoch == params['nepochs'] - 1) and (i == len(dataloader) - 1)):
                 with torch.no_grad():
-                    fake_data = netG(fixed_noise).detach().cpu()
-                img_list.append(vutils.make_grid(fake_data, padding=2, normalize=True))
+                    fake_images = netG(fixed_noise).detach().cpu()
+                img_list.append(vutils.make_grid(fake_images, padding=2, normalize=True))
 
             iters += 1
 
-        epoch_time = time.time() - start_time
-        print(f"Epoch [{epoch + 1}] completed in {epoch_time:.2f} seconds.")
+        epoch_time = time.time() - epoch_start_time
+        print(f"Epoch {epoch+1}/{params['nepochs']} completed in {epoch_time:.2f} seconds.")
 
-        # Save each epoch
-        save_epoch(  
-            epoch=epoch + 1,    
-            model_path=model_path,
-            netG=netG,
-            netD=netD,
-            optimizerG=optimizerG,
-            optimizerD=optimizerD,
-            params=params
-        )
+        # Save model every few epochs
+        save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params)
 
-    return G_losses, D_losses, img_list, log_csv_path 
+    total_time = time.time() - total_start_time
+    print(f"\nWGAN training completed in {total_time:.2f} seconds (~{total_time/60:.2f} minutes).\n")
+
+    return G_losses, D_losses, img_list, name_csv
 
 def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
     if not os.path.exists(model_path):
@@ -190,22 +208,25 @@ def save_epoch(epoch, model_path, netG, netD, optimizerG, optimizerD, params):
 
 
 def save_model(model_path, netG, netD, optimizerG, optimizerD, params):
-    date = datetime.now().strftime("%Y-%m-%d")
+    date = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    model_filename = f'model_ChestCT_{date}.pth'
+    full_path = os.path.join(model_path, model_filename)
+
     torch.save({
         'generator': netG.state_dict(),
         'discriminator': netD.state_dict(),
         'optimizerG': optimizerG.state_dict(),
         'optimizerD': optimizerD.state_dict(),
         'params': params
-    }, os.path.join(model_path, f'model_ChestCT_{date}.pth'))
+    }, full_path)
 
-    print("==> Modelo final guardado en:", os.path.join(model_path, 'model_ChestCT.pth'))
-    return f'model_ChestCT_{date}.pth'
+    print(f"==> Modelo final guardado en: {full_path}")
+    return model_filename
 
 
 
 def plot_training_losses(G_losses, D_losses,model, save_dir='evaluation'):
-    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    current_time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -234,6 +255,8 @@ def main(arg, params):
         "nbia": get_NBIA
     }
     
+    date = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+
     model_type = arg['model_type']
     dataset = arg['dataset']
     
@@ -254,10 +277,10 @@ def main(arg, params):
         optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
 
         # Entrenar DCGAN
-        G_losses, D_losses, img_list, log_csv_path = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path)
+        G_losses, D_losses, img_list, log_csv_name = train_dcgan(params, dataloader, netG, netD, optimizerG, optimizerD, criterion, fixed_noise, device, model_path, date)
         finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         plot_path = plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
-        return finalmodel_name, plot_path, log_csv_path
+        return finalmodel_name, plot_path, log_csv_name
         
 
     elif model_type == 'wgan':
@@ -266,11 +289,13 @@ def main(arg, params):
         eval_path = config["model"]["evaluation_wgan"]
 
         netG, netD = initialize_model('wgan', params, device)
-        optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
-        optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], params['beta2']))
+        optimizerD = optim.RMSprop(netD.parameters(), lr=params['lr'])
+        optimizerG = optim.RMSprop(netG.parameters(), lr=params['lr'])
+        fixed_noise = torch.randn(64, params['nz'], 1, 1, device=device)
+
 
         # Entrenar WGAN
-        G_losses, D_losses, img_list,log_csv_path = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path)
+        G_losses, D_losses, img_list,log_csv_path = train_wgan(params, dataloader, netG, netD, optimizerG, optimizerD, fixed_noise, device, model_path, date)
         finalmodel_name = save_model(model_path, netG, netD, optimizerG, optimizerD, params)
         plot_path = plot_training_losses(G_losses=G_losses, D_losses=D_losses, model=model_type, save_dir=eval_path)
         return finalmodel_name, plot_path,log_csv_path

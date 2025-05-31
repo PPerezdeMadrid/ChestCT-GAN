@@ -1,12 +1,13 @@
 weights:
-  accuracy_discriminator: 0.2
-  accuracy_generator: 0.3
+  accuracy_discriminator: 0.15
+  accuracy_generator: 0.15
   ssim_score: 0.2
   psnr_score:
-    weight: 0.2  
+    weight: 0.25  
     ranges:
       - { min: 30, score: 10 }
       - { min: 25, score: 8 }
       - { min: 20, score: 6 }
       - { min: 0, score: 4 }
-  lpips_score: 0.1
+  lpips_score: 0.25
+  

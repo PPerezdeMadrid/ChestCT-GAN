@@ -1,12 +1,16 @@
 import optuna
 import json
 import GAN_PyTorch.train_pipeline as train
+import GAN_PyTorch.eval_model_pipeline as eval_model
 from fpdf import FPDF
 
-def objective(trial, params, model_type, dataset, study_logs):
+def objective(trial, base_params, model_type, dataset, study_logs, final_model_name, img_ref_path):
+     # Clonar los parámetros base para este trial
+    params = base_params.copy()
+
     # Valores para optimizar
     params["bsize"] = trial.suggest_int("bsize", 32, 256) 
-    params["nz"] = trial.suggest_int("nz", 50, 200)  # Tamaño del vector latente
+    # params["nz"] = trial.suggest_int("nz", 50, 200)  
     params["ngf"] = trial.suggest_int("ngf", 64, 256)  # Número de filtros en la red generadora
     params["ndf"] = trial.suggest_int("ndf", 64, 256)  # Número de filtros en la red discriminadora
     # params["nepochs"] = trial.suggest_int("nepochs", 100, 2000)  
@@ -14,30 +18,41 @@ def objective(trial, params, model_type, dataset, study_logs):
     params["lr"] = trial.suggest_loguniform("lr", 1e-5, 1e-2)  
     params["beta1"] = trial.suggest_uniform("beta1", 0.0, 0.9)  
     params["beta2"] = trial.suggest_uniform("beta2", 0.9, 0.999)  
-    params["imsize"] = 64
-    params["nc"] = 1
     params["save_epoch"] = params["nepochs"]/2
     
     arg = {
             'model_type': model_type,
             'dataset': dataset,
+
         }
     
-    _, _, log_csv_path = train.main(arg, params)
+
     
-    # Evaluar rendimiento (Tomar última pérdida de G)
-    with open(log_csv_path, "r") as f:
+    _, _, log_csv_name = train.main(arg, params)
+    
+    with open('GAN_PyTorch/config.json', 'r') as json_file:
+        config = json.load(json_file)
+    
+    log_csv_path = config["model"][f'evaluation_{model_type}']
+
+    # Coger última pérdida de G
+    with open(f'{log_csv_path}/{log_csv_name}', "r") as f:
         last_line = f.readlines()[-1]
         loss_g = float(last_line.split(",")[5]) 
+
     
-    # Guardar los logs para cada intento
+    # Evaluar el modelo
+    accuracy_discriminator, accuracy_generator, ssim_score, psnr_score, lpips_score, eval_md_path = eval_model.main(model_type=model_type,dataset=dataset, final_model_name=final_model_name, img_ref_path=img_ref_path)
+
+     # Guardar los logs para cada intento
     study_logs.append({
         'trial': trial.number,
         'params': params,
-        'loss_g': loss_g
+        'loss_g': loss_g,
+        'lpips_score': lpips_score,
+        
     })
-    
-    return loss_g  # Minimizar la pérdida del generador
+    return lpips_score  # Minimizar el LPIPS 
 
 def generate_pdf(study_logs, best_params, pdf_name, pdf_path):
     pdf = FPDF()
@@ -55,7 +70,7 @@ def generate_pdf(study_logs, best_params, pdf_name, pdf_path):
     # Detalles de cada intento
     pdf.set_font("Courier", size=10)
     for log in study_logs:
-        pdf.multi_cell(0, 10, txt=f"Intento #{log['trial']} - Pérdida: {log['loss_g']:.4f}")
+        pdf.multi_cell(0, 10, txt=f"Intento #{log['trial']} - LPIPS: {log['lpips_score']:.4f}")
         for param, value in log['params'].items():
             pdf.multi_cell(0, 10, txt=f"  {param}: {value}")
         pdf.ln(5)
@@ -71,18 +86,27 @@ def generate_pdf(study_logs, best_params, pdf_name, pdf_path):
     pdf.output(full_path)
     print(f"PDF generado correctamente: {full_path}")
 
-def main(pdf_name, pdf_path, model_type, dataset):
+def main(pdf_name, pdf_path, model_type, dataset, final_model_name, img_ref_path, n_trials=15):
     study_logs = []  
+    # Parámetros base que no se optimizan
+    base_params = {
+        "nepochs": 2,
+        "nz": 100, 
+        "nc": 1, 
+        "imsize": 64
+    }
     study = optuna.create_study(direction="minimize")  # Minimizar loss_g
-    study.optimize(lambda trial: objective(trial, {}, model_type, dataset, study_logs), n_trials=15)  # Ejecutar 15 pruebas
+    study.optimize(lambda trial: objective(trial, base_params, model_type, dataset, study_logs, final_model_name, img_ref_path), n_trials=n_trials)
     
     # Guardar mejores parámetros
+
     best_params = study.best_params
     with open(f"{pdf_path}/best_params.json", "w") as f:
         json.dump(best_params, f, indent=4)
-    
-    print("Mejores parámetros encontrados:")
-    print(best_params)
+        print("Mejores parámetros encontrados:")
+        print(best_params)
+        print(f"Mejores parámetros guardados en: {pdf_path}/best_params.json")
+
     
     # Generar el PDF con los logs y los mejores parámetros
     generate_pdf(study_logs, best_params, pdf_name, pdf_path)

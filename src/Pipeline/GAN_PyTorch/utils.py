@@ -72,7 +72,7 @@ def get_NBIA(img_size=64, data_path="Data/Data-Transformed"):
 
 
 
-def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2):
+def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, errG, D_x, D_G_z1, D_G_z2, name_csv):
     """
     Imprime los valores de la iteración actual y guarda la información en un archivo CSV.
 
@@ -89,11 +89,9 @@ def log_training_info(model, epoch, total_epochs, i, total_iterations, errD, err
     - log_file: nombre del archivo CSV para guardar los datos.
     """
 
-    fecha = datetime.now().strftime('%Y-%m-%d')
     eval_dir = f"evaluation/evaluation_{model}"
     if not os.path.exists(eval_dir):
         os.makedirs(eval_dir)
-    name_csv = f'training_log_{model}_{fecha}.csv'
     save_path = os.path.join(eval_dir, name_csv)
     
 

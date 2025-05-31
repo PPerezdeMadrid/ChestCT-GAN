@@ -72,7 +72,7 @@ def generate_report_pdf(data_transformed="Data/Data-Transformed/cancer/",
                          img_to_eval="evaluation/evaluation_dcgan/img_eval_lpips.png", 
                          report_eval="evaluation/evaluation_dcgan/EvalModel_dcgan_2025-02-17.md", 
                          image_path="images/images_dcgan/Synthetic_dcgan_1_2025-02-17.png", 
-                         filename="reporte_archivos.pdf",accuracy_discriminator=0.85, 
+                         filename="reporte_archivos.pdf",accuracy_discriminator=None, 
                          accuracy_generator=None, 
                          ssim_score=None, 
                          psnr_score=None, 
@@ -196,6 +196,8 @@ def generate_report_pdf(data_transformed="Data/Data-Transformed/cancer/",
     # Guardar el PDF
     pdf.output(filename)
     print(f"PDF generado: {filename}")
+
+    return filename
 
 """ Ejemplo de uso
 model_type = "dcgan"

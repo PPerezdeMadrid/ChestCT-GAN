@@ -15,6 +15,8 @@ def weights_init(w):
         nn.init.constant_(w.bias.data, 0)
 
 
+
+
 # Generator Code
 
 class Generator(nn.Module):
@@ -76,3 +78,4 @@ class Discriminator(nn.Module):
 
     def forward(self, input):
         return self.main(input)
+

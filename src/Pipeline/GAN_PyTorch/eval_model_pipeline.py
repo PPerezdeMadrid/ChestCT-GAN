@@ -30,8 +30,8 @@ def setup_device():
     else:
         return torch.device("cpu")
 
-def load_model(model_path, device, model_type):
-    checkpoint = torch.load(f'{model_path}/model_ChestCT.pth', map_location=device)
+def load_model(model_path, device, model_type, final_model_name):
+    checkpoint = torch.load(f'{model_path}/{final_model_name}', map_location=device)
     params = checkpoint['params']
     if model_type == 'dcgan':
         netG = GeneratorDC(params).to(device)
@@ -45,28 +45,67 @@ def load_model(model_path, device, model_type):
     netD.eval()
     return netG, netD, params
 
+
+def evaluate_warsteinn_distance(netG, netD, dataloader, device, params):
+    netD.eval()
+    netG.eval()
+    
+    real_scores = []
+    fake_scores = []
+
+    with torch.no_grad():
+        for real_data, _ in dataloader:
+            real_data = real_data.to(device)
+            b_size = real_data.size(0)
+
+            noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
+            fake_data = netG(noise)
+
+            score_real = netD(real_data).view(-1)
+            score_fake = netD(fake_data).view(-1)
+
+            real_scores.append(score_real.mean().item())
+            fake_scores.append(score_fake.mean().item())
+
+    # Compute approximate Wasserstein distance
+    mean_real = sum(real_scores) / len(real_scores)
+    mean_fake = sum(fake_scores) / len(fake_scores)
+    wasserstein_distance = mean_real - mean_fake
+
+    return wasserstein_distance
+
 def evaluate_models(netG, netD, dataloader, device, params):
     correct_discriminator = 0
     total = 0
     correct_generator = 0
 
     with torch.no_grad():
+        # Evaluar el discriminador
         for real_data, _ in dataloader:
             real_data = real_data.to(device)
             b_size = real_data.size(0)
+
+            # Evaluar el discriminador en datos reales
             real_label_tensor = torch.full((b_size,), 1, dtype=torch.float, device=device)
             output_real = netD(real_data).view(-1)
             correct_discriminator += ((output_real > 0.5).float() == real_label_tensor).sum().item()
 
+            # Generar datos falsos
             noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
             fake_data = netG(noise)
+
+            # Evaluar el discriminador en datos generados
             fake_label_tensor = torch.full((b_size,), 0, dtype=torch.float, device=device)
             output_fake = netD(fake_data.detach()).view(-1)
             correct_discriminator += ((output_fake < 0.5).float() == fake_label_tensor).sum().item()
-            total += b_size * 2
 
+            total += b_size * 2  # Para datos reales y generados
+
+        # Calcular precisión del discriminador
         accuracy_discriminator = correct_discriminator / total
-        for _ in range(100):
+
+        # Evaluar la precisión del generador
+        for _ in range(100):  # Generar 100 datos de prueba
             noise = torch.randn(1, params['nz'], 1, 1, device=device)
             generated_data = netG(noise)
             output = netD(generated_data.detach()).view(-1)
@@ -74,7 +113,7 @@ def evaluate_models(netG, netD, dataloader, device, params):
                 correct_generator += 1
 
         accuracy_generator = correct_generator / 100
-    
+
     return accuracy_discriminator, accuracy_generator
 
 def calculate_ssim(real_images, fake_images):
@@ -151,22 +190,28 @@ def validate_eval(accuracy_discriminator, accuracy_generator, ssim_score, psnr_s
 
 
 
-def main(model_type, dataset):
+def main(model_type, dataset, final_model_name, img_ref_path):
     print_green("Evaluating model...")
     config = load_config("GAN_PyTorch/config.json")
     model_path = config["model"][f"path_{model_type}"]
     report_path = config["model"][f'evaluation_{model_type}']
     device = setup_device()
     print(device, " will be used.\n")
-    netG, netD, params = load_model(model_path, device, model_type)
+    netG, netD, params = load_model(model_path, device, model_type, final_model_name)
     dataloader = get_dataloader(dataset, params["imsize"])
     
-    accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
+    if model_type == 'wgan':
+        wasserstein_distance = evaluate_warsteinn_distance(netG, netD, dataloader, device, params)
+        print(f"Wasserstein Distance: {wasserstein_distance:.4f}")
+    elif model_type == 'dcgan':
+        accuracy_discriminator, accuracy_generator = evaluate_models(netG, netD, dataloader, device, params)
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
     ssim_score = evaluate_ssim(dataloader, netG, device)
     psnr_score = evaluate_psnr(dataloader, netG, device, params)
     model_lpips = lpips.LPIPS(net='vgg').to(device)
     img_generated = f'evaluation/evaluation_{model_type}/img_eval_lpips.png' # Se necesita generar 1 imagen al menos para evaluar
-    lpips_score = calculate_lpips(model_lpips, 'Data/Imagen_Ref1.png', img_generated, device=device)
+    lpips_score = calculate_lpips(model_lpips, img_ref_path, img_generated, device=device)
     
     date = datetime.now().strftime('%Y-%m-%d')
     report_name = f'EvalModel_{model_type}_{date}.md'
