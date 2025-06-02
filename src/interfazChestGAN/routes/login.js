@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const bcrypt = require('bcrypt'); // Para comparar contraseñas
 const sqlite3 = require('sqlite3').verbose();
-
+const dotenv = require('dotenv');
 
 
 /* GET users listing. */
@@ -62,12 +62,19 @@ router.post('/loginCliente', (req, res) => {
 
 
 router.post('/registerClient', (req, res) => {
-  const { name, username, email, password, numColegiado, is_admin } = req.body;
+  const { name, username, email, password, numColegiado, is_admin, admin_password } = req.body;
 
   // Validar datos del formulario
   if (!name || !username || !email || !password || (!is_admin && !numColegiado)) {
     return res.render('login', { 
       message: '✨ ¡Ups! Todos los campos requeridos deben ser completados. Por favor, revisa el formulario. ✨' 
+    });
+  }
+
+  // Si quiere ser admin, validar que la contraseña del admin sea correcta
+  if (is_admin && admin_password !== process.env.ADMIN_PASSWD) {
+    return res.render('login', {
+      message: '🚫 Contraseña de administrador incorrecta. No tienes permisos para registrarte como administrador.'
     });
   }
 

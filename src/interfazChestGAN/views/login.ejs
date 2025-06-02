@@ -107,54 +107,48 @@
         <!-- Log In End -->
 
         <!-- Register Start -->
-        <div class="container-fluid py-5 hidden" id="newFormContainer"> <!-- Oculto inicialmente -->
+        <div class="container-fluid py-5 hidden" id="newFormContainer">
             <div class="container py-5">
                 <div class="text-center mb-3 pb-3">
                     <h6 class="text-primary text-uppercase" style="letter-spacing: 5px;">Registro</h6>
-                    <h1>Create una cuenta en ChestGAN</h1>
+                    <h1>Abre una cuenta en ChestGAN</h1>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <div class="contact-form bg-white" style="padding: 5% 5%;">
                             <form id="RegisterForm" action="/login/registerClient" method="POST">
-                                
                                 <div class="control-group">
-                                    <input type="text" class="form-control p-4 input-margin" id="newName" name="name" placeholder="Nombre" required>
-                                    <p class="help-block text-danger" id="nameError" style="display: none;"></p>
+                                    <input type="text" class="form-control p-4 input-margin" name="name" placeholder="Nombre" required>
                                 </div>
 
                                 <div class="control-group">
-                                    <input type="text" class="form-control p-4 input-margin" id="newUsername" name="username" placeholder="Nombre de usuario" required>
-                                    <p class="help-block text-danger"></p>
+                                    <input type="text" class="form-control p-4 input-margin" name="username" placeholder="Nombre de usuario" required>
                                 </div>
 
                                 <div class="control-group">
-                                    <input type="email" class="form-control p-4 input-margin" id="newEmail" name="email" placeholder="Email" required>
-                                    <p class="help-block text-danger"></p>
+                                    <input type="email" class="form-control p-4 input-margin" name="email" placeholder="Email" required>
                                 </div>
 
-                                <div class="control-group" id="numColegiadoGroup"> <!-- Campo a ocultar -->
-                                    <input type="text" class="form-control p-4 input-margin" id="numColegiado" name="numColegiado" placeholder="Número de colegiado">
-                                    <p class="help-block text-danger"></p>
+                                <div class="control-group" id="numColegiadoGroup">
+                                    <input type="text" class="form-control p-4 input-margin" name="numColegiado" placeholder="Número de colegiado">
                                 </div>
 
                                 <div class="control-group">
-                                    <input type="password" class="form-control p-4 input-margin" id="newPassword" name="password" placeholder="Contraseña" required>
-                                    <p class="help-block text-danger"></p>
+                                    <input type="password" class="form-control p-4 input-margin" name="password" placeholder="Contraseña" required>
                                 </div>
 
-                                <!-- Agregar el toggler (switch) -->
+                                <!-- Toggle de Administrador -->
                                 <div class="control-group d-flex align-items-center">
                                     <div class="ml-5">
                                         <label for="toggler-1">¿Eres Administrador?</label>
                                     </div>
                                     <div class="toggler">
-                                        <input id="toggler-1" name="is_admin" type="checkbox" value="0">
+                                        <input id="toggler-1" name="is_admin" type="checkbox" value="1">
                                         <label for="toggler-1">
-                                            <svg class="toggler-on" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                            <svg class="toggler-on" viewBox="0 0 130.2 130.2">
                                                 <polyline class="path check" points="100.2,40.2 51.5,88.8 29.8,67.5"></polyline>
                                             </svg>
-                                            <svg class="toggler-off" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
+                                            <svg class="toggler-off" viewBox="0 0 130.2 130.2">
                                                 <line class="path line" x1="34.4" y1="34.4" x2="95.8" y2="95.8"></line>
                                                 <line class="path line" x1="95.8" y1="34.4" x2="34.4" y2="95.8"></line>
                                             </svg>
@@ -162,10 +156,14 @@
                                     </div>
                                 </div>
 
+                                <!-- Campo para contraseña de administrador -->
+                                <div class="control-group hidden" id="adminPasswordGroup">
+                                    <input type="password" class="form-control p-4 input-margin" name="admin_password" placeholder="Contraseña de administrador">
+                                </div>
+
                                 <div class="text-center">
                                     <button class="btn btn-primary py-3 px-4" type="submit">Enviar</button>
                                 </div>
-                                
                             </form>
                         </div>
                         <div class="text-center mt-4">
@@ -184,48 +182,31 @@
         const showNewFormBtn = document.getElementById('showNewFormBtn');
         const hideNewFormBtn = document.getElementById('hideNewFormBtn');
 
-        // Mostrar Register y ocultar Login
         showNewFormBtn.addEventListener('click', function() {
             mainContainer.classList.add('hidden');
             newFormContainer.classList.remove('hidden');
         });
 
-        // Mostrar Login y ocultar Register
         hideNewFormBtn.addEventListener('click', function() {
             newFormContainer.classList.add('hidden');
             mainContainer.classList.remove('hidden');
         });
 
-        document.getElementById('RegisterForm').addEventListener('submit', function(event) {
-        const toggleSwitch = document.getElementById('toggler-1');
-        // Si el switch está marcado, se enviará 1 (admin), de lo contrario 0.
-        const isAdmin = toggleSwitch.checked ? 1 : 0;
-        
-        // Establecer el valor de is_admin en el formulario
-        document.querySelector('input[name="is_admin"]').value = isAdmin;
-        });
-
-        // Mostrar u ocultar el campo "Número de colegiado" según el estado del interruptor
-        const toggler = document.getElementById('toggler-1');
+        // Mostrar contraseña admin si es admin
+        const adminCheckbox = document.getElementById('toggler-1');
+        const adminPasswordGroup = document.getElementById('adminPasswordGroup');
         const numColegiadoGroup = document.getElementById('numColegiadoGroup');
 
-        // Detectar cambios en el interruptor
-        toggler.addEventListener('change', function() {
-            if (toggler.checked) {
-                // Si es administrador, ocultar el campo "Número de colegiado"
+        adminCheckbox.addEventListener('change', () => {
+            if (adminCheckbox.checked) {
+                adminPasswordGroup.classList.remove('hidden');
                 numColegiadoGroup.style.display = 'none';
             } else {
-                // Si no es administrador, mostrar el campo
+                adminPasswordGroup.classList.add('hidden');
                 numColegiadoGroup.style.display = 'block';
             }
         });
-
-        // Configuración inicial: ocultar o mostrar según el estado del interruptor
-        if (toggler.checked) {
-            numColegiadoGroup.style.display = 'none';
-        }
-
-    </script>
+  </script>
 </section>
 
 <%- include('footer') %>
