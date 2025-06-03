@@ -27,6 +27,7 @@ Arquitecturas-de-prueba/DCGAN-PyTorch/evaluation/
 X-Ray-Images/Data_train
 src/Pipeline/Data/Data-Transformed
 src/Pipeline/Data/Data-Discarded
+src/Pipeline/Data/manifest-160866918333/Lung-PET-CT-Dx/
 
 # CSV of results
 Arquitecturas-de-prueba/DCGAN-PyTorch/*.csv
