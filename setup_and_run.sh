@@ -63,4 +63,4 @@ cd ..
 
 # Ejecutar pipeline con python3.13
 cd src/Pipeline
-python main_pipeline.py run
+python main_pipeline.py run --ip_frontend http://127.0.0.1:8080
