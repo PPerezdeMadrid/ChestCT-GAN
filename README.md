@@ -67,7 +67,7 @@ Para ejecutar correctamente el proyecto, asegúrate de tener instaladas las sigu
      ```
    - En la demostración final, la interfaz se ejecutará en una instancia **EC2 de AWS**, y el pipeline en un **clúster de Kubernetes**. Ambas funciones pueden ejecutarse de manera independiente.
 
-   > Para hacerlo de forma automática puede utilizar el script `setup_and_run` que inicializará la interfaz en `http://127.0.0.1:8080` y a su vez se descargará el conjunto de datos e inicializará el pipeline.
+   > Para hacerlo de forma automática puede utilizar el script `setup_and_run` que inicializará la interfaz en `http://127.0.0.1:8080` y a su vez se descargará el conjunto de datos e inicializará el pipeline. (Sólo para linux)
 
 ## Fuentes de Datos
 Los datos de entrenamiento utilizados en este proyecto provienen de las siguientes fuentes:
@@ -184,7 +184,7 @@ To successfully run the project, make sure you have the following tools and vers
      python main_pipeline.py
      ```
 
-    > To do this automatically, you can use the `setup_and_run` script, which will launch the interface at `http://127.0.0.1:8080`, download the dataset, and initialize the pipeline.
+    > To do this automatically, you can use the `setup_and_run` script, which will launch the interface at `http://127.0.0.1:8080`, download the dataset, and initialize the pipeline. (Only for linux)
 
    * In the final demonstration, the interface will be deployed on an **AWS EC2 instance**, and the pipeline will run on a **Kubernetes cluster**. Both components can operate independently.
 
