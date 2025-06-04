@@ -51,7 +51,7 @@ cd ../../..
 deactivate
 
 # Activar entorno python3.13 para pipeline
-source ..venv_py313/bin/activate
+source .venv_py313/bin/activate
 
 # Instalar dependencias para pipeline
 pip install --upgrade pip
