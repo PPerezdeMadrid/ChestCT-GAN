@@ -31,6 +31,14 @@ Este proyecto busca generar imágenes médicas sintéticas para ayudar en el ent
 - **Metaflow** para la gestión del pipeline de MLOps
 - **Node.js** para el desarrollo de la interfaz de usuario
 
+## Requisitos Previos
+Para ejecutar correctamente el proyecto, asegúrate de tener instaladas las siguientes herramientas y versiones:
+- Node.js (preferiblemente versión 16 o superior)
+- Python 3.11 (para descarga y procesamiento de datos)
+- Python 3.13 (para la ejecución del pipeline principal)
+- PyTorch
+
+
 ## Instalación y Uso
 
 1. Clona el repositorio:
@@ -132,6 +140,13 @@ This project aims to generate synthetic medical images to support the training o
 * **PyTorch** for GAN implementation
 * **Metaflow** for managing the MLOps pipeline
 * **Node.js** for developing the user interface
+
+## Prerequisites
+To successfully run the project, make sure you have the following tools and versions installed:
+- Node.js (preferably version 16 or higher)
+- Python 3.11 (for data download and processing)
+- Python 3.13 (for running the main pipeline)
+- PyTorch
 
 ## Installation and Usage
 

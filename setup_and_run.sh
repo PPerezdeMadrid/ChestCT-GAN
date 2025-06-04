@@ -19,7 +19,9 @@ echo "Se requiere python3.11 para la descarga y python3.13 para el pipeline."
 echo "Continuando..."
 
 # Clonar repositorio si no existe
-if [ ! -d "ChestCT-GAN" ]; then
+if [ ! -d "../ChestCT-GAN" ]; then
+    cd ..
+    echo "Clonando repositorio ChestCT-GAN..."
     git clone https://github.com/PPerezdeMadrid/ChestCT-GAN.git
 fi
 
