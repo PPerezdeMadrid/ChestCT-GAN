@@ -32,6 +32,7 @@ Este proyecto busca generar imágenes médicas sintéticas para ayudar en el ent
 - **Node.js** para el desarrollo de la interfaz de usuario
 
 ## Instalación y Uso
+
 1. Clona el repositorio:
    ```bash
    git clone https://github.com/PPerezdeMadrid/ChestCT-GAN
@@ -57,6 +58,8 @@ Este proyecto busca generar imágenes médicas sintéticas para ayudar en el ent
      python main_pipeline.py run
      ```
    - En la demostración final, la interfaz se ejecutará en una instancia **EC2 de AWS**, y el pipeline en un **clúster de Kubernetes**. Ambas funciones pueden ejecutarse de manera independiente.
+
+   > Para hacerlo de forma automática puede utilizar el script `setup_and_run` que inicializará la interfaz en `http://127.0.0.1:8080` y a su vez se descargará el conjunto de datos e inicializará el pipeline.
 
 ## Fuentes de Datos
 Los datos de entrenamiento utilizados en este proyecto provienen de las siguientes fuentes:
@@ -165,6 +168,8 @@ This project aims to generate synthetic medical images to support the training o
      cd src/pipeline
      python main_pipeline.py
      ```
+
+    > To do this automatically, you can use the `setup_and_run` script, which will launch the interface at `http://127.0.0.1:8080`, download the dataset, and initialize the pipeline.
 
    * In the final demonstration, the interface will be deployed on an **AWS EC2 instance**, and the pipeline will run on a **Kubernetes cluster**. Both components can operate independently.
 

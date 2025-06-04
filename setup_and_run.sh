@@ -55,6 +55,21 @@ source ..venv_py313/bin/activate
 pip install --upgrade pip
 pip install -r src/Pipeline/requirements.txt
 
+# Crear archivo .env en interfazChestGAN si no existe
+ENV_PATH="src/interfazChestGAN/.env"
+if [ ! -f "$ENV_PATH" ]; then
+    echo "Creando archivo .env en src/interfazChestGAN"
+    cat <<EOL > "$ENV_PATH"
+AWS_ACCESS_KEY_ID=to_do
+AWS_SECRET_ACCESS_KEY=to_do
+AWS_REGION=to_do
+SESSION_SECRET=to_do
+ADMIN_PASSWD=admin
+EOL
+else
+    echo "El archivo .env ya existe en src/interfazChestGAN"
+fi
+
 # Lanzar app Node.js en background
 cd interfazChestGAN
 npm install
