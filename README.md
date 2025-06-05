@@ -144,8 +144,7 @@ This project aims to generate synthetic medical images to support the training o
 ## Prerequisites
 To successfully run the project, make sure you have the following tools and versions installed:
 - Node.js (preferably version 16 or higher)
-- Python 3.11 (for data download and processing)
-- Python 3.13 (for running the main pipeline)
+- Python 3.11 
 - PyTorch
 
 ## Installation and Usage
@@ -184,7 +183,7 @@ To successfully run the project, make sure you have the following tools and vers
      python main_pipeline.py
      ```
 
-    > To do this automatically, you can use the `setup_and_run` script, which will launch the interface at `http://127.0.0.1:8080`, download the dataset, and initialize the pipeline. (Only for linux)
+    > To do this automatically, you can use the `setup_and_run` script, which will launch the interface at `http://127.0.0.1:8080`, download the dataset, and initialize the pipeline. (Only for linux). Python 3.11 must be installed and accessible as python3.11 in the PATH.
 
    * In the final demonstration, the interface will be deployed on an **AWS EC2 instance**, and the pipeline will run on a **Kubernetes cluster**. Both components can operate independently.
 
