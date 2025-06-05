@@ -34,8 +34,7 @@ Este proyecto busca generar imágenes médicas sintéticas para ayudar en el ent
 ## Requisitos Previos
 Para ejecutar correctamente el proyecto, asegúrate de tener instaladas las siguientes herramientas y versiones:
 - Node.js (preferiblemente versión 16 o superior)
-- Python 3.11 (para descarga y procesamiento de datos)
-- Python 3.13 (para la ejecución del pipeline principal)
+- Python 3.11 
 - PyTorch
 
 
@@ -68,6 +67,7 @@ Para ejecutar correctamente el proyecto, asegúrate de tener instaladas las sigu
    - En la demostración final, la interfaz se ejecutará en una instancia **EC2 de AWS**, y el pipeline en un **clúster de Kubernetes**. Ambas funciones pueden ejecutarse de manera independiente.
 
    > Para hacerlo de forma automática puede utilizar el script `setup_and_run` que inicializará la interfaz en `http://127.0.0.1:8080` y a su vez se descargará el conjunto de datos e inicializará el pipeline. (Sólo para linux)
+   > Python 3.11 debe estar instalado y accesible como python3.11 en el PATH.
 
 ## Fuentes de Datos
 Los datos de entrenamiento utilizados en este proyecto provienen de las siguientes fuentes:

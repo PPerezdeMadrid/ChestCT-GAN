@@ -241,13 +241,18 @@ class ChestGAN(FlowSpec):
     @step
     def end(self):
         """Fin del pipeline."""
-        # Notificar al frontend
-        webhook_url = f"https://{self.ip_frontend}/notify"  
-        try:
-            response = requests.post(webhook_url, json={"mensaje": f"Se ha ejecutado el pipeline de MLOps a fecha {self.current_date}"})
-            print("Respuesta del servidor:", response.json())
-        except Exception as e:
-            print(f"Error notificando al frontend: {e}")
+        # Notificar al frontend con HTTPS primero, luego intentar con HTTP si falla
+        for protocol in ["https", "http"]:
+            webhook_url = f"{protocol}://{self.ip_frontend}/notify"
+            try:
+                response = requests.post(webhook_url, json={
+                    "mensaje": f"Se ha ejecutado el pipeline de MLOps a fecha {self.current_date}"
+                }, timeout=5)
+                print(f"Notificación enviada con {protocol.upper()}")
+                print("Respuesta del servidor:", response.json())
+                break  # Salir del bucle si la notificación fue exitosa
+            except Exception as e:
+                print(f"Error notificando al frontend con {protocol.upper()}: {e}")
         print("\033[94mThe pipeline has come to an END\033[0m")
 
 if __name__ == "__main__":
