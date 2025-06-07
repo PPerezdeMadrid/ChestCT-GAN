@@ -14,7 +14,7 @@ def objective(trial, base_params, model_type, dataset, study_logs, final_model_n
     params["ngf"] = trial.suggest_int("ngf", 64, 256)  # Número de filtros en la red generadora
     params["ndf"] = trial.suggest_int("ndf", 64, 256)  # Número de filtros en la red discriminadora
     # params["nepochs"] = trial.suggest_int("nepochs", 100, 2000)  
-    params["nepochs"] = 2
+    params["nepochs"] = 1000
     params["lr"] = trial.suggest_loguniform("lr", 1e-5, 1e-2)  
     params["beta1"] = trial.suggest_uniform("beta1", 0.0, 0.9)  
     params["beta2"] = trial.suggest_uniform("beta2", 0.9, 0.999)  
