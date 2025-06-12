@@ -160,7 +160,7 @@ class ChestGAN(FlowSpec):
                 self.model_type, self.dataset, 
                 self.finalmodel_name, 
                 img_ref_path, 
-                n_trials=15
+                n_trials=5 # Puedes ajustar el número de intentos según tus necesidades
                 ) 
 
         self.next(self.generate_report)

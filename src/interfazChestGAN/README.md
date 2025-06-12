@@ -43,6 +43,8 @@ Sigue estos pasos para configurar y ejecutar el proyecto:
 - **AWS_ACCESS_KEY_ID**: Tu clave de acceso de AWS.
 - **AWS_SECRET_ACCESS_KEY**: Tu clave secreta de AWS.
 - **AWS_REGION**: La región de AWS que deseas usar (en este caso, `eu-west-3`).
+- **SESSION_SECRET**: Secreto para las sesiones, puede ser cualquiera.
+- **ADMIN_PASSWD**: Contraseña para que se registre un administrador
 
 ## Uso
 

@@ -14,7 +14,7 @@ def objective(trial, base_params, model_type, dataset, study_logs, final_model_n
     params["ngf"] = trial.suggest_int("ngf", 64, 256)  # Número de filtros en la red generadora
     params["ndf"] = trial.suggest_int("ndf", 64, 256)  # Número de filtros en la red discriminadora
     # params["nepochs"] = trial.suggest_int("nepochs", 100, 2000)  
-    params["nepochs"] = 1000
+    params["nepochs"] = 1000 # Para pruebas rápidas, se puede ajustar este valor
     params["lr"] = trial.suggest_loguniform("lr", 1e-5, 1e-2)  
     params["beta1"] = trial.suggest_uniform("beta1", 0.0, 0.9)  
     params["beta2"] = trial.suggest_uniform("beta2", 0.9, 0.999)  
@@ -23,10 +23,8 @@ def objective(trial, base_params, model_type, dataset, study_logs, final_model_n
     arg = {
             'model_type': model_type,
             'dataset': dataset,
-
         }
     
-
     
     _, _, log_csv_name = train.main(arg, params)
     
@@ -90,7 +88,7 @@ def main(pdf_name, pdf_path, model_type, dataset, final_model_name, img_ref_path
     study_logs = []  
     # Parámetros base que no se optimizan
     base_params = {
-        "nepochs": 2,
+        "nepochs": 1000,
         "nz": 100, 
         "nc": 1, 
         "imsize": 64

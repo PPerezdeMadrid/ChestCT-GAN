@@ -6,11 +6,11 @@
         "nz": 100,
         "ngf": 64,
         "ndf": 128,
-        "nepochs": 1000,
+        "nepochs": 6000,
         "lr": 0.0001,
-        "beta1": 0.5,
+        "beta1": 0.7,
         "beta2": 0.999,
-        "save_epoch": 100
+        "save_epoch": 300
     },
     "model": {
         "path_dcgan": "model/model_dcgan",
