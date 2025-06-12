@@ -28,6 +28,8 @@ Sigue estos pasos para configurar y ejecutar el proyecto:
    AWS_ACCESS_KEY_ID=tu_access_key_id
    AWS_SECRET_ACCESS_KEY=tu_secret_access_key
    AWS_REGION=eu-west-3
+   SESSION_SECRET=e8c9fc5a8108eff77ece3f8a08e07d08d23ff0489a019131bf96ccec6f2774389be984aebd4254e2ee611bade5d8f54a9edc915850ae9c161bc43317320ebcd9
+   ADMIN_PASSWD=tu_password
    ```
 
 4. **Ejecuta el servidor**:
